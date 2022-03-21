@@ -1,0 +1,279 @@
+---
+source: src/buildstructor/codegen.rs
+expression: output
+---
+impl Foo {
+    fn builder() -> __foo_builder::__FooBuilder<
+            (
+                __Required<usize>,
+                __Optional<HashSet<String>>,
+                __Optional<HashMap<String, String>>,
+                __Optional<Vec<String>>,
+                __Optional<BTreeMap<String, String>>,
+                __Optional<BTreeSet<String>>,
+            ),
+        > {
+        __foo_builder::new()
+    }
+}
+use __foo_builder::*;
+mod __foo_builder {
+    use super::*;
+    pub fn new() -> __FooBuilder<
+            (
+                __Required<usize>,
+                __Optional<HashSet<String>>,
+                __Optional<HashMap<String, String>>,
+                __Optional<Vec<String>>,
+                __Optional<BTreeMap<String, String>>,
+                __Optional<BTreeSet<String>>,
+            ),
+        > {
+        __FooBuilder {
+            fields: (
+                __required(),
+                __optional(),
+                __optional(),
+                __optional(),
+                __optional(),
+                __optional(),
+            ),
+            phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub struct __FooBuilder<__P> {
+        fields: __P,
+        phantom: (),
+    }
+    impl<
+        __1,
+        __2,
+        __3,
+        __4,
+        __5,
+    > __FooBuilder<(__Required<usize>, __1, __2, __3, __4, __5)> {
+        pub fn simple(
+            self,
+            simple: usize,
+        ) -> __FooBuilder<(__Set<usize>, __1, __2, __3, __4, __5)> {
+            __FooBuilder {
+                fields: (
+                    __set(simple),
+                    self.fields.1,
+                    self.fields.2,
+                    self.fields.3,
+                    self.fields.4,
+                    self.fields.5,
+                ),
+                phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<
+        __0,
+        __2,
+        __3,
+        __4,
+        __5,
+    > __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
+        pub fn set(
+            mut self,
+            set: HashSet<String>,
+        ) -> __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
+            self.fields
+                .1
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(set.into_iter());
+            self
+        }
+        pub fn set_entry(
+            mut self,
+            value: String,
+        ) -> __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
+            self.fields
+                .1
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .insert(value);
+            self
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __3,
+        __4,
+        __5,
+    > __FooBuilder<(__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5)> {
+        pub fn map(
+            mut self,
+            map: HashMap<String, String>,
+        ) -> __FooBuilder<
+                (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
+            > {
+            self.fields
+                .2
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(map.into_iter());
+            self
+        }
+        pub fn map_entry(
+            mut self,
+            key: String,
+            value: String,
+        ) -> __FooBuilder<
+                (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
+            > {
+            self.fields
+                .2
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .insert(key, value);
+            self
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __2,
+        __4,
+        __5,
+    > __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
+        pub fn vec(
+            mut self,
+            vec: Vec<String>,
+        ) -> __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
+            self.fields
+                .3
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(vec.into_iter());
+            self
+        }
+        pub fn vec_entry(
+            mut self,
+            value: String,
+        ) -> __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
+            self.fields
+                .3
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .push(value);
+            self
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __2,
+        __3,
+        __5,
+    > __FooBuilder<(__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5)> {
+        pub fn btmap(
+            mut self,
+            btmap: BTreeMap<String, String>,
+        ) -> __FooBuilder<
+                (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
+            > {
+            self.fields
+                .4
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(btmap.into_iter());
+            self
+        }
+        pub fn btmap_entry(
+            mut self,
+            key: String,
+            value: String,
+        ) -> __FooBuilder<
+                (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
+            > {
+            self.fields
+                .4
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .insert(key, value);
+            self
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __2,
+        __3,
+        __4,
+    > __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
+        pub fn btset(
+            mut self,
+            btset: BTreeSet<String>,
+        ) -> __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
+            self.fields
+                .5
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(btset.into_iter());
+            self
+        }
+        pub fn btset_entry(
+            mut self,
+            value: String,
+        ) -> __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
+            self.fields
+                .5
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .insert(value);
+            self
+        }
+    }
+    impl<
+        __P0: Into<__Set<usize>>,
+        __P1: Into<__Set<HashSet<String>>>,
+        __P2: Into<__Set<HashMap<String, String>>>,
+        __P3: Into<__Set<Vec<String>>>,
+        __P4: Into<__Set<BTreeMap<String, String>>>,
+        __P5: Into<__Set<BTreeSet<String>>>,
+    > __FooBuilder<(__P0, __P1, __P2, __P3, __P4, __P5)> {
+        pub fn build(self) -> Foo {
+            Foo::new(
+                self.fields.0.into().value,
+                self.fields.1.into().value,
+                self.fields.2.into().value,
+                self.fields.3.into().value,
+                self.fields.4.into().value,
+                self.fields.5.into().value,
+            )
+        }
+    }
+}
+

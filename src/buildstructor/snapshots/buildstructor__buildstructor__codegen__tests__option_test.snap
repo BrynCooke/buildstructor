@@ -1,0 +1,73 @@
+---
+source: src/buildstructor/codegen.rs
+expression: output
+---
+impl Foo {
+    fn builder() -> __foo_builder::__FooBuilder<(__Optional<Option<usize>>,)> {
+        __foo_builder::new()
+    }
+}
+use __foo_builder::*;
+mod __foo_builder {
+    use super::*;
+    pub fn new() -> __FooBuilder<(__Optional<Option<usize>>,)> {
+        __FooBuilder {
+            fields: (__optional(),),
+            phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub struct __FooBuilder<__P> {
+        fields: __P,
+        phantom: (),
+    }
+    impl __FooBuilder<(__Optional<Option<usize>>,)> {
+        pub fn option(self, option: usize) -> __FooBuilder<(__Set<Option<usize>>,)> {
+            __FooBuilder {
+                fields: (__set(Some(option)),),
+                phantom: core::default::Default::default(),
+            }
+        }
+        pub fn and_option(
+            self,
+            option: Option<usize>,
+        ) -> __FooBuilder<(__Set<Option<usize>>,)> {
+            __FooBuilder {
+                fields: (__set(option),),
+                phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<__P0: Into<__Set<Option<usize>>>> __FooBuilder<(__P0,)> {
+        pub fn build(self) -> Foo {
+            Foo::new(self.fields.0.into().value)
+        }
+    }
+}
+
