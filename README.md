@@ -152,7 +152,7 @@ fn main() {
         .address("Fakenham")
         .addresses(vec!["Norwich", "Bristol"])
         .build();
-    assert_eq!(mine.simple, 2);
+    assert_eq!(mine.addresses, vec!["Amsterdam", "Fakenham", "Norwich", "Bristol"]);
 }
 ```
 
