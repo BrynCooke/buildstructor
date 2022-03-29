@@ -4,25 +4,13 @@ Derive a builder from a constructor!
 
 Use this if you want a derived builder but with less annotation magic.
 
------
-
 ## Installation:
 
-### As a [crate](http://crates.io)
-
-********
-
+Add the dependency to your `Cargo.toml`
 ```toml
 [dependencies]
 buildstructor = "*"
 ```
-
-### Compile yourself:
-
-1. Install [Rust and cargo](http://doc.crates.io/)
-2. git clone https://github.com/BrynCooke/buildstructor
-3. Library: cd buildstructor && cargo build --release --lib
-4. You can find the library in target/release
 
 ## Usage / Example:
 
@@ -52,14 +40,14 @@ fn main() {
 
 ## Motivation
 
-The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This should result in a more natural fit with regular Rust code rather than relying on annotation magic to define behavior.
+The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This results in a more natural fit with regular Rust code rather than relying on annotation magic to define behavior.
 
 Advantages:
 
 * You can specify fields in your constructor that do not appear in your struct.
 * No magic to default values, just use an `Option` param in your constructor and default as normal.
 * `async` constructors derives `async` builders.
-* Fallible constructors (`Result`) derives Fallible builders.
+* Fallible constructors (`Result`) derives fallible builders.
 * Special `Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` support. Add single or multiple items.
 
 This crate is heavily inspired by the excellent [typed-builder](https://github.com/idanarye/rust-typed-builder) crate. It is a good alternative to this crate and well worth considering.
