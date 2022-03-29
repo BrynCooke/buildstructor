@@ -2,8 +2,13 @@
 name = "buildstructor"
 version = "0.1.0"
 edition = "2021"
-authors = [ "Bryn Cooke <bryncooke@gmail.com>" ]
-
+authors = ["Bryn Cooke <bryncooke@gmail.com>"]
+license = "Apache-2.0"
+description = "Macro to derive a builder from a constructor function."
+homepage = "https://github.com/BrynCooke/buildstructor"
+repository = "https://github.com/BrynCooke/buildstructor"
+categories = ["development-tools", "rust-patterns"]
+keywords = ["derive", "macro", "builder", "constructor"]
 
 [lib]
 proc-macro = true
@@ -20,6 +25,6 @@ str_inflector = "0.12.0"
 
 [dev-dependencies]
 trybuild = "~1.0"
-tokio = {version="1", features=["rt-multi-thread", "macros"]}
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 insta = "1.12.0"
 prettyplease = "0.1.7"

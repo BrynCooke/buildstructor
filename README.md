@@ -2,8 +2,7 @@
 
 Derive a builder from a constructor!
 
-This crate is heavily inspired by the excellent [typed-builder](https://github.com/idanarye/rust-typed-builder) crate. I
-learnt a lot about generics by looking at the generated code.
+Use this if you want a derived builder but with less annotation magic.
 
 -----
 
@@ -21,13 +20,14 @@ buildstructor = "*"
 ### Compile yourself:
 
 1. Install [Rust and cargo](http://doc.crates.io/)
-2. git clone https://github.com/bryncooke/buildstructor
+2. git clone https://github.com/BrynCooke/buildstructor
 3. Library: cd buildstructor && cargo build --release --lib
 4. You can find the library in target/release
 
 ## Usage / Example:
 
-Annotate your `impl` containing a `new` function. Use your automatically derived builder.
+1. Import the `builder` macro.
+2. Annotate your `impl` containing a `new` function. Use your automatically derived builder.
 
 ```rust
 use buildstructor::builder;
@@ -51,17 +51,23 @@ fn main() {
 
 ## Motivation
 
-The difference between this and other builder crates is that constructors are used to define the builder rather than deriving from a struct. This should result in a more natural fit with regular Rust code rather than relying on annotation magic to define behavior.
+The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This should result in a more natural fit with regular Rust code rather than relying on annotation magic to define behavior.
 
-The advantages are:
+Advantages:
 
 * You can specify fields in your constructor that do not appear in your struct.
 * No magic to default values, just use an `Option` param in your constructor and default as normal.
-* `async` constructors.
-* Fallible constructors (`Result`).
+* `async` constructors derives `async` builders.
+* Fallible constructors (`Result`) derives Fallible builders.
 * Special `Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` support. Add single or multiple items.
 
+This crate is heavily inspired by the excellent [typed-builder](https://github.com/idanarye/rust-typed-builder) crate. It is a good alternative to this crate and well worth considering.
+
 ## Recipes
+
+All of these recipes and more can be found in the [examples directory](https://github.com/BrynCooke/buildstructor/tree/main/examples)
+
+Just write your rust code as usual and annotate the constructor impl with `[builder]`
 
 ### Optional field
 
@@ -139,7 +145,7 @@ fn main() {
 
 ### Collections
 
-`Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` parameters are treated specially. Use the plural form in your constructor and `buildstructor` will automatically try to figure out the singular form for individual entry.
+`Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` parameters are treated specially. Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry.
 
 In the case that a singular form cannot be derived automatically the suffix `_entry` will be used.
 
@@ -160,6 +166,8 @@ fn main() {
     assert_eq!(mine.simple, 2);
 }
 ```
+
+There had to be some magic somewhere.
 
 ## TODO
 
