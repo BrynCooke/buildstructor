@@ -21,8 +21,8 @@ buildstructor = "*"
 ### Compile yourself:
 
 1. Install [Rust and cargo](http://doc.crates.io/)
-2. git clone https://github.com/bryncooke/constructor-builder
-3. Library: cd constructor-builder && cargo build --release --lib
+2. git clone https://github.com/bryncooke/buildstructor
+3. Library: cd buildstructor && cargo build --release --lib
 4. You can find the library in target/release
 
 ## Usage / Example:
