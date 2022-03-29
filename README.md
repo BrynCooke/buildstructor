@@ -27,7 +27,8 @@ buildstructor = "*"
 ## Usage / Example:
 
 1. Import the `builder` macro.
-2. Annotate your `impl` containing a `new` function. Use your automatically derived builder.
+2. Annotate your `impl` containing a `new` function. 
+3. Use your automatically derived builder.
 
 ```rust
 use buildstructor::builder;
