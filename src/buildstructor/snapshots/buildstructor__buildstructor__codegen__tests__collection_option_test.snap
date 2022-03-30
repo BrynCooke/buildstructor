@@ -3,10 +3,8 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Foo {
-    fn builder<K: Into<String> + Eq + Hash, V: Into<String>>() -> __foo_builder::__FooBuilder<
-            (__Optional<HashMap<K, V>>,),
-            K,
-            V,
+    fn builder() -> __foo_builder::__FooBuilder<
+            (__Optional<HashMap<Option<String>, Option<String>>>,),
         > {
         __foo_builder::new()
     }
@@ -14,10 +12,8 @@ impl Foo {
 use __foo_builder::*;
 mod __foo_builder {
     use super::*;
-    pub fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __FooBuilder<
-            (__Optional<HashMap<K, V>>,),
-            K,
-            V,
+    pub fn new() -> __FooBuilder<
+            (__Optional<HashMap<Option<String>, Option<String>>>,),
         > {
         __FooBuilder {
             fields: (__optional(),),
@@ -51,18 +47,15 @@ mod __foo_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P, K, V> {
+    pub struct __FooBuilder<__P> {
         fields: __P,
-        phantom: (core::marker::PhantomData<K>, core::marker::PhantomData<V>),
+        phantom: (),
     }
-    impl<
-        K: Into<String> + Eq + Hash,
-        V: Into<String>,
-    > __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+    impl __FooBuilder<(__Optional<HashMap<Option<String>, Option<String>>>,)> {
         pub fn param(
             mut self,
-            param: HashMap<K, V>,
-        ) -> __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+            param: HashMap<Option<String>, Option<String>>,
+        ) -> __FooBuilder<(__Optional<HashMap<Option<String>, Option<String>>>,)> {
             self.fields
                 .0
                 .lazy
@@ -72,9 +65,9 @@ mod __foo_builder {
         }
         pub fn param_entry(
             mut self,
-            key: K,
-            value: V,
-        ) -> __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+            key: Option<String>,
+            value: Option<String>,
+        ) -> __FooBuilder<(__Optional<HashMap<Option<String>, Option<String>>>,)> {
             self.fields
                 .0
                 .lazy
@@ -84,10 +77,8 @@ mod __foo_builder {
         }
     }
     impl<
-        K: Into<String> + Eq + Hash,
-        V: Into<String>,
-        __P0: Into<__Set<HashMap<K, V>>>,
-    > __FooBuilder<(__P0,), K, V> {
+        __P0: Into<__Set<HashMap<Option<String>, Option<String>>>>,
+    > __FooBuilder<(__P0,)> {
         pub fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value)
         }

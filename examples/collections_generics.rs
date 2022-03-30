@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::hash::Hash;
 
 use buildstructor::builder;
 
@@ -9,7 +10,10 @@ pub struct Collections {
 
 #[builder]
 impl Collections {
-    fn new<K: Into<String>, V: Into<String>>(map: HashMap<K, V>, set: HashSet<K>) -> Collections {
+    fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
+        map: HashMap<K, V>,
+        set: HashSet<K>,
+    ) -> Collections {
         Self {
             map: map.into_iter().map(|(k, v)| (k.into(), v.into())).collect(),
             set: set.into_iter().map(|v| v.into()).collect(),

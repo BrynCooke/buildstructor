@@ -163,10 +163,7 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
             let new_state = params(ir, idx, field_name, &builder_type_generics, set);
             let set_some = call(format_ident!("__set"), vec![call(format_ident!("Some"), vec![Expr::Path(field_name.to_expr_path())])]);
             let new_state_option = params(ir, idx, field_name, &builder_type_generics, set_some);
-
-
-            let mut builder_type_generics = Generics::combine(vec![&builder_type_generics.without(idx), &builder_generics]);
-
+            let builder_type_generics = Generics::combine(vec![&builder_type_generics.without(idx), &builder_generics]);
             let generic_param = ty.generic_args();
 
             match f.field_type {
@@ -191,11 +188,8 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                 },
                 FieldType::Set => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_collection_type = &f.collection_type.as_ref().unwrap().raw_ident().unwrap();
+                    let field_collection_type = &f.collection_type;
                     let index = Index::from(idx);
-                    builder_type_generics = builder_type_generics.add_bound(field_collection_type, &Type::parse("core::cmp::Eq"))
-                        .add_bound(field_collection_type, &Type::parse("core::hash::Hash"));
-
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
@@ -234,11 +228,9 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                 },
                 FieldType::Map => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_key_type = &f.key_type.as_ref().unwrap().raw_ident().unwrap();
+                    let field_key_type = &f.key_type;
                     let field_value_type = &f.value_type;
                     let index = Index::from(idx);
-                    builder_type_generics = builder_type_generics.add_bound(field_key_type, &Type::parse("core::cmp::Eq"))
-                        .add_bound(field_key_type, &Type::parse("core::hash::Hash"));
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
@@ -385,5 +377,10 @@ mod tests {
     #[test]
     fn collection_generics_test() {
         assert_codegen!(collections_generics_test_case());
+    }
+
+    #[test]
+    fn collection_option_test() {
+        assert_codegen!(collections_option_test_case());
     }
 }

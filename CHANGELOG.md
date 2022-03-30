@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.4 - 2022-03-30
+### Fixed
+[#6](https://github.com/BrynCooke/buildstructor/issues/6) Fix generics on collections.
+This mostly rolls back the changes in [#1](https://github.com/BrynCooke/buildstructor/issues/1). THe examples have been updated to show the correct way to use into with a collection.
+
 ## 0.1.3 - 2022-03-30
 ### Fixed
 [#1](https://github.com/BrynCooke/buildstructor/issues/1) Fix generics on collections
