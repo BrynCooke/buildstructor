@@ -110,6 +110,7 @@ impl MyStruct {
     }
 }
 
+#[tokio::main]
 async fn main() {
     let mine = MyStruct::builder().param(2).build().await;
     assert_eq!(mine.param, 2);
@@ -150,11 +151,14 @@ impl MyStruct {
 
 fn main() {
     let mine = MyStruct::builder()
-        .address("Amsterdam")
-        .address("Fakenham")
-        .addresses(vec!["Norwich", "Bristol"])
+        .address("Amsterdam".to_string())
+        .address("Fakenham".to_string())
+        .addresses(vec!["Norwich".to_string(), "Bristol".to_string()])
         .build();
-    assert_eq!(mine.addresses, vec!["Amsterdam", "Fakenham", "Norwich", "Bristol"]);
+    assert_eq!(mine.addresses, vec!["Amsterdam".to_string(), 
+                                    "Fakenham".to_string(), 
+                                    "Norwich".to_string(), 
+                                    "Bristol".to_string()]);
 }
 ```
 
