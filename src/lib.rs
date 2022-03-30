@@ -33,10 +33,9 @@ use crate::buildstructor::parse;
 ///     }
 /// }
 ///
-/// fn main() {
-///     let mine = MyStruct::builder().a(2).b(3).build();
-///     assert_eq!(mine.sum, 5);
-/// }
+/// let mine = MyStruct::builder().a(2).b(3).build();
+/// assert_eq!(mine.sum, 5);
+///
 /// ```
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {

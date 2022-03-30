@@ -139,4 +139,20 @@ mod tests {
             }
         )
     }
+
+    pub fn collections_generics_test_case() -> Ast {
+        parse_quote!(
+            #[builder]
+            impl Foo {
+                fn new<K: Into<String>, V: Into<String>>(param: HashMap<K, V>) -> Foo {
+                    Self {
+                        param: param
+                            .into_iter()
+                            .map(|(k, v)| (k.into(), v.into()))
+                            .collect(),
+                    }
+                }
+            }
+        )
+    }
 }

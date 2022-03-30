@@ -107,4 +107,9 @@ mod tests {
     fn collection_test() {
         analyze(collections_test_case()).unwrap();
     }
+
+    #[test]
+    fn collection_generics_test() {
+        analyze(collections_generics_test_case()).unwrap();
+    }
 }
