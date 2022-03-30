@@ -124,7 +124,7 @@ To create a fallible builder just make your constructor fallible using `Result`.
 ```rust
 #[builder]
 impl MyStruct {
-    fn new(param: Option<usize>) -> Result<MyStruct, Box<dyn Error>> {
+    fn new(param: usize) -> Result<MyStruct, Box<dyn Error>> {
         Ok(Self { param })
     }
 }
