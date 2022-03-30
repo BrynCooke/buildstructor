@@ -1,0 +1,96 @@
+---
+source: src/buildstructor/codegen.rs
+expression: output
+---
+impl Foo {
+    fn builder<K: Into<String>, V: Into<String>>() -> __foo_builder::__FooBuilder<
+            (__Optional<HashMap<K, V>>,),
+            K,
+            V,
+        > {
+        __foo_builder::new()
+    }
+}
+use __foo_builder::*;
+mod __foo_builder {
+    use super::*;
+    pub fn new<K: Into<String>, V: Into<String>>() -> __FooBuilder<
+            (__Optional<HashMap<K, V>>,),
+            K,
+            V,
+        > {
+        __FooBuilder {
+            fields: (__optional(),),
+            phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub struct __FooBuilder<__P, K, V> {
+        fields: __P,
+        phantom: (core::marker::PhantomData<K>, core::marker::PhantomData<V>),
+    }
+    impl<
+        K: Into<String> + core::cmp::Eq + core::hash::Hash,
+        V: Into<String>,
+    > __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+        pub fn param(
+            mut self,
+            param: HashMap<K, V>,
+        ) -> __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+            self.fields
+                .0
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(param.into_iter());
+            self
+        }
+        pub fn param_entry(
+            mut self,
+            key: K,
+            value: V,
+        ) -> __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+            self.fields
+                .0
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .insert(key, value);
+            self
+        }
+    }
+    impl<
+        K: Into<String>,
+        V: Into<String>,
+        __P0: Into<__Set<HashMap<K, V>>>,
+    > __FooBuilder<(__P0,), K, V> {
+        pub fn build(self) -> Foo {
+            Foo::new(self.fields.0.into().value)
+        }
+    }
+}
+

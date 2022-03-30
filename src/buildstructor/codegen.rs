@@ -34,8 +34,8 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let (_, all_ty_generics, _) = all_generics.split_for_impl();
 
     let method_generics = &ir.method_generics;
-    let builder_generics = Generics::combine(vec![&ir.method_generics, &ir.generics]);
-    let target_generics_raw: Vec<GenericArgument> = builder_generics
+    let builder_init_generics = Generics::combine(vec![&ir.method_generics, &ir.generics]);
+    let target_generics_raw: Vec<GenericArgument> = builder_init_generics
         .to_generic_args()
         .args
         .into_iter()
@@ -54,7 +54,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
-            #vis fn builder #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw) *> {
+            #vis fn builder #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
                 #module_name::new()
             }
         }
@@ -63,7 +63,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         mod #module_name {
             use super::*;
 
-            pub fn new #builder_generics() -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
+            pub fn new #builder_init_generics() -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
             {
                 #builder_name {
                     fields: (#(#builder_state_initial ,) *),
@@ -163,7 +163,10 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
             let new_state = params(ir, idx, field_name, &builder_type_generics, set);
             let set_some = call(format_ident!("__set"), vec![call(format_ident!("Some"), vec![Expr::Path(field_name.to_expr_path())])]);
             let new_state_option = params(ir, idx, field_name, &builder_type_generics, set_some);
-            let builder_type_generics = Generics::combine(vec![&builder_type_generics.without(idx), &builder_generics]);
+
+
+            let mut builder_type_generics = Generics::combine(vec![&builder_type_generics.without(idx), &builder_generics]);
+
             let generic_param = ty.generic_args();
 
             match f.field_type {
@@ -188,8 +191,11 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                 },
                 FieldType::Set => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_collection_type = &f.collection_type;
+                    let field_collection_type = &f.collection_type.as_ref().unwrap().raw_ident().unwrap();
                     let index = Index::from(idx);
+                    builder_type_generics = builder_type_generics.add_bound(field_collection_type, &Type::parse("core::cmp::Eq"))
+                        .add_bound(field_collection_type, &Type::parse("core::hash::Hash"));
+
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
@@ -228,9 +234,11 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                 },
                 FieldType::Map => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_key_type = &f.key_type;
+                    let field_key_type = &f.key_type.as_ref().unwrap().raw_ident().unwrap();
                     let field_value_type = &f.value_type;
                     let index = Index::from(idx);
+                    builder_type_generics = builder_type_generics.add_bound(field_key_type, &Type::parse("core::cmp::Eq"))
+                        .add_bound(field_key_type, &Type::parse("core::hash::Hash"));
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
@@ -372,5 +380,10 @@ mod tests {
     #[test]
     fn collection_test() {
         assert_codegen!(collections_test_case());
+    }
+
+    #[test]
+    fn collection_generics_test() {
+        assert_codegen!(collections_generics_test_case());
     }
 }

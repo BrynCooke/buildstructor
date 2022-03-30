@@ -1,3 +1,4 @@
+use quote::format_ident;
 use syn::punctuated::Punctuated;
 use syn::{
     AngleBracketedGenericArguments, Expr, ExprPath, ExprTuple, GenericArgument, GenericParam,
@@ -57,6 +58,7 @@ pub trait GenericsExt {
     fn to_expr_tuple(&self, populate: impl Fn(usize, &TypeParam) -> Expr) -> ExprTuple;
     fn without(self, idx: usize) -> Self;
     fn combine(generics: Vec<&Generics>) -> Generics;
+    fn add_bound(self, ident: &Ident, ty: &Type) -> Self;
 }
 
 impl GenericsExt for Generics {
@@ -128,6 +130,24 @@ impl GenericsExt for Generics {
             ..Default::default()
         }
     }
+
+    fn add_bound(mut self, ident: &Ident, ty: &Type) -> Self {
+        if let Some(ty) = ty.to_path() {
+            self.params.iter_mut().for_each(|p| {
+                if let GenericParam::Type(t) = p {
+                    if t.ident == *ident {
+                        t.bounds.push(TypeParamBound::Trait(TraitBound {
+                            paren_token: None,
+                            modifier: TraitBoundModifier::None,
+                            lifetimes: None,
+                            path: ty.clone(),
+                        }));
+                    }
+                }
+            });
+        }
+        self
+    }
 }
 
 pub trait AngleBracketedGenericArgumentsExt {
@@ -168,6 +188,7 @@ pub trait TypeExt {
     fn generic_args(&self) -> Option<&Punctuated<GenericArgument, Token![,]>>;
     fn wrap_in_generic(&self, ident: Ident) -> Type;
     fn to_path(&self) -> Option<Path>;
+    fn parse(name: &'static str) -> Type;
 }
 
 impl TypeExt for Type {
@@ -217,6 +238,19 @@ impl TypeExt for Type {
             return Some(path.path.clone());
         }
         None
+    }
+
+    fn parse(name: &'static str) -> Type {
+        Type::Path(TypePath {
+            qself: None,
+            path: Path {
+                leading_colon: Default::default(),
+                segments: Punctuated::from_iter(
+                    name.split("::")
+                        .map(|s| PathSegment::from(format_ident!("{}", s))),
+                ),
+            },
+        })
     }
 }
 
