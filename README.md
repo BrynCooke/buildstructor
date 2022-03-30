@@ -40,7 +40,7 @@ fn main() {
 
 ## Motivation
 
-The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This results in a more natural fit with regular Rust code rather than relying on annotation magic to define behavior.
+The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
 
 Advantages:
 
@@ -71,7 +71,9 @@ impl MyStruct {
 }
 
 fn main() {
-    let mine = MyStruct::builder().simple(2).build();
+    let mine = MyStruct::builder().param(2).build();
+    assert_eq!(mine.param, 2);
+    let mine = MyStruct::builder().and_param(Some(2)).build();
     assert_eq!(mine.param, 2);
     let mine = MyStruct::builder().build();
     assert_eq!(mine.param, 3);
@@ -91,7 +93,7 @@ impl MyStruct {
 }
 
 fn main() {
-    let mine = MyStruct::builder().simple("Hi").build();
+    let mine = MyStruct::builder().param("Hi").build();
     assert_eq!(mine.param, "Hi");
 }
 ```
@@ -109,7 +111,7 @@ impl MyStruct {
 }
 
 async fn main() {
-    let mine = MyStruct::builder().simple(2).build().await;
+    let mine = MyStruct::builder().param(2).build().await;
     assert_eq!(mine.param, 2);
 }
 ```
@@ -127,7 +129,7 @@ impl MyStruct {
 }
 
 fn main() {
-    let mine = MyStruct::builder().simple(2).build().unwrap();
+    let mine = MyStruct::builder().param(2).build().unwrap();
     assert_eq!(mine.param, 2);
 }
 ```

@@ -9,6 +9,35 @@ use crate::buildstructor::codegen;
 use crate::buildstructor::lower;
 use crate::buildstructor::parse;
 
+/// Derive a builder from a constructor!
+///
+/// 1. Import the `builder` macro.
+/// 2. Annotate your `impl` containing a `new` function.
+/// 3. Use your automatically derived builder.
+///
+/// TLDR: Write your Rust constructors as you would normally, and get a generated builder.
+///
+/// # Examples
+///
+/// ```rust
+/// use buildstructor::builder;
+///
+/// pub struct MyStruct {
+///     sum: usize,
+/// }
+///
+/// #[builder]
+/// impl MyStruct {
+///     fn new(a: usize, b: usize) -> MyStruct {
+///         Self { sum: a + b }
+///     }
+/// }
+///
+/// fn main() {
+///     let mine = MyStruct::builder().a(2).b(3).build();
+///     assert_eq!(mine.sum, 5);
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
     match process(attr, item) {
