@@ -12,6 +12,7 @@ keywords = ["derive", "macro", "builder", "constructor"]
 
 [lib]
 proc-macro = true
+doctest = false
 
 [dependencies]
 lazy_static = "1.4.0"
