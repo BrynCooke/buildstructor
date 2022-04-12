@@ -386,4 +386,9 @@ mod tests {
     fn collection_option_test() {
         assert_codegen!(collections_option_test_case());
     }
+
+    #[test]
+    fn returns_self_test() {
+        assert_codegen!(returns_self_test_case());
+    }
 }

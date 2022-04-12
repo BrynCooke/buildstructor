@@ -46,68 +46,86 @@ pub enum FieldType {
 
 pub fn lower(model: ConstrutorModel) -> Result<Ir> {
     Ok(Ir {
-        vis: model.vis,
+        vis: model.vis.clone(),
         module_name: format_ident!(
             "__{}_{}_builder",
             model.ident.to_string().to_lowercase(),
             model.constructor_name.to_string().to_lowercase()
         ),
         target_name: model.ident.clone(),
-        builder_name: format_ident!("__{}Builder", model.ident),
+        builder_name: format_ident!("__{}Builder", model.ident.clone()),
         constructor_method_name: model.constructor_name.clone(),
-        builder_method_name: format_ident!(
-            "{}builder",
-            model
-                .constructor_name
-                .to_string()
-                .strip_suffix("new")
-                .expect("already checked that the method ends with new, qed")
-        ),
-        builder_fields: model
-            .args
-            .iter()
-            .filter_map(|f| match f {
-                FnArg::Typed(t) => {
-                    let ident = try_match!(&*t.pat, Pat::Ident(x)=>x).ok()?;
-                    let field_type = field_type(&*t.ty);
-                    let args = t.ty.generic_args();
-                    let (key_type, value_type, collection_type) = match (
-                        &field_type,
-                        args.and_then(|args| args.iter().next()),
-                        args.and_then(|args| args.iter().nth(1)),
-                    ) {
-                        (
-                            FieldType::Vec | FieldType::Set,
-                            Some(GenericArgument::Type(collection_type)),
-                            None,
-                        ) => (None, None, Some(collection_type.clone())),
-                        (
-                            FieldType::Map,
-                            Some(GenericArgument::Type(key_type)),
-                            Some(GenericArgument::Type(value_type)),
-                        ) => (Some(key_type.clone()), Some(value_type.clone()), None),
-                        _ => (None, None, None),
-                    };
-
-                    Some(BuilderField {
-                        ty: *t.ty.clone(),
-                        name: ident.ident.clone(),
-                        field_type,
-                        key_type,
-                        value_type,
-                        collection_type,
-                    })
-                }
-                FnArg::Receiver(_) => None,
-            })
-            .collect(),
+        builder_method_name: builder_method_name(&model),
+        builder_fields: builder_fields(&model),
         constructor_name: format_ident!("{}Constructor", model.ident.to_string()),
-        return_type: model.output,
+        return_type: builder_return_type(model.output, model.ident),
         is_async: model.is_async,
         generics: model.generics,
         builder_generics: Ir::builder_generics(),
         method_generics: model.method_generics,
     })
+}
+
+fn builder_return_type(mut return_type: ReturnType, target: Ident) -> ReturnType {
+    if let ReturnType::Type(_, ty) = &mut return_type {
+        let self_type = Box::new(Type::Path(format_ident!("Self").to_type_path()));
+        if ty == &self_type {
+            *ty = Box::new(Type::Path(target.to_type_path()));
+        }
+    }
+    return_type
+}
+
+fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
+    model
+        .args
+        .iter()
+        .filter_map(|f| match f {
+            FnArg::Typed(t) => {
+                let ident = try_match!(&*t.pat, Pat::Ident(x)=>x).ok()?;
+                let field_type = field_type(&*t.ty);
+                let args = t.ty.generic_args();
+                let (key_type, value_type, collection_type) = match (
+                    &field_type,
+                    args.and_then(|args| args.iter().next()),
+                    args.and_then(|args| args.iter().nth(1)),
+                ) {
+                    (
+                        FieldType::Vec | FieldType::Set,
+                        Some(GenericArgument::Type(collection_type)),
+                        None,
+                    ) => (None, None, Some(collection_type.clone())),
+                    (
+                        FieldType::Map,
+                        Some(GenericArgument::Type(key_type)),
+                        Some(GenericArgument::Type(value_type)),
+                    ) => (Some(key_type.clone()), Some(value_type.clone()), None),
+                    _ => (None, None, None),
+                };
+
+                Some(BuilderField {
+                    ty: *t.ty.clone(),
+                    name: ident.ident.clone(),
+                    field_type,
+                    key_type,
+                    value_type,
+                    collection_type,
+                })
+            }
+            FnArg::Receiver(_) => None,
+        })
+        .collect()
+}
+
+fn builder_method_name(model: &ConstrutorModel) -> Ident {
+    format_ident!(
+        "{}builder",
+        model
+            .constructor_name
+            .to_string()
+            .strip_suffix("new")
+            .expect("already checked that the method ends with new, qed")
+    )
 }
 
 fn field_type(ty: &Type) -> FieldType {
