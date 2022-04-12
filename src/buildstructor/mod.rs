@@ -171,4 +171,15 @@ mod tests {
             }
         )
     }
+
+    pub fn returns_self_test_case() -> Ast {
+        parse_quote!(
+            #[builder]
+            impl Foo {
+                fn new(simple: usize) -> Self {
+                    Self { simple }
+                }
+            }
+        )
+    }
 }
