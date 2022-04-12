@@ -58,7 +58,6 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
                 #module_name::new()
             }
         }
-        use #module_name::*;
 
         mod #module_name {
             use super::*;

@@ -4,18 +4,17 @@ expression: output
 ---
 impl Foo {
     fn builder<K: Into<String> + Eq + Hash, V: Into<String>>() -> __foo_builder::__FooBuilder<
-            (__Optional<HashMap<K, V>>,),
+            (__foo_builder::__Optional<HashMap<K, V>>,),
             K,
             V,
         > {
         __foo_builder::new()
     }
 }
-use __foo_builder::*;
 mod __foo_builder {
     use super::*;
     pub fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __FooBuilder<
-            (__Optional<HashMap<K, V>>,),
+            (__foo_builder::__Optional<HashMap<K, V>>,),
             K,
             V,
         > {
