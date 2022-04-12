@@ -1,13 +1,13 @@
 use crate::buildstructor::utils::TypeExt;
-use quote::format_ident;
 use syn::spanned::Spanned;
 use syn::{
     FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Result, ReturnType, Visibility,
 };
 
 use crate::parse::Ast;
-pub struct Model {
+pub struct ConstrutorModel {
     pub ident: Ident,
+    pub constructor_name: Ident,
     pub generics: Generics,
     pub method_generics: Generics,
     pub args: Vec<FnArg>,
@@ -16,41 +16,46 @@ pub struct Model {
     pub vis: Visibility,
 }
 
-pub fn analyze(ast: Ast) -> Result<Model> {
-    let constructor = get_constructor(&ast.item).ok_or_else(|| {
-        syn::Error::new(
-            ast.item.span(),
-            "Cannot find 'new' function with no receiver.",
-        )
-    })?;
-    let result = Model {
-        ident: ast
-            .item
-            .self_ty
-            .raw_ident()
-            .ok_or_else(|| syn::Error::new(ast.item.span(), "Cannot find name of struct."))?,
-        generics: ast.item.generics.clone(),
-        method_generics: constructor.sig.generics.clone(),
-        args: constructor.sig.inputs.clone().into_iter().collect(),
-        output: constructor.sig.output.clone(),
-        is_async: constructor.sig.asyncness.is_some(),
-        vis: constructor.vis.clone(),
-    };
+pub fn analyze(ast: Ast) -> Result<Vec<ConstrutorModel>> {
+    let constructors = get_constructors(&ast.item);
+    let ident = ast
+        .item
+        .self_ty
+        .raw_ident()
+        .ok_or_else(|| syn::Error::new(ast.item.span(), "cannot find name of struct"))?;
+    let constructor_models = constructors
+        .into_iter()
+        .map(|constructor| ConstrutorModel {
+            ident: ident.clone(),
+            constructor_name: constructor.sig.ident.clone(),
+            generics: ast.item.generics.clone(),
+            method_generics: constructor.sig.generics.clone(),
+            args: constructor.sig.inputs.clone().into_iter().collect(),
+            output: constructor.sig.output.clone(),
+            is_async: constructor.sig.asyncness.is_some(),
+            vis: constructor.vis.clone(),
+        })
+        .collect();
 
-    Ok(result)
+    Ok(constructor_models)
 }
 
-fn get_constructor(item: &ItemImpl) -> Option<&ImplItemMethod> {
-    for item in &item.items {
-        if let ImplItem::Method(f) = item {
-            if f.sig.ident == format_ident!("new")
-                && !f.sig.inputs.iter().any(|a| matches!(a, FnArg::Receiver(_)))
-            {
-                return Some(f);
+fn get_constructors(item: &ItemImpl) -> Vec<&ImplItemMethod> {
+    item.items
+        .iter()
+        .filter_map(|item| {
+            if let ImplItem::Method(m) = item {
+                let method_name = m.sig.ident.to_string();
+                if method_name.ends_with("_new")
+                    || method_name == "new"
+                        && !m.sig.inputs.iter().any(|a| matches!(a, FnArg::Receiver(_)))
+                {
+                    return Some(m);
+                }
             }
-        }
-    }
-    None
+            None
+        })
+        .collect()
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-use crate::analyze::Model;
+use crate::analyze::ConstrutorModel;
 use crate::buildstructor::utils::{IdentExt, PunctuatedExt, TypeExt};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -16,12 +16,14 @@ pub struct Ir {
     pub builder_name: Ident,
     pub builder_fields: Vec<BuilderField>,
     pub constructor_name: Ident,
+    pub constructor_method_name: Ident,
     pub return_type: ReturnType,
     pub is_async: bool,
     pub vis: Visibility,
     pub generics: Generics,
     pub builder_generics: Generics,
     pub method_generics: Generics,
+    pub builder_method_name: Ident,
 }
 
 pub struct BuilderField {
@@ -42,12 +44,25 @@ pub enum FieldType {
     Map,
 }
 
-pub fn lower(model: Model) -> Result<Ir> {
+pub fn lower(model: ConstrutorModel) -> Result<Ir> {
     Ok(Ir {
         vis: model.vis,
-        module_name: format_ident!("__{}_builder", model.ident.to_string().to_lowercase()),
+        module_name: format_ident!(
+            "__{}_{}_builder",
+            model.ident.to_string().to_lowercase(),
+            model.constructor_name.to_string().to_lowercase()
+        ),
         target_name: model.ident.clone(),
         builder_name: format_ident!("__{}Builder", model.ident),
+        constructor_method_name: model.constructor_name.clone(),
+        builder_method_name: format_ident!(
+            "{}builder",
+            model
+                .constructor_name
+                .to_string()
+                .strip_suffix("new")
+                .expect("already checked that the method ends with new, qed")
+        ),
         builder_fields: model
             .args
             .iter()

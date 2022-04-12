@@ -3,13 +3,15 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Foo {
-    fn builder() -> __foo_builder::__FooBuilder<(__foo_builder::__Required<usize>,)> {
-        __foo_builder::new()
+    fn builder() -> __foo_new_builder::__FooBuilder<
+            (__foo_new_builder::__Required<usize>,),
+        > {
+        __foo_new_builder::new()
     }
 }
-mod __foo_builder {
+mod __foo_new_builder {
     use super::*;
-    pub fn new() -> __FooBuilder<(__foo_builder::__Required<usize>,)> {
+    pub fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
         __FooBuilder {
             fields: (__required(),),
             phantom: core::default::Default::default(),

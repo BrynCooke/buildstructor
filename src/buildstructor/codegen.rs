@@ -41,8 +41,10 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         .into_iter()
         .collect();
 
+    let constructor_method_name = &ir.constructor_method_name;
     let constructor_args = ir.constructor_args();
     let constructor_return = &ir.return_type;
+    let builder_method_name = &ir.builder_method_name;
     let builder_name = &ir.builder_name;
     let builder_methods = builder_methods(&ir)?;
     let builder_state_type_initial = ir.builder_state_type_initial();
@@ -54,7 +56,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
-            #vis fn builder #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
+            #vis fn #builder_method_name #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
                 #module_name::new()
             }
         }
@@ -114,7 +116,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
             impl #builder_impl_generics #builder_name #builder_tuple_ty_generics #builder_where_clause {
                 pub #async_token fn build(self) #constructor_return {
-                    #target_name::new(#(#constructor_args),*) #await_token
+                    #target_name::#constructor_method_name(#(#constructor_args),*) #await_token
                 }
             }
         }
@@ -308,17 +310,19 @@ mod tests {
 
     macro_rules! assert_codegen {
         ($input:expr) => {
-            let model = analyze($input).expect("Analysis failed");
-            let ir = lower(model).expect("Ir failed");
-            if let Ok(codegen) = codegen(ir) {
-                if let Ok(new_ast) = syn::parse2(codegen.clone()) {
-                    let output = prettyplease::unparse(&new_ast);
-                    insta::assert_snapshot!(output);
+            let models = analyze($input).expect("Analysis failed");
+            for model in models {
+                let ir = lower(model).expect("Ir failed");
+                if let Ok(codegen) = codegen(ir) {
+                    if let Ok(new_ast) = syn::parse2(codegen.clone()) {
+                        let output = prettyplease::unparse(&new_ast);
+                        insta::assert_snapshot!(output);
+                    } else {
+                        panic!("Failed to generate valid code:\n{}", codegen);
+                    }
                 } else {
-                    panic!("Failed to generate valid code:\n{}", codegen);
+                    panic!("Failed generate code");
                 }
-            } else {
-                panic!("Failed generate code");
             }
         };
     }
