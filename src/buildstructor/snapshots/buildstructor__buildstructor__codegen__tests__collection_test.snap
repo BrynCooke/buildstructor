@@ -5,28 +5,27 @@ expression: output
 impl Foo {
     fn builder() -> __foo_builder::__FooBuilder<
             (
-                __Required<usize>,
-                __Optional<HashSet<String>>,
-                __Optional<HashMap<String, String>>,
-                __Optional<Vec<String>>,
-                __Optional<BTreeMap<String, String>>,
-                __Optional<BTreeSet<String>>,
+                __foo_builder::__Required<usize>,
+                __foo_builder::__Optional<HashSet<String>>,
+                __foo_builder::__Optional<HashMap<String, String>>,
+                __foo_builder::__Optional<Vec<String>>,
+                __foo_builder::__Optional<BTreeMap<String, String>>,
+                __foo_builder::__Optional<BTreeSet<String>>,
             ),
         > {
         __foo_builder::new()
     }
 }
-use __foo_builder::*;
 mod __foo_builder {
     use super::*;
     pub fn new() -> __FooBuilder<
             (
-                __Required<usize>,
-                __Optional<HashSet<String>>,
-                __Optional<HashMap<String, String>>,
-                __Optional<Vec<String>>,
-                __Optional<BTreeMap<String, String>>,
-                __Optional<BTreeSet<String>>,
+                __foo_builder::__Required<usize>,
+                __foo_builder::__Optional<HashSet<String>>,
+                __foo_builder::__Optional<HashMap<String, String>>,
+                __foo_builder::__Optional<Vec<String>>,
+                __foo_builder::__Optional<BTreeMap<String, String>>,
+                __foo_builder::__Optional<BTreeSet<String>>,
             ),
         > {
         __FooBuilder {

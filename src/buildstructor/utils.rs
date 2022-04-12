@@ -187,6 +187,7 @@ pub trait TypeExt {
     fn raw_ident(&self) -> Option<Ident>;
     fn generic_args(&self) -> Option<&Punctuated<GenericArgument, Token![,]>>;
     fn wrap_in_generic(&self, ident: Ident) -> Type;
+    fn wrap_in_generic_with_module(&self, module: &Ident, ident: Ident) -> Type;
     fn to_path(&self) -> Option<Path>;
     fn parse(name: &'static str) -> Type;
 }
@@ -229,6 +230,30 @@ impl TypeExt for Type {
                         gt_token: Default::default(),
                     }),
                 }]),
+            },
+        })
+    }
+
+    fn wrap_in_generic_with_module(&self, module: &Ident, ident: Ident) -> Type {
+        Type::Path(TypePath {
+            qself: None,
+            path: Path {
+                leading_colon: None,
+                segments: Punctuated::from_iter(vec![
+                    PathSegment {
+                        ident: module.clone(),
+                        arguments: Default::default(),
+                    },
+                    PathSegment {
+                        ident,
+                        arguments: PathArguments::AngleBracketed(AngleBracketedGenericArguments {
+                            colon2_token: Default::default(),
+                            lt_token: Default::default(),
+                            args: Punctuated::from_iter(vec![GenericArgument::Type(self.clone())]),
+                            gt_token: Default::default(),
+                        }),
+                    },
+                ]),
             },
         })
     }

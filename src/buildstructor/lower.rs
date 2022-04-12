@@ -144,8 +144,14 @@ impl Ir {
             paren_token: Default::default(),
             elems: Punctuated::from_iter(self.builder_fields.iter().map(|field| {
                 match field.field_type {
-                    FieldType::Regular => field.ty.wrap_in_generic(format_ident!("__Required")),
-                    _ => field.ty.wrap_in_generic(format_ident!("__Optional")),
+                    FieldType::Regular => field.ty.wrap_in_generic_with_module(
+                        &self.module_name,
+                        format_ident!("__Required"),
+                    ),
+                    _ => field.ty.wrap_in_generic_with_module(
+                        &self.module_name,
+                        format_ident!("__Optional"),
+                    ),
                 }
             }))
             .with_trailing(),
