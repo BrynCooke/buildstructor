@@ -32,10 +32,11 @@ use crate::buildstructor::parse;
 ///         Self { sum: a + b }
 ///     }
 /// }
-///
-/// let mine = MyStruct::builder().a(2).b(3).build();
-/// assert_eq!(mine.sum, 5);
-///
+/// # #[allow(clippy::needless_doctest_main)]
+/// # fn main() {
+///   let mine = MyStruct::builder().a(2).b(3).build();
+///   assert_eq!(mine.sum, 5);
+/// # }
 /// ```
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
