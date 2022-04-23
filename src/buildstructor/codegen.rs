@@ -5,7 +5,7 @@ use crate::lower::{FieldType, Ir};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
-use syn::{Expr, ExprCall, GenericArgument, Generics, Index, Result, Type};
+use syn::{Expr, ExprCall, GenericArgument, Generics, Index, Result, Type, WhereClause};
 extern crate inflector;
 use inflector::Inflector;
 
@@ -34,7 +34,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let (_, all_ty_generics, _) = all_generics.split_for_impl();
 
     let method_generics = &ir.method_generics;
-    let builder_init_generics = Generics::combine(vec![&ir.method_generics, &ir.generics]);
+    let builder_init_generics = Generics::combine(vec![&ir.generics, &ir.method_generics]);
     let target_generics_raw: Vec<GenericArgument> = builder_init_generics
         .to_generic_args()
         .args
@@ -46,7 +46,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let constructor_return = &ir.return_type;
     let builder_method_name = &ir.builder_method_name;
     let builder_name = &ir.builder_name;
-    let builder_methods = builder_methods(&ir)?;
+    let builder_methods = builder_methods(&ir, builder_where_clause)?;
     let builder_state_type_initial = ir.builder_state_type_initial();
     let builder_state_initial = ir.builder_state_initial();
 
@@ -123,8 +123,11 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     })
 }
 
-pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
-    let builder_generics = Generics::combine(vec![&ir.method_generics, &ir.generics]);
+pub fn builder_methods(
+    ir: &Ir,
+    builder_where_clause: Option<&WhereClause>,
+) -> Result<Vec<TokenStream>> {
+    let builder_generics = Generics::combine(vec![&ir.generics, &ir.method_generics]);
     Ok(ir.builder_fields
         .iter()
         .enumerate()
@@ -172,13 +175,13 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                     let and_method_name = format_ident!("and_{}", f.name);
                     quote! {
                         impl #builder_type_generics #builder_name #before {
-                            pub fn #method_name (self, #field_name: #generic_param) -> #builder_name #after {
+                            pub fn #method_name (self, #field_name: #generic_param) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state_option,
                                     phantom: core::default::Default::default()
                                 }
                             }
-                            pub fn #and_method_name (self, #field_name: #ty) -> #builder_name #after {
+                            pub fn #and_method_name (self, #field_name: #ty) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state,
                                     phantom: core::default::Default::default()
@@ -194,12 +197,12 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before {
+                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause {
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
 
-                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before {
+                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(value);
                                 self
                             }
@@ -214,12 +217,12 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before {
+                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
 
-                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before {
+                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).push(value);
                                 self
                             }
@@ -235,7 +238,7 @@ pub fn builder_methods(ir: &Ir) -> Result<Vec<TokenStream>> {
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before {
+                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
@@ -390,5 +393,10 @@ mod tests {
     #[test]
     fn returns_self_test() {
         assert_codegen!(returns_self_test_case());
+    }
+
+    #[test]
+    fn multiple_generics_test() {
+        assert_codegen!(multiple_generics_test_case());
     }
 }
