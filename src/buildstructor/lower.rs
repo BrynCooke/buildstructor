@@ -38,7 +38,7 @@ pub struct BuilderField {
 #[derive(Debug)]
 pub enum FieldType {
     Regular,
-    Optional,
+    Option,
     Vec,
     Set,
     Map,
@@ -130,12 +130,14 @@ fn builder_method_name(model: &ConstrutorModel) -> Ident {
 
 fn field_type(ty: &Type) -> FieldType {
     match ty.raw_ident() {
-        Some(f) if f == format_ident!("Option") => FieldType::Optional,
+        Some(f) if f == format_ident!("Option") => FieldType::Option,
         Some(f) if f == format_ident!("Vec") => FieldType::Vec,
-        Some(f) if f == format_ident!("HashSet") => FieldType::Set,
-        Some(f) if f == format_ident!("BTreeSet") => FieldType::Set,
-        Some(f) if f == format_ident!("HashMap") => FieldType::Map,
-        Some(f) if f == format_ident!("BTreeMap") => FieldType::Map,
+        Some(f) if f.to_string().ends_with("Stack") => FieldType::Vec,
+        Some(f) if f.to_string().ends_with("Heap") => FieldType::Vec,
+        Some(f) if f.to_string().ends_with("Deque") => FieldType::Vec,
+        Some(f) if f.to_string().ends_with("Buffer") => FieldType::Vec,
+        Some(f) if f.to_string().ends_with("Set") => FieldType::Set,
+        Some(f) if f.to_string().ends_with("Map") => FieldType::Map,
         _ => FieldType::Regular,
     }
 }

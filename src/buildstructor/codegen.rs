@@ -148,7 +148,7 @@ pub fn builder_methods(
 
             };
             let params_after = match f.field_type {
-                FieldType::Regular | FieldType::Optional =>
+                FieldType::Regular | FieldType::Option =>
                     builder_type_generics
                         .to_tuple_type()
                         .with_type(idx, f.ty.clone().wrap_in_generic(format_ident!("__Set"))),
@@ -171,7 +171,7 @@ pub fn builder_methods(
             let generic_param = ty.generic_args();
 
             match f.field_type {
-                FieldType::Optional => {
+                FieldType::Option => {
                     let and_method_name = format_ident!("and_{}", f.name);
                     quote! {
                         impl #builder_type_generics #builder_name #before {

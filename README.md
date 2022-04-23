@@ -58,28 +58,6 @@ All of these recipes and more can be found in the [examples directory](https://g
 
 Just write your rust code as usual and annotate the constructor impl with `[builder]`
 
-### Optional field
-
-Fields that are optional will also be optional in the builder. You should do defaulting in your constructor.
-
-```rust
-#[builder]
-impl MyStruct {
-    fn new(param: Option<usize>) -> MyStruct {
-        Self { param: param.unwrap_or(3) }
-    }
-}
-
-fn main() {
-    let mine = MyStruct::builder().param(2).build();
-    assert_eq!(mine.param, 2);
-    let mine = MyStruct::builder().and_param(Some(2)).build();
-    assert_eq!(mine.param, 2);
-    let mine = MyStruct::builder().build();
-    assert_eq!(mine.param, 3);
-}
-```
-
 ### Mutliple constructors
 All methods that are suffixed with `_new` will create builders. Each builder is named appropriately.
 ```rust
@@ -107,6 +85,28 @@ fn main() {
     assert_eq!(option.simple, 2);
 }
 
+```
+
+### Optional field
+
+Fields that are optional will also be optional in the builder. You should do defaulting in your constructor.
+
+```rust
+#[builder]
+impl MyStruct {
+    fn new(param: Option<usize>) -> MyStruct {
+        Self { param: param.unwrap_or(3) }
+    }
+}
+
+fn main() {
+    let mine = MyStruct::builder().param(2).build();
+    assert_eq!(mine.param, 2);
+    let mine = MyStruct::builder().and_param(Some(2)).build();
+    assert_eq!(mine.param, 2);
+    let mine = MyStruct::builder().build();
+    assert_eq!(mine.param, 3);
+}
 ```
 
 ### Into field
@@ -166,7 +166,19 @@ fn main() {
 
 ### Collections
 
-`Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` parameters are treated specially. Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry.
+Collection types are treated specially. The mapping is based on the type name:
+
+| Type Name | Method used to insert |
+|-----------|-----------------------|
+| ...Buffer | push(_)               |
+| ...Deque  | push(_)               |
+| ...Heap   | push(_)               |
+| ...Set    | insert(_)             |
+| ...Stack  | push(_)               |
+| ...Map    | insert(_, _)          |
+| Vec       | push(_)               |
+
+Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry.
 
 In the case that a singular form cannot be derived automatically the suffix `_entry` will be used.
 
