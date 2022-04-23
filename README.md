@@ -61,6 +61,13 @@ Just write your rust code as usual and annotate the constructor impl with `[buil
 ### Mutliple constructors
 All methods that are suffixed with `_new` will create builders. Each builder is named appropriately.
 ```rust
+use buildstructor::builder;
+use std::error::Error;
+
+struct Multi {
+    simple: usize
+}
+
 #[builder]
 impl Multi {
     fn new(simple: usize) -> Multi {
@@ -92,6 +99,11 @@ fn main() {
 Fields that are optional will also be optional in the builder. You should do defaulting in your constructor.
 
 ```rust
+use buildstructor::builder;
+struct MyStruct {
+    param: usize
+}
+
 #[builder]
 impl MyStruct {
     fn new(param: Option<usize>) -> MyStruct {
@@ -114,10 +126,15 @@ fn main() {
 You can use generics as usual in your constructor.
 
 ```rust
+use buildstructor::builder;
+struct MyStruct {
+    param: String   
+}
+
 #[builder]
 impl MyStruct {
     fn new<T: Into<String>>(param: T) -> MyStruct {
-        Self { param }
+        Self { param: param.into() }
     }
 }
 
@@ -132,6 +149,11 @@ fn main() {
 To create an `async` builder just make your constructor `async`.
 
 ```rust
+use buildstructor::builder;
+struct MyStruct {
+    param: usize
+}
+
 #[builder]
 impl MyStruct {
     async fn new(param: usize) -> MyStruct {
@@ -151,6 +173,12 @@ async fn main() {
 To create a fallible builder just make your constructor fallible using `Result`. 
 
 ```rust
+use buildstructor::builder;
+use std::error::Error;
+struct MyStruct {
+    param: usize
+}
+
 #[builder]
 impl MyStruct {
     fn new(param: usize) -> Result<MyStruct, Box<dyn Error>> {
@@ -183,10 +211,15 @@ Use the plural form in your constructor argument and `buildstructor` will automa
 In the case that a singular form cannot be derived automatically the suffix `_entry` will be used.
 
 ```rust
+use buildstructor::builder;
+struct MyStruct {
+    addresses: Vec<String>
+}
+
 #[builder]
 impl MyStruct {
     fn new(addresses: Vec<String>) -> MyStruct {
-        Ok(Self { addresses })
+        Self { addresses }
     }
 }
 
