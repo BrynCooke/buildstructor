@@ -1,0 +1,243 @@
+---
+source: src/buildstructor/codegen.rs
+assertion_line: 400
+expression: output
+---
+impl<T> Request<T> {
+    pub fn fake_builder<K, V>() -> __request_fake_new_builder::__RequestBuilder<
+            (
+                __request_fake_new_builder::__Optional<Vec<(K, V)>>,
+                __request_fake_new_builder::__Optional<Option<http::Uri>>,
+                __request_fake_new_builder::__Optional<Option<http::Method>>,
+                __request_fake_new_builder::__Required<T>,
+            ),
+            T,
+            K,
+            V,
+        > {
+        __request_fake_new_builder::new()
+    }
+}
+mod __request_fake_new_builder {
+    use super::*;
+    pub fn new<T, K, V>() -> __RequestBuilder<
+            (
+                __request_fake_new_builder::__Optional<Vec<(K, V)>>,
+                __request_fake_new_builder::__Optional<Option<http::Uri>>,
+                __request_fake_new_builder::__Optional<Option<http::Method>>,
+                __request_fake_new_builder::__Required<T>,
+            ),
+            T,
+            K,
+            V,
+        > {
+        __RequestBuilder {
+            fields: (__optional(), __optional(), __optional(), __required()),
+            phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub struct __RequestBuilder<__P, T, K, V> {
+        fields: __P,
+        phantom: (
+            core::marker::PhantomData<T>,
+            core::marker::PhantomData<K>,
+            core::marker::PhantomData<V>,
+        ),
+    }
+    impl<
+        __1,
+        __2,
+        __3,
+        T,
+        K,
+        V,
+    > __RequestBuilder<(__Optional<Vec<(K, V)>>, __1, __2, __3), T, K, V> {
+        pub fn headers(
+            mut self,
+            headers: Vec<(K, V)>,
+        ) -> __RequestBuilder<(__Optional<Vec<(K, V)>>, __1, __2, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            self.fields
+                .0
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .extend(headers.into_iter());
+            self
+        }
+        pub fn header(
+            mut self,
+            value: (K, V),
+        ) -> __RequestBuilder<(__Optional<Vec<(K, V)>>, __1, __2, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            self.fields
+                .0
+                .lazy
+                .get_or_insert_with(|| core::default::Default::default())
+                .push(value);
+            self
+        }
+    }
+    impl<
+        __0,
+        __2,
+        __3,
+        T,
+        K,
+        V,
+    > __RequestBuilder<(__0, __Optional<Option<http::Uri>>, __2, __3), T, K, V> {
+        pub fn uri(
+            self,
+            uri: http::Uri,
+        ) -> __RequestBuilder<(__0, __Set<Option<http::Uri>>, __2, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            __RequestBuilder {
+                fields: (self.fields.0, __set(Some(uri)), self.fields.2, self.fields.3),
+                phantom: core::default::Default::default(),
+            }
+        }
+        pub fn and_uri(
+            self,
+            uri: Option<http::Uri>,
+        ) -> __RequestBuilder<(__0, __Set<Option<http::Uri>>, __2, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            __RequestBuilder {
+                fields: (self.fields.0, __set(uri), self.fields.2, self.fields.3),
+                phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __3,
+        T,
+        K,
+        V,
+    > __RequestBuilder<(__0, __1, __Optional<Option<http::Method>>, __3), T, K, V> {
+        pub fn method(
+            self,
+            method: http::Method,
+        ) -> __RequestBuilder<(__0, __1, __Set<Option<http::Method>>, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            __RequestBuilder {
+                fields: (
+                    self.fields.0,
+                    self.fields.1,
+                    __set(Some(method)),
+                    self.fields.3,
+                ),
+                phantom: core::default::Default::default(),
+            }
+        }
+        pub fn and_method(
+            self,
+            method: Option<http::Method>,
+        ) -> __RequestBuilder<(__0, __1, __Set<Option<http::Method>>, __3), T, K, V>
+        where
+            HeaderName: TryFrom<K>,
+            <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+            HeaderValue: TryFrom<V>,
+            <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+        {
+            __RequestBuilder {
+                fields: (self.fields.0, self.fields.1, __set(method), self.fields.3),
+                phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<
+        __0,
+        __1,
+        __2,
+        T,
+        K,
+        V,
+    > __RequestBuilder<(__0, __1, __2, __Required<T>), T, K, V> {
+        pub fn body(
+            self,
+            body: T,
+        ) -> __RequestBuilder<(__0, __1, __2, __Set<T>), T, K, V> {
+            __RequestBuilder {
+                fields: (self.fields.0, self.fields.1, self.fields.2, __set(body)),
+                phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<
+        T,
+        K,
+        V,
+        __P0: Into<__Set<Vec<(K, V)>>>,
+        __P1: Into<__Set<Option<http::Uri>>>,
+        __P2: Into<__Set<Option<http::Method>>>,
+        __P3: Into<__Set<T>>,
+    > __RequestBuilder<(__P0, __P1, __P2, __P3), T, K, V>
+    where
+        HeaderName: TryFrom<K>,
+        <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+        HeaderValue: TryFrom<V>,
+        <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+    {
+        pub fn build(self) -> http::Result<Request<T>> {
+            Request::fake_new(
+                self.fields.0.into().value,
+                self.fields.1.into().value,
+                self.fields.2.into().value,
+                self.fields.3.into().value,
+            )
+        }
+    }
+}
+

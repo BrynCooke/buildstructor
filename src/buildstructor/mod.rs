@@ -182,4 +182,32 @@ mod tests {
             }
         )
     }
+
+    pub fn multiple_generics_test_case() -> Ast {
+        parse_quote!(
+            #[builder]
+            impl<T> Request<T> {
+                pub fn fake_new<K, V>(
+                    headers: Vec<(K, V)>,
+                    uri: Option<http::Uri>,
+                    method: Option<http::Method>,
+                    body: T,
+                ) -> http::Result<Request<T>>
+                where
+                    HeaderName: TryFrom<K>,
+                    <HeaderName as TryFrom<K>>::Error: Into<http::Error>,
+                    HeaderValue: TryFrom<V>,
+                    <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
+                {
+                    let mut builder = http::request::Builder::new();
+                    for (key, value) in headers {
+                        builder = builder.header(key, value);
+                    }
+                    let req = builder.body(body)?;
+
+                    Ok(Self { inner: req })
+                }
+            }
+        )
+    }
 }
