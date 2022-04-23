@@ -1,3 +1,4 @@
+#![doc = include_str!("../README.md")]
 extern crate core;
 
 use proc_macro::TokenStream;
