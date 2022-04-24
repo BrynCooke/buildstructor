@@ -6,6 +6,10 @@ use syn::{
     TypeParam, TypeParamBound, TypePath, TypeTuple, WhereClause,
 };
 
+static SCALAR_TYPES: &[&str] = &[
+    "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64", "i128", "u128", "isize", "usize", "bool",
+];
+
 pub trait IdentExt {
     fn to_generic_param(&self, ty: Option<&Type>) -> GenericParam;
     fn to_path(&self) -> Path;
@@ -190,6 +194,7 @@ pub trait TypeExt {
     fn wrap_in_generic_with_module(&self, module: &Ident, ident: Ident) -> Type;
     fn to_path(&self) -> Option<Path>;
     fn parse(name: &'static str) -> Type;
+    fn is_into_capable(&self, impl_geneerics: &Generics, constructor_geneerics: &Generics) -> bool;
 }
 
 impl TypeExt for Type {
@@ -276,6 +281,44 @@ impl TypeExt for Type {
                 ),
             },
         })
+    }
+
+    fn is_into_capable(&self, impl_geneerics: &Generics, constructor_geneerics: &Generics) -> bool {
+        // This is super restrictive for now. No generic types. No scalars, No tuples.
+        // The goal is to allow users to provide their own intermediate enum type or to use strings/&str.
+        // Maybe this can be relaxed a little in future.
+
+        let ident = self.raw_ident();
+
+        match self {
+            Type::Path(_) => {}
+            _ => return false,
+        }
+
+        // In future we could relax this as long as the type parameters are not those on the constructor method or the impl.
+        if self.generic_args().is_some() {
+            return false;
+        }
+
+        // Scalar types don't need to use into, they the compiler will convert.
+        for scalar_type in SCALAR_TYPES {
+            if ident == Some(format_ident!("{}", scalar_type)) {
+                return false;
+            }
+        }
+        // If this is a generic type we can't really use Into as the user will have to specify the type on the builder.
+        for p in impl_geneerics
+            .params
+            .iter()
+            .chain(constructor_geneerics.params.iter())
+        {
+            if let GenericParam::Type(ty) = p {
+                if Some(&ty.ident) == ident.as_ref() {
+                    return false;
+                }
+            }
+        }
+        true
     }
 }
 

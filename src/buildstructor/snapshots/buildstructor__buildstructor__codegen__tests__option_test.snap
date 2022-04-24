@@ -14,11 +14,11 @@ mod __foo_new_builder {
     pub fn new() -> __FooBuilder<(__foo_new_builder::__Optional<Option<usize>>,)> {
         __FooBuilder {
             fields: (__optional(),),
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     pub struct __Required<T> {
-        phantom: std::marker::PhantomData<T>,
+        _phantom: std::marker::PhantomData<T>,
     }
     pub struct __Optional<T> {
         lazy: Option<T>,
@@ -31,7 +31,7 @@ mod __foo_new_builder {
     }
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     fn __optional<T>() -> __Optional<T> {
@@ -46,13 +46,13 @@ mod __foo_new_builder {
     }
     pub struct __FooBuilder<__P> {
         fields: __P,
-        phantom: (),
+        _phantom: (),
     }
     impl __FooBuilder<(__Optional<Option<usize>>,)> {
         pub fn option(self, option: usize) -> __FooBuilder<(__Set<Option<usize>>,)> {
             __FooBuilder {
                 fields: (__set(Some(option)),),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
         pub fn and_option(
@@ -61,7 +61,7 @@ mod __foo_new_builder {
         ) -> __FooBuilder<(__Set<Option<usize>>,)> {
             __FooBuilder {
                 fields: (__set(option),),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }

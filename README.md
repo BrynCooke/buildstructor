@@ -48,7 +48,7 @@ Advantages:
 * No magic to default values, just use an `Option` param in your constructor and default as normal.
 * `async` constructors derives `async` builders.
 * Fallible constructors (`Result`) derives fallible builders.
-* Special `Vec`, `HashMap`, `HashSet`, `BTreeMap`, `BTreeSet` support. Add single or multiple items.
+* Special `Vec`, `Deque`, `Heap`, `Set`, `Map` support. Add single or multiple items.
 
 This crate is heavily inspired by the excellent [typed-builder](https://github.com/idanarye/rust-typed-builder) crate. It is a good alternative to this crate and well worth considering.
 
@@ -192,23 +192,10 @@ fn main() {
 }
 ```
 
-### Collections
+### Collections and maps
 
-Collection types are treated specially. The mapping is based on the type name:
+Collections and maps are given special treatment, the builder will add additional methods to build the collection one element at a time.
 
-| Type Name | Method used to insert |
-|-----------|-----------------------|
-| ...Buffer | push(_)               |
-| ...Deque  | push(_)               |
-| ...Heap   | push(_)               |
-| ...Set    | insert(_)             |
-| ...Stack  | push(_)               |
-| ...Map    | insert(_, _)          |
-| Vec       | push(_)               |
-
-Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry.
-
-In the case that a singular form cannot be derived automatically the suffix `_entry` will be used.
 
 ```rust
 use buildstructor::builder;
@@ -226,7 +213,7 @@ impl MyStruct {
 fn main() {
     let mine = MyStruct::builder()
         .address("Amsterdam".to_string())
-        .address("Fakenham".to_string())
+        .address("Fakenham")
         .addresses(vec!["Norwich".to_string(), "Bristol".to_string()])
         .build();
     assert_eq!(mine.addresses, vec!["Amsterdam".to_string(), 
@@ -235,6 +222,40 @@ fn main() {
                                     "Bristol".to_string()]);
 }
 ```
+
+#### Supported types
+Collections are matched by type name:
+
+| Type Name | Method used to insert |
+|-----------|-----------------------|
+| ...Buffer | push(_)               |
+| ...Deque  | push(_)               |
+| ...Heap   | push(_)               |
+| ...Set    | insert(_)             |
+| ...Stack  | push(_)               |
+| ...Map    | insert(_, _)          |
+| Vec       | push(_)               |
+
+If your type does not conform to these patterns then you can use a type alias to trick buildstructor into giving the parameter special treatment.
+
+#### Naming
+
+Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry. For isntance:
+
+`addresses` => `address`
+
+In the case that a singular form cannot be derived automatically the suffix `_entry` will be used. For instance:
+
+`frodo` => `frodo_entry` 
+
+#### Into
+
+Adding a singular entry will automatically perform an into conversion if:
+* the type is not a scalar.
+* the type has no generic paramaters. (this may be relaxed later)
+* the type is a generic parameter from the impl or constructor method. 
+
+This is useful for Strings, but also other types where you want to overload the singular build method. Create an enum that derives From for all the types you want to support and then use this type in your constructor.
 
 There had to be some magic somewhere.
 

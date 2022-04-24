@@ -37,11 +37,11 @@ mod __foo_new_builder {
                 __optional(),
                 __optional(),
             ),
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     pub struct __Required<T> {
-        phantom: std::marker::PhantomData<T>,
+        _phantom: std::marker::PhantomData<T>,
     }
     pub struct __Optional<T> {
         lazy: Option<T>,
@@ -54,7 +54,7 @@ mod __foo_new_builder {
     }
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     fn __optional<T>() -> __Optional<T> {
@@ -69,7 +69,7 @@ mod __foo_new_builder {
     }
     pub struct __FooBuilder<__P> {
         fields: __P,
-        phantom: (),
+        _phantom: (),
     }
     impl<
         __1,
@@ -91,7 +91,7 @@ mod __foo_new_builder {
                     self.fields.4,
                     self.fields.5,
                 ),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }
@@ -113,15 +113,15 @@ mod __foo_new_builder {
                 .extend(set.into_iter());
             self
         }
-        pub fn set_entry(
+        pub fn set_entry<__T: Into<String>>(
             mut self,
-            value: String,
+            value: __T,
         ) -> __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
             self.fields
                 .1
                 .lazy
                 .get_or_insert_with(|| core::default::Default::default())
-                .insert(value);
+                .insert(value.into());
             self
         }
     }
@@ -145,10 +145,10 @@ mod __foo_new_builder {
                 .extend(map.into_iter());
             self
         }
-        pub fn map_entry(
+        pub fn map_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
-            key: String,
-            value: String,
+            key: __K,
+            value: __V,
         ) -> __FooBuilder<
                 (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
             > {
@@ -156,7 +156,7 @@ mod __foo_new_builder {
                 .2
                 .lazy
                 .get_or_insert_with(|| core::default::Default::default())
-                .insert(key, value);
+                .insert(key.into(), value.into());
             self
         }
     }
@@ -178,15 +178,15 @@ mod __foo_new_builder {
                 .extend(vec.into_iter());
             self
         }
-        pub fn vec_entry(
+        pub fn vec_entry<__T: Into<String>>(
             mut self,
-            value: String,
+            value: __T,
         ) -> __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
             self.fields
                 .3
                 .lazy
                 .get_or_insert_with(|| core::default::Default::default())
-                .push(value);
+                .push(value.into());
             self
         }
     }
@@ -210,10 +210,10 @@ mod __foo_new_builder {
                 .extend(btmap.into_iter());
             self
         }
-        pub fn btmap_entry(
+        pub fn btmap_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
-            key: String,
-            value: String,
+            key: __K,
+            value: __V,
         ) -> __FooBuilder<
                 (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
             > {
@@ -221,7 +221,7 @@ mod __foo_new_builder {
                 .4
                 .lazy
                 .get_or_insert_with(|| core::default::Default::default())
-                .insert(key, value);
+                .insert(key.into(), value.into());
             self
         }
     }
@@ -243,15 +243,15 @@ mod __foo_new_builder {
                 .extend(btset.into_iter());
             self
         }
-        pub fn btset_entry(
+        pub fn btset_entry<__T: Into<String>>(
             mut self,
-            value: String,
+            value: __T,
         ) -> __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
             self.fields
                 .5
                 .lazy
                 .get_or_insert_with(|| core::default::Default::default())
-                .insert(value);
+                .insert(value.into());
             self
         }
     }

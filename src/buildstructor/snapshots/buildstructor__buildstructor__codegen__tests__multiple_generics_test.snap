@@ -1,6 +1,5 @@
 ---
 source: src/buildstructor/codegen.rs
-assertion_line: 400
 expression: output
 ---
 impl<T> Request<T> {
@@ -33,11 +32,11 @@ mod __request_fake_new_builder {
         > {
         __RequestBuilder {
             fields: (__optional(), __optional(), __optional(), __required()),
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     pub struct __Required<T> {
-        phantom: std::marker::PhantomData<T>,
+        _phantom: std::marker::PhantomData<T>,
     }
     pub struct __Optional<T> {
         lazy: Option<T>,
@@ -50,7 +49,7 @@ mod __request_fake_new_builder {
     }
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     fn __optional<T>() -> __Optional<T> {
@@ -65,7 +64,7 @@ mod __request_fake_new_builder {
     }
     pub struct __RequestBuilder<__P, T, K, V> {
         fields: __P,
-        phantom: (
+        _phantom: (
             core::marker::PhantomData<T>,
             core::marker::PhantomData<K>,
             core::marker::PhantomData<V>,
@@ -134,7 +133,7 @@ mod __request_fake_new_builder {
         {
             __RequestBuilder {
                 fields: (self.fields.0, __set(Some(uri)), self.fields.2, self.fields.3),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
         pub fn and_uri(
@@ -149,7 +148,7 @@ mod __request_fake_new_builder {
         {
             __RequestBuilder {
                 fields: (self.fields.0, __set(uri), self.fields.2, self.fields.3),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }
@@ -178,7 +177,7 @@ mod __request_fake_new_builder {
                     __set(Some(method)),
                     self.fields.3,
                 ),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
         pub fn and_method(
@@ -193,7 +192,7 @@ mod __request_fake_new_builder {
         {
             __RequestBuilder {
                 fields: (self.fields.0, self.fields.1, __set(method), self.fields.3),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }
@@ -211,7 +210,7 @@ mod __request_fake_new_builder {
         ) -> __RequestBuilder<(__0, __1, __2, __Set<T>), T, K, V> {
             __RequestBuilder {
                 fields: (self.fields.0, self.fields.1, self.fields.2, __set(body)),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }

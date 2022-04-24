@@ -1,6 +1,5 @@
 ---
 source: src/buildstructor/codegen.rs
-assertion_line: 392
 expression: output
 ---
 impl Foo {
@@ -15,11 +14,11 @@ mod __foo_new_builder {
     pub fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
         __FooBuilder {
             fields: (__required(),),
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     pub struct __Required<T> {
-        phantom: std::marker::PhantomData<T>,
+        _phantom: std::marker::PhantomData<T>,
     }
     pub struct __Optional<T> {
         lazy: Option<T>,
@@ -32,7 +31,7 @@ mod __foo_new_builder {
     }
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
-            phantom: core::default::Default::default(),
+            _phantom: core::default::Default::default(),
         }
     }
     fn __optional<T>() -> __Optional<T> {
@@ -47,13 +46,13 @@ mod __foo_new_builder {
     }
     pub struct __FooBuilder<__P> {
         fields: __P,
-        phantom: (),
+        _phantom: (),
     }
     impl __FooBuilder<(__Required<usize>,)> {
         pub fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
             __FooBuilder {
                 fields: (__set(simple),),
-                phantom: core::default::Default::default(),
+                _phantom: core::default::Default::default(),
             }
         }
     }
