@@ -210,4 +210,21 @@ mod tests {
             }
         )
     }
+
+    pub fn collections_generics_test_case2() -> Ast {
+        parse_quote!(
+            #[builder]
+            impl Collections {
+                fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
+                    map: HashMap<K, V>,
+                    set: HashSet<K>,
+                ) -> Collections {
+                    Self {
+                        map: map.into_iter().map(|(k, v)| (k.into(), v.into())).collect(),
+                        set: set.into_iter().map(|v| v.into()).collect(),
+                    }
+                }
+            }
+        )
+    }
 }

@@ -68,12 +68,12 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             {
                 #builder_name {
                     fields: (#(#builder_state_initial ,) *),
-                    phantom: core::default::Default::default()
+                    _phantom: core::default::Default::default()
                 }
             }
 
            pub struct __Required<T> {
-                phantom: std::marker::PhantomData<T>,
+                _phantom: std::marker::PhantomData<T>,
             }
             pub struct __Optional<T> {
                 lazy: Option<T>,
@@ -88,7 +88,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
             fn __required<T>() -> __Required<T> {
                 __Required::<T> {
-                    phantom: core::default::Default::default(),
+                    _phantom: core::default::Default::default(),
                 }
             }
 
@@ -109,7 +109,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
             pub struct #builder_name #all_ty_generics {
                 fields: __P,
-                phantom: (#(core::marker::PhantomData<#target_generics_raw>,) *)
+                _phantom: (#(core::marker::PhantomData<#target_generics_raw>,) *)
             }
 
             #(#builder_methods)*
@@ -178,13 +178,13 @@ pub fn builder_methods(
                             pub fn #method_name (self, #field_name: #generic_param) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state_option,
-                                    phantom: core::default::Default::default()
+                                    _phantom: core::default::Default::default()
                                 }
                             }
                             pub fn #and_method_name (self, #field_name: #ty) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state,
-                                    phantom: core::default::Default::default()
+                                    _phantom: core::default::Default::default()
                                 }
                             }
                         }
@@ -192,7 +192,18 @@ pub fn builder_methods(
                 },
                 FieldType::Set => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_collection_type = &f.collection_type;
+                    let mut field_collection_type = f.collection_type.clone();
+                    let mut into_generics = None;
+                    let mut into_call = None;
+                    if f.collection_into {
+                        let into_type = field_collection_type.replace(Type::parse("__T"));
+                        let _ = into_generics.insert(Some(quote! {
+                            <__T: Into<#into_type>>
+                        }));
+                        into_call = Some(quote!{
+                            .into()
+                        })
+                    }
                     let index = Index::from(idx);
                     quote! {
                         impl #builder_type_generics #builder_name #before {
@@ -202,8 +213,8 @@ pub fn builder_methods(
                                 self
                             }
 
-                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
-                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(value);
+                            pub fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
+                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(value #into_call);
                                 self
                             }
 
@@ -212,8 +223,20 @@ pub fn builder_methods(
                 },
                 FieldType::Vec => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_collection_type = &f.collection_type;
+                    let mut field_collection_type = f.collection_type.clone();
+                    let mut into_generics = None;
+                    let mut into_call = None;
+                    if f.collection_into {
+                        let into_type = field_collection_type.replace(Type::parse("__T"));
+                        let _ = into_generics.insert(Some(quote! {
+                            <__T: Into<#into_type>>
+                        }));
+                        into_call = Some(quote!{
+                            .into()
+                        })
+                    }
                     let index = Index::from(idx);
+
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
@@ -222,8 +245,8 @@ pub fn builder_methods(
                                 self
                             }
 
-                            pub fn #singular (mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
-                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).push(value);
+                            pub fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
+                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).push(value #into_call);
                                 self
                             }
 
@@ -232,8 +255,40 @@ pub fn builder_methods(
                 },
                 FieldType::Map => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let field_key_type = &f.key_type;
-                    let field_value_type = &f.value_type;
+                    let mut field_key_type = f.key_type.clone();
+                    let mut field_value_type = f.value_type.clone();
+                    let mut into_generics = Vec::new();
+                    let mut field_key_into_call = None;
+                    let mut field_value_into_call = None;
+                    if f.key_into {
+                        let into_type = field_key_type.replace(Type::parse("__K"));
+                        let _ = into_generics.push(quote! {
+                            __K: Into<#into_type>
+                        });
+                        field_key_into_call = Some(quote!{
+                            .into()
+                        })
+                    }
+                    if f.value_into {
+                        let into_type = field_value_type.replace(Type::parse("__V"));
+                        let _ = into_generics.push(quote! {
+                            __V: Into<#into_type>
+                        });
+                        field_value_into_call = Some(quote!{
+                            .into()
+                        })
+                    }
+
+                    let into_generics_final = if into_generics.is_empty() {
+                        None
+                    }
+                    else {
+                        Some(quote! {
+                            <#(#into_generics),*>
+                        })
+                    };
+
+
                     let index = Index::from(idx);
                     quote! {
                         impl #builder_type_generics #builder_name #before {
@@ -243,8 +298,8 @@ pub fn builder_methods(
                                 self
                             }
 
-                            pub fn #singular (mut self, key: #field_key_type, value: #field_value_type) -> #builder_name #before {
-                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(key, value);
+                            pub fn #singular #into_generics_final (mut self, key: #field_key_type, value: #field_value_type) -> #builder_name #before {
+                                self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(key #field_key_into_call, value #field_value_into_call);
                                 self
                             }
                         }
@@ -255,7 +310,7 @@ pub fn builder_methods(
                         pub fn #method_name (self, #field_name: #ty) -> #builder_name #after {
                             #builder_name {
                                 fields: #new_state,
-                                phantom: core::default::Default::default()
+                                _phantom: core::default::Default::default()
                             }
                         }
                     }
@@ -398,5 +453,10 @@ mod tests {
     #[test]
     fn multiple_generics_test() {
         assert_codegen!(multiple_generics_test_case());
+    }
+
+    #[test]
+    fn collection_generics_test2() {
+        assert_codegen!(collections_generics_test_case2());
     }
 }

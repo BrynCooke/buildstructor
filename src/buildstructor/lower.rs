@@ -31,8 +31,11 @@ pub struct BuilderField {
     pub ty: Type,
     pub field_type: FieldType,
     pub key_type: Option<Type>,
+    pub key_into: bool,
     pub value_type: Option<Type>,
+    pub value_into: bool,
     pub collection_type: Option<Type>,
+    pub collection_into: bool,
 }
 
 #[derive(Debug)]
@@ -85,7 +88,11 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                 let ident = try_match!(&*t.pat, Pat::Ident(x)=>x).ok()?;
                 let field_type = field_type(&*t.ty);
                 let args = t.ty.generic_args();
-                let (key_type, value_type, collection_type) = match (
+                let (
+                    (key_type, key_into),
+                    (value_type, value_into),
+                    (collection_type, collection_into),
+                ) = match (
                     &field_type,
                     args.and_then(|args| args.iter().next()),
                     args.and_then(|args| args.iter().nth(1)),
@@ -94,13 +101,31 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                         FieldType::Vec | FieldType::Set,
                         Some(GenericArgument::Type(collection_type)),
                         None,
-                    ) => (None, None, Some(collection_type.clone())),
+                    ) => (
+                        (None, false),
+                        (None, false),
+                        (
+                            Some(collection_type.clone()),
+                            collection_type
+                                .is_into_capable(&model.generics, &model.method_generics),
+                        ),
+                    ),
                     (
                         FieldType::Map,
                         Some(GenericArgument::Type(key_type)),
                         Some(GenericArgument::Type(value_type)),
-                    ) => (Some(key_type.clone()), Some(value_type.clone()), None),
-                    _ => (None, None, None),
+                    ) => (
+                        (
+                            Some(key_type.clone()),
+                            key_type.is_into_capable(&model.generics, &model.method_generics),
+                        ),
+                        (
+                            Some(value_type.clone()),
+                            value_type.is_into_capable(&model.generics, &model.method_generics),
+                        ),
+                        (None, false),
+                    ),
+                    _ => ((None, false), (None, false), (None, false)),
                 };
 
                 Some(BuilderField {
@@ -108,8 +133,11 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                     name: ident.ident.clone(),
                     field_type,
                     key_type,
+                    key_into,
                     value_type,
+                    value_into,
                     collection_type,
+                    collection_into,
                 })
             }
             FnArg::Receiver(_) => None,
