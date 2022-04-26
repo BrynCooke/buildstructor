@@ -23,7 +23,7 @@ use crate::buildstructor::parse;
 /// ```rust
 /// use buildstructor::builder;
 ///
-/// pub struct MyStruct {
+/// struct MyStruct {
 ///     sum: usize,
 /// }
 ///

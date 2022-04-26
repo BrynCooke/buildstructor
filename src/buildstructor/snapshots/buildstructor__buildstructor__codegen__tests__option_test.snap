@@ -50,8 +50,9 @@ mod __foo_new_builder {
     }
     impl __FooBuilder<(__Optional<Option<usize>>,)> {
         pub fn option(self, option: usize) -> __FooBuilder<(__Set<Option<usize>>,)> {
+            let option = Some(option);
             __FooBuilder {
-                fields: (__set(Some(option)),),
+                fields: (__set(option),),
                 _phantom: core::default::Default::default(),
             }
         }
@@ -59,6 +60,7 @@ mod __foo_new_builder {
             self,
             option: Option<usize>,
         ) -> __FooBuilder<(__Set<Option<usize>>,)> {
+            let option = option.map(|v| v);
             __FooBuilder {
                 fields: (__set(option),),
                 _phantom: core::default::Default::default(),

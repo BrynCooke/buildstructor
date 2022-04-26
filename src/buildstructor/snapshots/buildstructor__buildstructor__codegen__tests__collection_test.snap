@@ -82,6 +82,7 @@ mod __foo_new_builder {
             self,
             simple: usize,
         ) -> __FooBuilder<(__Set<usize>, __1, __2, __3, __4, __5)> {
+            let simple = simple;
             __FooBuilder {
                 fields: (
                     __set(simple),

@@ -123,7 +123,16 @@ fn main() {
 
 ### Into field
 
-You can use generics as usual in your constructor.
+#### Simple types
+Types automatically have into conversion if:
+* the type is not a scalar.
+* the type has no generic parameters. (this may be relaxed later)
+* the type is a generic parameter from the impl or constructor method.
+
+This is useful for Strings, but also other types where you want to overload the singular build method. Create an enum that derives From for all the types you want to support and then use this type in your constructor.
+
+#### Complex types
+You can use generics as usual in your constructor. However, this has the downside of not being able to support optional fields.
 
 ```rust
 use buildstructor::builder;
@@ -252,7 +261,7 @@ In the case that a singular form cannot be derived automatically the suffix `_en
 
 Adding a singular entry will automatically perform an into conversion if:
 * the type is not a scalar.
-* the type has no generic paramaters. (this may be relaxed later)
+* the type has no generic parameters. (this may be relaxed later)
 * the type is a generic parameter from the impl or constructor method. 
 
 This is useful for Strings, but also other types where you want to overload the singular build method. Create an enum that derives From for all the types you want to support and then use this type in your constructor.
