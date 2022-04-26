@@ -54,6 +54,7 @@ mod __foo_new_builder {
     }
     impl<T: Into<String>> __FooBuilder<(__Required<T>,), T> {
         pub fn simple(self, simple: T) -> __FooBuilder<(__Set<T>,), T> {
+            let simple = simple;
             __FooBuilder {
                 fields: (__set(simple),),
                 _phantom: core::default::Default::default(),

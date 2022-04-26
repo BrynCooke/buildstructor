@@ -52,6 +52,7 @@ mod __foo_new_builder {
     }
     impl<__1> __FooBuilder<(__Required<usize>, __1)> {
         pub fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>, __1)> {
+            let simple = simple;
             __FooBuilder {
                 fields: (__set(simple), self.fields.1),
                 _phantom: core::default::Default::default(),
@@ -60,6 +61,7 @@ mod __foo_new_builder {
     }
     impl<__0> __FooBuilder<(__0, __Required<usize>)> {
         pub fn simple2(self, simple2: usize) -> __FooBuilder<(__0, __Set<usize>)> {
+            let simple2 = simple2;
             __FooBuilder {
                 fields: (self.fields.0, __set(simple2)),
                 _phantom: core::default::Default::default(),

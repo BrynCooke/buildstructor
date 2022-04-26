@@ -194,7 +194,7 @@ pub trait TypeExt {
     fn wrap_in_generic_with_module(&self, module: &Ident, ident: Ident) -> Type;
     fn to_path(&self) -> Option<Path>;
     fn parse(name: &'static str) -> Type;
-    fn is_into_capable(&self, impl_geneerics: &Generics, constructor_geneerics: &Generics) -> bool;
+    fn is_into_capable(&self, impl_generics: &Generics, constructor_generics: &Generics) -> bool;
 }
 
 impl TypeExt for Type {
@@ -283,7 +283,7 @@ impl TypeExt for Type {
         })
     }
 
-    fn is_into_capable(&self, impl_geneerics: &Generics, constructor_geneerics: &Generics) -> bool {
+    fn is_into_capable(&self, impl_generics: &Generics, constructor_generics: &Generics) -> bool {
         // This is super restrictive for now. No generic types. No scalars, No tuples.
         // The goal is to allow users to provide their own intermediate enum type or to use strings/&str.
         // Maybe this can be relaxed a little in future.
@@ -307,10 +307,10 @@ impl TypeExt for Type {
             }
         }
         // If this is a generic type we can't really use Into as the user will have to specify the type on the builder.
-        for p in impl_geneerics
+        for p in impl_generics
             .params
             .iter()
-            .chain(constructor_geneerics.params.iter())
+            .chain(constructor_generics.params.iter())
         {
             if let GenericParam::Type(ty) = p {
                 if Some(&ty.ident) == ident.as_ref() {

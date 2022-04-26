@@ -121,9 +121,9 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__0, __Optional<Option<http::Uri>>, __2, __3), T, K, V> {
-        pub fn uri(
+        pub fn uri<__T: Into<http::Uri>>(
             self,
-            uri: http::Uri,
+            uri: __T,
         ) -> __RequestBuilder<(__0, __Set<Option<http::Uri>>, __2, __3), T, K, V>
         where
             HeaderName: TryFrom<K>,
@@ -131,14 +131,15 @@ mod __request_fake_new_builder {
             HeaderValue: TryFrom<V>,
             <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
         {
+            let uri = Some(uri.into());
             __RequestBuilder {
-                fields: (self.fields.0, __set(Some(uri)), self.fields.2, self.fields.3),
+                fields: (self.fields.0, __set(uri), self.fields.2, self.fields.3),
                 _phantom: core::default::Default::default(),
             }
         }
-        pub fn and_uri(
+        pub fn and_uri<__T: Into<http::Uri>>(
             self,
-            uri: Option<http::Uri>,
+            uri: Option<__T>,
         ) -> __RequestBuilder<(__0, __Set<Option<http::Uri>>, __2, __3), T, K, V>
         where
             HeaderName: TryFrom<K>,
@@ -146,6 +147,7 @@ mod __request_fake_new_builder {
             HeaderValue: TryFrom<V>,
             <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
         {
+            let uri = uri.map(|v| v.into());
             __RequestBuilder {
                 fields: (self.fields.0, __set(uri), self.fields.2, self.fields.3),
                 _phantom: core::default::Default::default(),
@@ -160,9 +162,9 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__0, __1, __Optional<Option<http::Method>>, __3), T, K, V> {
-        pub fn method(
+        pub fn method<__T: Into<http::Method>>(
             self,
-            method: http::Method,
+            method: __T,
         ) -> __RequestBuilder<(__0, __1, __Set<Option<http::Method>>, __3), T, K, V>
         where
             HeaderName: TryFrom<K>,
@@ -170,19 +172,15 @@ mod __request_fake_new_builder {
             HeaderValue: TryFrom<V>,
             <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
         {
+            let method = Some(method.into());
             __RequestBuilder {
-                fields: (
-                    self.fields.0,
-                    self.fields.1,
-                    __set(Some(method)),
-                    self.fields.3,
-                ),
+                fields: (self.fields.0, self.fields.1, __set(method), self.fields.3),
                 _phantom: core::default::Default::default(),
             }
         }
-        pub fn and_method(
+        pub fn and_method<__T: Into<http::Method>>(
             self,
-            method: Option<http::Method>,
+            method: Option<__T>,
         ) -> __RequestBuilder<(__0, __1, __Set<Option<http::Method>>, __3), T, K, V>
         where
             HeaderName: TryFrom<K>,
@@ -190,6 +188,7 @@ mod __request_fake_new_builder {
             HeaderValue: TryFrom<V>,
             <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
         {
+            let method = method.map(|v| v.into());
             __RequestBuilder {
                 fields: (self.fields.0, self.fields.1, __set(method), self.fields.3),
                 _phantom: core::default::Default::default(),
@@ -208,6 +207,7 @@ mod __request_fake_new_builder {
             self,
             body: T,
         ) -> __RequestBuilder<(__0, __1, __2, __Set<T>), T, K, V> {
+            let body = body;
             __RequestBuilder {
                 fields: (self.fields.0, self.fields.1, self.fields.2, __set(body)),
                 _phantom: core::default::Default::default(),
