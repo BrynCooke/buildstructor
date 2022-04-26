@@ -98,7 +98,7 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                     args.and_then(|args| args.iter().nth(1)),
                 ) {
                     (
-                        FieldType::Vec | FieldType::Set,
+                        FieldType::Option | FieldType::Vec | FieldType::Set,
                         Some(GenericArgument::Type(collection_type)),
                         None,
                     ) => (

@@ -166,22 +166,34 @@ pub fn builder_methods(
             let set = call(format_ident!("__set"), vec![Expr::Path(field_name.to_expr_path())]);
             let new_state = params(ir, idx, field_name, &builder_type_generics, set);
             let set_some = call(format_ident!("__set"), vec![call(format_ident!("Some"), vec![Expr::Path(field_name.to_expr_path())])]);
-            let new_state_option = params(ir, idx, field_name, &builder_type_generics, set_some);
+
             let builder_type_generics = Generics::combine(vec![&builder_type_generics.without(idx), &builder_generics]);
-            let generic_param = ty.generic_args();
 
             match f.field_type {
                 FieldType::Option => {
                     let and_method_name = format_ident!("and_{}", f.name);
+                    let new_state_option = params(ir, idx, field_name, &builder_type_generics, set_some);
+                    let mut field_collection_type = f.collection_type.clone();
+                    let mut into_generics = None;
+                    let mut into_call = None;
+                    if f.collection_into {
+                        let into_type = field_collection_type.replace(Type::parse("__T"));
+                        let _ = into_generics.insert(Some(quote! {
+                            <__T: Into<#into_type>>
+                        }));
+                        into_call = Some(quote!{
+                            .into()
+                        })
+                    }
                     quote! {
                         impl #builder_type_generics #builder_name #before {
-                            pub fn #method_name (self, #field_name: #generic_param) -> #builder_name #after #builder_where_clause {
+                            pub fn #method_name #into_generics(self, #field_name: #field_collection_type) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state_option,
                                     _phantom: core::default::Default::default()
                                 }
                             }
-                            pub fn #and_method_name (self, #field_name: #ty) -> #builder_name #after #builder_where_clause {
+                            pub fn #and_method_name #into_generics(self, #field_name: #ty) -> #builder_name #after #builder_where_clause {
                                 #builder_name {
                                     fields: #new_state,
                                     _phantom: core::default::Default::default()
