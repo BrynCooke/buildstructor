@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 0.1.9 - 2022-04-26
+[#30](https://github.com/BrynCooke/buildstructor/issues/30)
+The original token stream is output if there are compile errors.
+This allows IDEs to auto complete during periods of invalid code.
+
+## 0.1.9 - 2022-04-26
 [#24](https://github.com/BrynCooke/buildstructor/issues/24)
 Simple types are now given Into treatment globally.
 

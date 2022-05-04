@@ -41,9 +41,9 @@ use crate::buildstructor::parse;
 /// ```
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
-    match process(attr, item) {
+    match process(attr, item.clone()) {
         Ok(ok) => ok,
-        Err(err) => err,
+        Err(err) => TokenStream::from_iter([item, err]),
     }
 }
 
