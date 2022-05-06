@@ -5,8 +5,8 @@ use quote::{format_ident, quote};
 use std::default::Default;
 use syn::punctuated::Punctuated;
 use syn::{
-    Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat, Result,
-    ReturnType, Type, TypeParam, TypeTuple, VisRestricted, Visibility,
+    Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
+    PathArguments, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted, Visibility,
 };
 use try_match::try_match;
 
@@ -68,7 +68,7 @@ pub fn lower(model: ConstrutorModel) -> Result<Ir> {
         builder_method_name: builder_method_name(&model),
         builder_fields: builder_fields(&model),
         constructor_name: format_ident!("{}Constructor", model.ident.to_string()),
-        return_type: builder_return_type(model.output, model.ident),
+        return_type: builder_return_type(model.output, &model.ident),
         is_async: model.is_async,
         generics: model.generics,
         builder_generics: Ir::builder_generics(),
@@ -89,14 +89,30 @@ fn builder_vilibility(vis: &Visibility) -> Visibility {
     }
 }
 
-fn builder_return_type(mut return_type: ReturnType, target: Ident) -> ReturnType {
+fn builder_return_type(mut return_type: ReturnType, target: &Ident) -> ReturnType {
     if let ReturnType::Type(_, ty) = &mut return_type {
-        let self_type = Box::new(Type::Path(format_ident!("Self").to_type_path()));
-        if ty == &self_type {
-            *ty = Box::new(Type::Path(target.to_type_path()));
-        }
+        replace_self(ty, target);
     }
     return_type
+}
+
+fn replace_self(ty: &mut Type, target: &Ident) {
+    let self_type = format_ident!("Self").to_type_path();
+    if let Type::Path(path) = ty {
+        if path == &self_type {
+            *path = target.to_type_path();
+        } else {
+            for segment in path.path.segments.iter_mut() {
+                if let PathArguments::AngleBracketed(args) = &mut segment.arguments {
+                    for mut arg in args.args.iter_mut() {
+                        if let GenericArgument::Type(ty) = &mut arg {
+                            replace_self(ty, target);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.11 - 2022-05-06
+[#39](https://github.com/BrynCooke/buildstructor/issues/39)
+Visibility of builder now matches the visibility of the constructor.
+
+[#28](https://github.com/BrynCooke/buildstructor/issues/28)
+Generalize replacing of self in return type.
+
 ## 0.1.10 - 2022-05-04
 [#30](https://github.com/BrynCooke/buildstructor/issues/30)
 The original token stream is output if there are compile errors.
