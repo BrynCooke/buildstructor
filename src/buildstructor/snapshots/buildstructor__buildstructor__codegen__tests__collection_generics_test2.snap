@@ -16,7 +16,7 @@ impl Collections {
 }
 mod __collections_new_builder {
     use super::*;
-    pub fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __CollectionsBuilder<
+    pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __CollectionsBuilder<
             (
                 __collections_new_builder::__Optional<HashMap<K, V>>,
                 __collections_new_builder::__Optional<HashSet<K>>,
@@ -56,7 +56,7 @@ mod __collections_new_builder {
             }
         }
     }
-    pub struct __CollectionsBuilder<__P, K, V> {
+    pub(super) struct __CollectionsBuilder<__P, K, V> {
         fields: __P,
         _phantom: (core::marker::PhantomData<K>, core::marker::PhantomData<V>),
     }
@@ -65,7 +65,7 @@ mod __collections_new_builder {
         K: Into<String> + Eq + Hash,
         V: Into<String>,
     > __CollectionsBuilder<(__Optional<HashMap<K, V>>, __1), K, V> {
-        pub fn map(
+        pub(super) fn map(
             mut self,
             map: HashMap<K, V>,
         ) -> __CollectionsBuilder<(__Optional<HashMap<K, V>>, __1), K, V> {
@@ -76,7 +76,7 @@ mod __collections_new_builder {
                 .extend(map.into_iter());
             self
         }
-        pub fn map_entry(
+        pub(super) fn map_entry(
             mut self,
             key: K,
             value: V,
@@ -94,7 +94,7 @@ mod __collections_new_builder {
         K: Into<String> + Eq + Hash,
         V: Into<String>,
     > __CollectionsBuilder<(__0, __Optional<HashSet<K>>), K, V> {
-        pub fn set(
+        pub(super) fn set(
             mut self,
             set: HashSet<K>,
         ) -> __CollectionsBuilder<(__0, __Optional<HashSet<K>>), K, V> {
@@ -105,7 +105,7 @@ mod __collections_new_builder {
                 .extend(set.into_iter());
             self
         }
-        pub fn set_entry(
+        pub(super) fn set_entry(
             mut self,
             value: K,
         ) -> __CollectionsBuilder<(__0, __Optional<HashSet<K>>), K, V> {

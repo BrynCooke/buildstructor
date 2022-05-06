@@ -18,7 +18,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
-    pub fn new() -> __FooBuilder<
+    pub(super) fn new() -> __FooBuilder<
             (
                 __foo_new_builder::__Required<usize>,
                 __foo_new_builder::__Optional<HashSet<String>>,
@@ -67,7 +67,7 @@ mod __foo_new_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P> {
+    pub(super) struct __FooBuilder<__P> {
         fields: __P,
         _phantom: (),
     }
@@ -78,7 +78,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__Required<usize>, __1, __2, __3, __4, __5)> {
-        pub fn simple(
+        pub(super) fn simple(
             self,
             simple: usize,
         ) -> __FooBuilder<(__Set<usize>, __1, __2, __3, __4, __5)> {
@@ -103,7 +103,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
-        pub fn set(
+        pub(super) fn set(
             mut self,
             set: HashSet<String>,
         ) -> __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
@@ -114,7 +114,7 @@ mod __foo_new_builder {
                 .extend(set.into_iter());
             self
         }
-        pub fn set_entry<__T: Into<String>>(
+        pub(super) fn set_entry<__T: Into<String>>(
             mut self,
             value: __T,
         ) -> __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
@@ -133,7 +133,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5)> {
-        pub fn map(
+        pub(super) fn map(
             mut self,
             map: HashMap<String, String>,
         ) -> __FooBuilder<
@@ -146,7 +146,7 @@ mod __foo_new_builder {
                 .extend(map.into_iter());
             self
         }
-        pub fn map_entry<__K: Into<String>, __V: Into<String>>(
+        pub(super) fn map_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
             key: __K,
             value: __V,
@@ -168,7 +168,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
-        pub fn vec(
+        pub(super) fn vec(
             mut self,
             vec: Vec<String>,
         ) -> __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
@@ -179,7 +179,7 @@ mod __foo_new_builder {
                 .extend(vec.into_iter());
             self
         }
-        pub fn vec_entry<__T: Into<String>>(
+        pub(super) fn vec_entry<__T: Into<String>>(
             mut self,
             value: __T,
         ) -> __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
@@ -198,7 +198,7 @@ mod __foo_new_builder {
         __3,
         __5,
     > __FooBuilder<(__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5)> {
-        pub fn btmap(
+        pub(super) fn btmap(
             mut self,
             btmap: BTreeMap<String, String>,
         ) -> __FooBuilder<
@@ -211,7 +211,7 @@ mod __foo_new_builder {
                 .extend(btmap.into_iter());
             self
         }
-        pub fn btmap_entry<__K: Into<String>, __V: Into<String>>(
+        pub(super) fn btmap_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
             key: __K,
             value: __V,
@@ -233,7 +233,7 @@ mod __foo_new_builder {
         __3,
         __4,
     > __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
-        pub fn btset(
+        pub(super) fn btset(
             mut self,
             btset: BTreeSet<String>,
         ) -> __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
@@ -244,7 +244,7 @@ mod __foo_new_builder {
                 .extend(btset.into_iter());
             self
         }
-        pub fn btset_entry<__T: Into<String>>(
+        pub(super) fn btset_entry<__T: Into<String>>(
             mut self,
             value: __T,
         ) -> __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
