@@ -11,7 +11,9 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
-    pub fn new() -> __FooBuilder<(__foo_new_builder::__Optional<Option<usize>>,)> {
+    pub(super) fn new() -> __FooBuilder<
+            (__foo_new_builder::__Optional<Option<usize>>,),
+        > {
         __FooBuilder {
             fields: (__optional(),),
             _phantom: core::default::Default::default(),
@@ -44,19 +46,22 @@ mod __foo_new_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P> {
+    pub(super) struct __FooBuilder<__P> {
         fields: __P,
         _phantom: (),
     }
     impl __FooBuilder<(__Optional<Option<usize>>,)> {
-        pub fn option(self, option: usize) -> __FooBuilder<(__Set<Option<usize>>,)> {
+        pub(super) fn option(
+            self,
+            option: usize,
+        ) -> __FooBuilder<(__Set<Option<usize>>,)> {
             let option = Some(option);
             __FooBuilder {
                 fields: (__set(option),),
                 _phantom: core::default::Default::default(),
             }
         }
-        pub fn and_option(
+        pub(super) fn and_option(
             self,
             option: Option<usize>,
         ) -> __FooBuilder<(__Set<Option<usize>>,)> {

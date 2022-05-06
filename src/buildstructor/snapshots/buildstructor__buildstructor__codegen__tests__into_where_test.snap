@@ -12,7 +12,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
-    pub fn new<T>() -> __FooBuilder<(__foo_new_builder::__Required<T>,), T> {
+    pub(super) fn new<T>() -> __FooBuilder<(__foo_new_builder::__Required<T>,), T> {
         __FooBuilder {
             fields: (__required(),),
             _phantom: core::default::Default::default(),
@@ -45,12 +45,12 @@ mod __foo_new_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P, T> {
+    pub(super) struct __FooBuilder<__P, T> {
         fields: __P,
         _phantom: (core::marker::PhantomData<T>,),
     }
     impl<T> __FooBuilder<(__Required<T>,), T> {
-        pub fn simple(self, simple: T) -> __FooBuilder<(__Set<T>,), T> {
+        pub(super) fn simple(self, simple: T) -> __FooBuilder<(__Set<T>,), T> {
             let simple = simple;
             __FooBuilder {
                 fields: (__set(simple),),

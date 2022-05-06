@@ -11,7 +11,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
-    pub fn new() -> __FooBuilder<
+    pub(super) fn new() -> __FooBuilder<
             (__foo_new_builder::__Optional<HashMap<Option<String>, Option<String>>>,),
         > {
         __FooBuilder {
@@ -46,12 +46,12 @@ mod __foo_new_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P> {
+    pub(super) struct __FooBuilder<__P> {
         fields: __P,
         _phantom: (),
     }
     impl __FooBuilder<(__Optional<HashMap<Option<String>, Option<String>>>,)> {
-        pub fn param(
+        pub(super) fn param(
             mut self,
             param: HashMap<Option<String>, Option<String>>,
         ) -> __FooBuilder<(__Optional<HashMap<Option<String>, Option<String>>>,)> {
@@ -62,7 +62,7 @@ mod __foo_new_builder {
                 .extend(param.into_iter());
             self
         }
-        pub fn param_entry(
+        pub(super) fn param_entry(
             mut self,
             key: Option<String>,
             value: Option<String>,

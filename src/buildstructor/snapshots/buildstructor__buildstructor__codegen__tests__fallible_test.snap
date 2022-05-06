@@ -11,7 +11,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
-    pub fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
+    pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
         __FooBuilder {
             fields: (__required(),),
             _phantom: core::default::Default::default(),
@@ -44,12 +44,12 @@ mod __foo_new_builder {
             }
         }
     }
-    pub struct __FooBuilder<__P> {
+    pub(super) struct __FooBuilder<__P> {
         fields: __P,
         _phantom: (),
     }
     impl __FooBuilder<(__Required<usize>,)> {
-        pub fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
+        pub(super) fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
             let simple = simple;
             __FooBuilder {
                 fields: (__set(simple),),

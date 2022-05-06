@@ -65,7 +65,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         mod #module_name {
             use super::*;
 
-            pub fn new #builder_init_generics() -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
+            #builder_vis fn new #builder_init_generics() -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
             {
                 #builder_name {
                     fields: (#(#builder_state_initial ,) *),
@@ -108,7 +108,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             }
 
 
-            pub struct #builder_name #all_ty_generics {
+            #builder_vis struct #builder_name #all_ty_generics {
                 fields: __P,
                 _phantom: (#(core::marker::PhantomData<#target_generics_raw>,) *)
             }
@@ -129,6 +129,8 @@ pub fn builder_methods(
     builder_where_clause: Option<&WhereClause>,
 ) -> Result<Vec<TokenStream>> {
     let builder_generics = Generics::combine(vec![&ir.generics, &ir.method_generics]);
+    let builder_vis = &ir.builder_vis;
+
     Ok(ir.builder_fields
         .iter()
         .enumerate()
@@ -185,14 +187,14 @@ pub fn builder_methods(
                     }
                     quote! {
                         impl #builder_type_generics #builder_name #before {
-                            pub fn #method_name #into_generics(self, #field_name: #field_collection_type) -> #builder_name #after #builder_where_clause {
+                            #builder_vis fn #method_name #into_generics(self, #field_name: #field_collection_type) -> #builder_name #after #builder_where_clause {
                                 let #field_name = Some(#field_name #into_call);
                                 #builder_name {
                                     fields: #new_state,
                                     _phantom: core::default::Default::default()
                                 }
                             }
-                            pub fn #and_method_name #into_generics(self, #field_name: Option<#field_collection_type>) -> #builder_name #after #builder_where_clause {
+                            #builder_vis fn #and_method_name #into_generics(self, #field_name: Option<#field_collection_type>) -> #builder_name #after #builder_where_clause {
                                 let #field_name = #field_name.map(|v|v #into_call);
                                 #builder_name {
                                     fields: #new_state,
@@ -220,12 +222,12 @@ pub fn builder_methods(
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause {
+                            #builder_vis fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause {
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
 
-                            pub fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
+                            #builder_vis fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(value #into_call);
                                 self
                             }
@@ -252,12 +254,12 @@ pub fn builder_methods(
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
+                            #builder_vis fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
 
-                            pub fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
+                            #builder_vis fn #singular #into_generics(mut self, value: #field_collection_type) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).push(value #into_call);
                                 self
                             }
@@ -305,12 +307,12 @@ pub fn builder_methods(
                     quote! {
                         impl #builder_type_generics #builder_name #before {
 
-                            pub fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
+                            #builder_vis fn #plural (mut self, #field_name: #ty) -> #builder_name #before #builder_where_clause{
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).extend(#field_name.into_iter());
                                 self
                             }
 
-                            pub fn #singular #into_generics_final (mut self, key: #field_key_type, value: #field_value_type) -> #builder_name #before {
+                            #builder_vis fn #singular #into_generics_final (mut self, key: #field_key_type, value: #field_value_type) -> #builder_name #before {
                                 self.fields.#index.lazy.get_or_insert_with(||core::default::Default::default()).insert(key #field_key_into_call, value #field_value_into_call);
                                 self
                             }
@@ -332,7 +334,7 @@ pub fn builder_methods(
                     }
                     quote! {
                         impl #builder_type_generics #builder_name #before {
-                            pub fn #method_name #into_generics(self, #field_name: #ty) -> #builder_name #after {
+                            #builder_vis fn #method_name #into_generics(self, #field_name: #ty) -> #builder_name #after {
                                 let #field_name = #field_name #into_call;
                                 #builder_name {
                                     fields: #new_state,
