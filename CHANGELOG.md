@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.1.11 - 2022-05-06
 [#39](https://github.com/BrynCooke/buildstructor/issues/39)
-Visibility of builder now matches the visibility of the constructor.
+Visibility of builder now matches the visibility of each constructor.
 
 [#28](https://github.com/BrynCooke/buildstructor/issues/28)
 Generalize replacing of self in return type.
