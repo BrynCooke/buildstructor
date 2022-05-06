@@ -249,7 +249,7 @@ If your type does not conform to these patterns then you can use a type alias to
 
 #### Naming
 
-Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry. For isntance:
+Use the plural form in your constructor argument and `buildstructor` will automatically try to figure out the singular form for individual entry. For instance:
 
 `addresses` => `address`
 
