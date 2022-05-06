@@ -264,7 +264,7 @@ mod __foo_new_builder {
         __P4: Into<__Set<BTreeMap<String, String>>>,
         __P5: Into<__Set<BTreeSet<String>>>,
     > __FooBuilder<(__P0, __P1, __P2, __P3, __P4, __P5)> {
-        pub fn build(self) -> Foo {
+        pub(super) fn build(self) -> Foo {
             Foo::new(
                 self.fields.0.into().value,
                 self.fields.1.into().value,

@@ -123,7 +123,7 @@ mod __collections_new_builder {
         __P0: Into<__Set<HashMap<K, V>>>,
         __P1: Into<__Set<HashSet<K>>>,
     > __CollectionsBuilder<(__P0, __P1), K, V> {
-        pub fn build(self) -> Collections {
+        pub(super) fn build(self) -> Collections {
             Collections::new(self.fields.0.into().value, self.fields.1.into().value)
         }
     }

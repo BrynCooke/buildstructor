@@ -69,7 +69,7 @@ mod __foo_new_builder {
         }
     }
     impl<__P0: Into<__Set<usize>>, __P1: Into<__Set<usize>>> __FooBuilder<(__P0, __P1)> {
-        pub fn build(self) -> Foo {
+        pub(super) fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value, self.fields.1.into().value)
         }
     }
