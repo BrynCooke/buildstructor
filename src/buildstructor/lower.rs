@@ -6,7 +6,7 @@ use std::default::Default;
 use syn::punctuated::Punctuated;
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat, Result,
-    ReturnType, Type, TypeParam, TypeTuple, Visibility,
+    ReturnType, Type, TypeParam, TypeTuple, VisRestricted, Visibility,
 };
 use try_match::try_match;
 
@@ -20,6 +20,7 @@ pub struct Ir {
     pub return_type: ReturnType,
     pub is_async: bool,
     pub vis: Visibility,
+    pub builder_vis: Visibility,
     pub generics: Generics,
     pub builder_generics: Generics,
     pub method_generics: Generics,
@@ -49,8 +50,13 @@ pub enum FieldType {
 }
 
 pub fn lower(model: ConstrutorModel) -> Result<Ir> {
+    // Either visibility is set explicitly or we default to super.
+    let vis = model.vis.clone();
+    let builder_vis = builder_vilibility(&vis);
+
     Ok(Ir {
-        vis: model.vis.clone(),
+        vis,
+        builder_vis,
         module_name: format_ident!(
             "__{}_{}_builder",
             model.ident.to_string().to_lowercase(),
@@ -68,6 +74,19 @@ pub fn lower(model: ConstrutorModel) -> Result<Ir> {
         builder_generics: Ir::builder_generics(),
         method_generics: model.method_generics,
     })
+}
+
+fn builder_vilibility(vis: &Visibility) -> Visibility {
+    if let Visibility::Inherited = vis {
+        Visibility::Restricted(VisRestricted {
+            pub_token: Default::default(),
+            paren_token: Default::default(),
+            in_token: None,
+            path: Box::new(format_ident!("super").to_path()),
+        })
+    } else {
+        vis.clone()
+    }
 }
 
 fn builder_return_type(mut return_type: ReturnType, target: Ident) -> ReturnType {

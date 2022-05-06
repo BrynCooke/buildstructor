@@ -58,7 +58,7 @@ mod __foo_new_builder {
         }
     }
     impl<__P0: Into<__Set<usize>>> __FooBuilder<(__P0,)> {
-        pub fn build(self) -> Result<Foo, String> {
+        pub(super) fn build(self) -> Result<Foo, String> {
             Foo::new(self.fields.0.into().value)
         }
     }

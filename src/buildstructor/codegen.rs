@@ -53,6 +53,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let async_token = ir.is_async.then(|| quote! {async});
     let await_token = ir.is_async.then(|| quote! {.await});
     let vis = &ir.vis;
+    let builder_vis = &ir.builder_vis;
 
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
@@ -115,7 +116,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             #(#builder_methods)*
 
             impl #builder_impl_generics #builder_name #builder_tuple_ty_generics #builder_where_clause {
-                pub #async_token fn build(self) #constructor_return {
+                #builder_vis #async_token fn build(self) #constructor_return {
                     #target_name::#constructor_method_name(#(#constructor_args),*) #await_token
                 }
             }

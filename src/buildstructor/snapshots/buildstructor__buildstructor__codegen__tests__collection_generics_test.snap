@@ -87,7 +87,7 @@ mod __foo_new_builder {
         V: Into<String>,
         __P0: Into<__Set<HashMap<K, V>>>,
     > __FooBuilder<(__P0,), K, V> {
-        pub fn build(self) -> Foo {
+        pub(super) fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value)
         }
     }
