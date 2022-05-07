@@ -1,0 +1,11 @@
+error[E0599]: no method named `simple` found for struct `__FooBuilder<(__Set<String>,)>` in the current scope
+  --> tests/buildstructor/fail/duplicate.rs:14:40
+   |
+6  | #[builder]
+   | ---------- method `simple` not found for this
+...
+14 |     let _ = Foo::builder().simple("3").simple("3").build();
+   |                                        ^^^^^^ method not found in `__FooBuilder<(__Set<String>,)>`
+   |
+   = note: the method was found for
+           - `__FooBuilder<(__Required<String>,)>`
