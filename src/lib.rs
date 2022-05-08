@@ -3,6 +3,7 @@ extern crate core;
 
 use proc_macro::TokenStream;
 use quote::ToTokens;
+use syn::__private::TokenStream2;
 
 mod buildstructor;
 use crate::buildstructor::analyze;
@@ -41,26 +42,42 @@ use crate::buildstructor::parse;
 /// ```
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
-    match process(attr, item.clone()) {
-        Ok(ok) => ok,
-        Err(err) => TokenStream::from_iter([item, err]),
+    match parse::parse(TokenStream::from_iter(vec![attr, item.clone()]).into())
+        .map_err(|e| e.into_compile_error())
+    {
+        Ok(ast) => {
+            // We have the AST, we can return the token stream regardless of if there was success or not as long as we sanitize it of helper attributes.
+            let mut results: Vec<proc_macro::TokenStream> = match analyze::analyze(&ast)
+                .map_err(|e| e.into_compile_error())
+            {
+                Ok(constructors) => constructors
+                    .into_iter()
+                    .map(|constructor| {
+                        let ir = lower::lower(constructor).map_err(|e| e.into_compile_error())?;
+                        let code_gen = codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
+                        Ok(code_gen)
+                    })
+                    .map(|r: Result<TokenStream2, TokenStream2>| match r {
+                        Ok(r) => r.into(),
+                        Err(e) => e.into(),
+                    })
+                    .collect(),
+                Err(e) => {
+                    vec![e.into()]
+                }
+            };
+
+            // Now sanitize the AST of any helper attributes.
+            // TODO sanitize(&mut ast);
+
+            // Finally output the results.
+            let sanitized_token_stream = ast.item.to_token_stream();
+            results.insert(0, sanitized_token_stream.into());
+            TokenStream::from_iter(results)
+        }
+        Err(e) => {
+            // The parse failed so emit the original token stream as some editors rely on this.
+            TokenStream::from_iter([item, e.into()])
+        }
     }
-}
-
-fn process(attr: TokenStream, item: TokenStream) -> Result<TokenStream, TokenStream> {
-    let ast = parse::parse(TokenStream::from_iter(vec![attr, item]).into())
-        .map_err(|e| e.into_compile_error())?;
-    let constructors = analyze::analyze(ast.clone()).map_err(|e| e.into_compile_error())?;
-    let mut token_streams: Vec<proc_macro::TokenStream> = Vec::new();
-    let original_token_stream = ast.item.to_token_stream().into();
-    token_streams.push(original_token_stream);
-
-    for constructor_model in constructors {
-        let ir = lower::lower(constructor_model).map_err(|e| e.into_compile_error())?;
-
-        let code_gen = codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
-        token_streams.push(code_gen.into());
-    }
-
-    Ok(TokenStream::from_iter(token_streams.into_iter()))
 }

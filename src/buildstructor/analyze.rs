@@ -16,7 +16,7 @@ pub struct ConstrutorModel {
     pub vis: Visibility,
 }
 
-pub fn analyze(ast: Ast) -> Result<Vec<ConstrutorModel>> {
+pub fn analyze(ast: &Ast) -> Result<Vec<ConstrutorModel>> {
     let constructors = get_constructors(&ast.item);
     let ident = ast
         .item
@@ -65,56 +65,56 @@ mod tests {
 
     #[test]
     fn single_field_test() {
-        analyze(single_field_test_case()).unwrap();
+        analyze(&single_field_test_case()).unwrap();
     }
 
     #[test]
     fn pub_test() {
-        analyze(pub_test_case()).unwrap();
+        analyze(&pub_test_case()).unwrap();
     }
 
     #[test]
     fn multi_field_test() {
-        analyze(multi_field_test_case()).unwrap();
+        analyze(&multi_field_test_case()).unwrap();
     }
 
     #[test]
     fn generic_test() {
-        analyze(generic_test_case()).unwrap();
+        analyze(&generic_test_case()).unwrap();
     }
 
     #[test]
     fn async_test() {
-        analyze(async_test_case()).unwrap();
+        analyze(&async_test_case()).unwrap();
     }
 
     #[test]
     fn fallible_test() {
-        analyze(fallible_test_case()).unwrap();
+        analyze(&fallible_test_case()).unwrap();
     }
 
     #[test]
     fn into_test() {
-        analyze(into_test_case()).unwrap();
+        analyze(&into_test_case()).unwrap();
     }
 
     #[test]
     fn into_where_test() {
-        analyze(into_where_test_case()).unwrap();
+        analyze(&into_where_test_case()).unwrap();
     }
 
     #[test]
     fn option_test() {
-        analyze(option_test_case()).unwrap();
+        analyze(&option_test_case()).unwrap();
     }
 
     #[test]
     fn collection_test() {
-        analyze(collections_test_case()).unwrap();
+        analyze(&collections_test_case()).unwrap();
     }
 
     #[test]
     fn collection_generics_test() {
-        analyze(collections_generics_test_case()).unwrap();
+        analyze(&collections_generics_test_case()).unwrap();
     }
 }
