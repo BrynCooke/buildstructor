@@ -13,39 +13,44 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let module_name = &ir.module_name;
     let target_name = &ir.target_name;
 
-    let (impl_generics, ty_generics, where_clause) = &ir.generics.split_for_impl();
+    let (impl_generics, ty_generics, where_clause) = &ir.target_generics.split_for_impl();
 
     let param_generics = ir.param_generics();
 
-    let builder_generics =
-        Generics::combine(vec![&ir.generics, &ir.method_generics, &param_generics]);
+    let builder_generics = Generics::combine(vec![
+        &ir.target_generics,
+        &ir.delegate_generics,
+        &param_generics,
+    ]);
     let (builder_impl_generics, _, builder_where_clause) = builder_generics.split_for_impl();
 
-    let builder_generics_tuple = Generics::combine(vec![&ir.generics, &ir.method_generics]);
+    let builder_generics_tuple =
+        Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
     let builder_tuple_ty_generics = builder_generics_tuple
         .to_generic_args()
         .insert(0, Type::Tuple(param_generics.to_tuple_type()));
 
     let all_generics = Generics::combine(vec![
         &ir.builder_generics,
-        &ir.generics,
-        &ir.method_generics,
+        &ir.target_generics,
+        &ir.delegate_generics,
     ]);
     let (_, all_ty_generics, _) = all_generics.split_for_impl();
 
-    let method_generics = &ir.method_generics;
-    let builder_init_generics = Generics::combine(vec![&ir.generics, &ir.method_generics]);
+    let method_generics = &ir.delegate_generics;
+    let builder_init_generics = Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
     let target_generics_raw: Vec<GenericArgument> = builder_init_generics
         .to_generic_args()
         .args
         .into_iter()
         .collect();
 
-    let constructor_method_name = &ir.constructor_method_name;
-    let constructor_args = ir.constructor_args();
-    let constructor_return = &ir.return_type;
-    let builder_method_name = &ir.builder_method_name;
+    let delegate_name = &ir.delegate_name;
+    let delegate_args = ir.delegate_args();
     let builder_name = &ir.builder_name;
+    let builder_return_type = &ir.builder_return_type;
+    let builder_entry = &ir.builder_entry;
+    let builder_exit = &ir.builder_exit;
     let builder_methods = builder_methods(&ir, builder_where_clause)?;
     let builder_state_type_initial = ir.builder_state_type_initial();
     let builder_state_initial = ir.builder_state_initial();
@@ -57,7 +62,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
-            #vis fn #builder_method_name #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
+            #vis fn #builder_entry #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
                 #module_name::new()
             }
         }
@@ -116,8 +121,8 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             #(#builder_methods)*
 
             impl #builder_impl_generics #builder_name #builder_tuple_ty_generics #builder_where_clause {
-                #builder_vis #async_token fn build(self) #constructor_return {
-                    #target_name::#constructor_method_name(#(#constructor_args),*) #await_token
+                #builder_vis #async_token fn #builder_exit(self) #builder_return_type {
+                    #target_name::#delegate_name(#(#delegate_args),*) #await_token
                 }
             }
         }
@@ -128,7 +133,7 @@ pub fn builder_methods(
     ir: &Ir,
     builder_where_clause: Option<&WhereClause>,
 ) -> Result<Vec<TokenStream>> {
-    let builder_generics = Generics::combine(vec![&ir.generics, &ir.method_generics]);
+    let builder_generics = Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
     let builder_vis = &ir.builder_vis;
 
     Ok(ir.builder_fields
@@ -399,7 +404,7 @@ mod tests {
         ($input:expr) => {
             let models = analyze(&$input).expect("Analysis failed");
             for model in models {
-                let ir = lower(model).expect("Ir failed");
+                let ir = lower(model.expect("Analysis failed")).expect("Ir failed");
                 if let Ok(codegen) = codegen(ir) {
                     if let Ok(new_ast) = syn::parse2(codegen.clone()) {
                         let output = prettyplease::unparse(&new_ast);

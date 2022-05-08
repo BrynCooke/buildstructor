@@ -2,22 +2,78 @@ use crate::buildstructor::utils::TypeExt;
 use quote::format_ident;
 use syn::spanned::Spanned;
 use syn::{
-    FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Result, ReturnType, Visibility,
+    Attribute, FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Lit, Meta,
+    MetaNameValue, NestedMeta, Result, ReturnType, Visibility,
 };
 
 use crate::parse::Ast;
-pub struct ConstrutorModel {
-    pub ident: Ident,
-    pub constructor_name: Ident,
-    pub generics: Generics,
-    pub method_generics: Generics,
+pub struct BuilderModel {
+    pub target_name: Ident,
+    pub delegate_name: Ident,
+    pub target_generics: Generics,
+    pub delegate_generics: Generics,
     pub args: Vec<FnArg>,
     pub output: ReturnType,
     pub is_async: bool,
     pub vis: Visibility,
+    pub config: BuilderConfig,
 }
 
-pub fn analyze(ast: &Ast) -> Result<Vec<ConstrutorModel>> {
+#[derive(Default)]
+pub struct BuilderConfig {
+    pub entry: Option<String>,
+    pub exit: Option<String>,
+}
+
+impl TryFrom<&Attribute> for BuilderConfig {
+    type Error = syn::Error;
+
+    fn try_from(value: &Attribute) -> std::result::Result<Self, Self::Error> {
+        fn apply(config: &mut BuilderConfig, name_value: &MetaNameValue) -> Result<()> {
+            let name = name_value
+                .path
+                .get_ident()
+                .expect("config ident must be preset, qed");
+            let value = &name_value.lit;
+            match (name.to_string().as_str(), value) {
+                ("entry", Lit::Str(value)) => {
+                    config.entry = Some(value.value());
+                }
+                ("exit", Lit::Str(value)) => {
+                    config.exit = Some(value.value());
+                }
+                _ => return Err(syn::Error::new(
+                    value.span(),
+                    format!("invalid builder attribute '{}', only 'entry' and 'exit' are allowed and their type must be string", name.to_string()),
+                )),
+            }
+            Ok(())
+        }
+
+        Ok(match value.parse_meta()? {
+            Meta::Path(_) => BuilderConfig::default(),
+            Meta::List(l) => {
+                let mut config = BuilderConfig::default();
+                for nested in l.nested {
+                    match nested {
+                        NestedMeta::Meta(Meta::NameValue(name_value)) => {
+                            apply(&mut config, &name_value)?;
+                        }
+                        _ => {}
+                    }
+                }
+                config
+            }
+            Meta::NameValue(name_value) => {
+                let mut config = BuilderConfig::default();
+                apply(&mut config, &name_value)?;
+                config
+            }
+        })
+    }
+}
+
+pub fn analyze(ast: &Ast) -> Result<Vec<Result<BuilderModel>>> {
     let constructors = get_constructors(&ast.item);
     let ident = ast
         .item
@@ -26,32 +82,36 @@ pub fn analyze(ast: &Ast) -> Result<Vec<ConstrutorModel>> {
         .ok_or_else(|| syn::Error::new(ast.item.span(), "cannot find name of struct"))?;
     let constructor_models = constructors
         .into_iter()
-        .map(|constructor| ConstrutorModel {
-            ident: ident.clone(),
-            constructor_name: constructor.sig.ident.clone(),
-            generics: ast.item.generics.clone(),
-            method_generics: constructor.sig.generics.clone(),
-            args: constructor.sig.inputs.clone().into_iter().collect(),
-            output: constructor.sig.output.clone(),
-            is_async: constructor.sig.asyncness.is_some(),
-            vis: constructor.vis.clone(),
+        .map(|(builder, attr)| {
+            Ok(BuilderModel {
+                target_name: ident.clone(),
+                target_generics: ast.item.generics.clone(),
+                delegate_name: builder.sig.ident.clone(),
+                delegate_generics: builder.sig.generics.clone(),
+                args: builder.sig.inputs.clone().into_iter().collect(),
+                output: builder.sig.output.clone(),
+                is_async: builder.sig.asyncness.is_some(),
+                vis: builder.vis.clone(),
+                config: attr.try_into()?,
+            })
         })
         .collect();
 
     Ok(constructor_models)
 }
 
-fn get_constructors(item: &ItemImpl) -> Vec<&ImplItemMethod> {
+fn get_constructors(item: &ItemImpl) -> Vec<(&ImplItemMethod, &Attribute)> {
     item.items
         .iter()
         .filter_map(|item| {
             let builder_attr = Some(format_ident!("builder"));
-            if let ImplItem::Method(m) = item {
-                if m.attrs
+            if let ImplItem::Method(method) = item {
+                if let Some(attr) = method
+                    .attrs
                     .iter()
-                    .any(|attr| attr.path.get_ident() == builder_attr.as_ref())
+                    .find(|attr| attr.path.get_ident() == builder_attr.as_ref())
                 {
-                    return Some(m);
+                    return Some((method, attr));
                 }
             }
             None

@@ -53,12 +53,16 @@ pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
             let mut results: Vec<proc_macro::TokenStream> = match analyze::analyze(&ast)
                 .map_err(|e| e.into_compile_error())
             {
-                Ok(constructors) => constructors
+                Ok(builders) => builders
                     .into_iter()
-                    .map(|constructor| {
-                        let ir = lower::lower(constructor).map_err(|e| e.into_compile_error())?;
-                        let code_gen = codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
-                        Ok(code_gen)
+                    .map(|builder| match builder {
+                        Ok(builder) => {
+                            let ir = lower::lower(builder).map_err(|e| e.into_compile_error())?;
+                            let code_gen =
+                                codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
+                            Ok(code_gen)
+                        }
+                        Err(e) => Err(e.into_compile_error()),
                     })
                     .map(|r: Result<TokenStream2, TokenStream2>| match r {
                         Ok(r) => r.into(),
