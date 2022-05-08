@@ -11,34 +11,33 @@ use inflector::Inflector;
 
 pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let module_name = &ir.module_name;
-    let target_name = &ir.target_name;
+    let target_name = &ir.impl_name;
 
-    let (impl_generics, ty_generics, where_clause) = &ir.target_generics.split_for_impl();
+    let (impl_generics, ty_generics, where_clause) = &ir.impl_generics.split_for_impl();
 
     let param_generics = ir.param_generics();
 
     let builder_generics = Generics::combine(vec![
-        &ir.target_generics,
+        &ir.impl_generics,
         &ir.delegate_generics,
         &param_generics,
     ]);
     let (builder_impl_generics, _, builder_where_clause) = builder_generics.split_for_impl();
 
-    let builder_generics_tuple =
-        Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
+    let builder_generics_tuple = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
     let builder_tuple_ty_generics = builder_generics_tuple
         .to_generic_args()
         .insert(0, Type::Tuple(param_generics.to_tuple_type()));
 
     let all_generics = Generics::combine(vec![
         &ir.builder_generics,
-        &ir.target_generics,
+        &ir.impl_generics,
         &ir.delegate_generics,
     ]);
     let (_, all_ty_generics, _) = all_generics.split_for_impl();
 
     let method_generics = &ir.delegate_generics;
-    let builder_init_generics = Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
+    let builder_init_generics = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
     let target_generics_raw: Vec<GenericArgument> = builder_init_generics
         .to_generic_args()
         .args
@@ -133,7 +132,7 @@ pub fn builder_methods(
     ir: &Ir,
     builder_where_clause: Option<&WhereClause>,
 ) -> Result<Vec<TokenStream>> {
-    let builder_generics = Generics::combine(vec![&ir.target_generics, &ir.delegate_generics]);
+    let builder_generics = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
     let builder_vis = &ir.builder_vis;
 
     Ok(ir.builder_fields

@@ -8,12 +8,12 @@ use syn::{
 
 use crate::parse::Ast;
 pub struct BuilderModel {
-    pub target_name: Ident,
+    pub impl_name: Ident,
+    pub impl_generics: Generics,
     pub delegate_name: Ident,
-    pub target_generics: Generics,
     pub delegate_generics: Generics,
-    pub args: Vec<FnArg>,
-    pub output: ReturnType,
+    pub delegate_args: Vec<FnArg>,
+    pub delegate_return_type: ReturnType,
     pub is_async: bool,
     pub vis: Visibility,
     pub config: BuilderConfig,
@@ -84,12 +84,12 @@ pub fn analyze(ast: &Ast) -> Result<Vec<Result<BuilderModel>>> {
         .into_iter()
         .map(|(builder, attr)| {
             Ok(BuilderModel {
-                target_name: ident.clone(),
-                target_generics: ast.item.generics.clone(),
+                impl_name: ident.clone(),
+                impl_generics: ast.item.generics.clone(),
                 delegate_name: builder.sig.ident.clone(),
                 delegate_generics: builder.sig.generics.clone(),
-                args: builder.sig.inputs.clone().into_iter().collect(),
-                output: builder.sig.output.clone(),
+                delegate_args: builder.sig.inputs.clone().into_iter().collect(),
+                delegate_return_type: builder.sig.output.clone(),
                 is_async: builder.sig.asyncness.is_some(),
                 vis: builder.vis.clone(),
                 config: attr.try_into()?,

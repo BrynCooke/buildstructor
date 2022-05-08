@@ -6,25 +6,27 @@ use std::default::Default;
 use syn::punctuated::Punctuated;
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
-    PathArguments, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted, Visibility,
+    PathArguments, Receiver, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted,
+    Visibility,
 };
 use try_match::try_match;
 
 pub struct Ir {
     pub module_name: Ident,
-    pub target_name: Ident,
+    pub impl_name: Ident,
+    pub impl_generics: Generics,
+    pub delegate_name: Ident,
+    pub delegate_generics: Generics,
     pub builder_name: Ident,
     pub builder_fields: Vec<BuilderField>,
-    pub delegate_name: Ident,
     pub builder_return_type: ReturnType,
-    pub is_async: bool,
-    pub vis: Visibility,
     pub builder_vis: Visibility,
-    pub target_generics: Generics,
     pub builder_generics: Generics,
-    pub delegate_generics: Generics,
     pub builder_entry: Ident,
     pub builder_exit: Ident,
+    pub vis: Visibility,
+    pub is_async: bool,
+    pub receiver: Option<Receiver>,
 }
 
 pub struct BuilderField {
@@ -59,20 +61,28 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         builder_vis,
         module_name: format_ident!(
             "__{}_{}_builder",
-            model.target_name.to_string().to_lowercase(),
+            model.impl_name.to_string().to_lowercase(),
             model.delegate_name.to_string().to_lowercase()
         ),
-        target_name: model.target_name.clone(),
-        target_generics: model.target_generics.clone(),
+        impl_name: model.impl_name.clone(),
+        impl_generics: model.impl_generics.clone(),
         delegate_name: model.delegate_name.clone(),
         delegate_generics: model.delegate_generics.clone(),
-        builder_name: format_ident!("__{}Builder", model.target_name.clone()),
-        builder_return_type: builder_return_type(&model.output, &model.target_name),
+        builder_name: format_ident!("__{}Builder", model.impl_name.clone()),
+        builder_return_type: builder_return_type(&model.delegate_return_type, &model.impl_name),
         builder_entry: builder_entry(&model),
         builder_exit: builder_exit(&model),
         builder_fields: builder_fields(&model),
         builder_generics: Ir::builder_generics(),
         is_async: model.is_async,
+        receiver: model
+            .delegate_args
+            .iter()
+            .filter_map(|a| match a {
+                FnArg::Receiver(r) => Some(r.clone()),
+                FnArg::Typed(_) => None,
+            })
+            .next(),
     })
 }
 
@@ -118,7 +128,7 @@ fn replace_self(ty: &mut Type, target: &Ident) {
 
 fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
     model
-        .args
+        .delegate_args
         .iter()
         .filter_map(|f| match f {
             FnArg::Typed(t) => {
@@ -141,7 +151,7 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                             (
                                 Some(collection_type.clone()),
                                 collection_type.is_into_capable(
-                                    &model.target_generics,
+                                    &model.impl_generics,
                                     &model.delegate_generics,
                                 ),
                             ),
@@ -154,14 +164,14 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                             (
                                 Some(key_type.clone()),
                                 key_type.is_into_capable(
-                                    &model.target_generics,
+                                    &model.impl_generics,
                                     &model.delegate_generics,
                                 ),
                             ),
                             (
                                 Some(value_type.clone()),
                                 value_type.is_into_capable(
-                                    &model.target_generics,
+                                    &model.impl_generics,
                                     &model.delegate_generics,
                                 ),
                             ),
@@ -171,7 +181,7 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                     };
 
                 let into =
-                    t.ty.is_into_capable(&model.target_generics, &model.delegate_generics);
+                    t.ty.is_into_capable(&model.impl_generics, &model.delegate_generics);
                 Some(BuilderField {
                     ty: *t.ty.clone(),
                     into,
