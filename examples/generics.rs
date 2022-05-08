@@ -6,6 +6,7 @@ pub struct Generic<T> {
 
 #[builder]
 impl<T> Generic<T> {
+    #[builder]
     fn new(simple: T) -> Generic<T> {
         Self { simple }
     }

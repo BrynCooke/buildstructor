@@ -6,6 +6,7 @@ pub struct ReturnsSelf {
 
 #[builder]
 impl ReturnsSelf {
+    #[builder]
     fn new(simple: usize) -> Self {
         Self { simple }
     }

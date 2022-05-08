@@ -10,6 +10,7 @@ pub struct Collections {
 
 #[builder]
 impl Collections {
+    #[builder]
     fn new(
         names: HashSet<String>,
         ages: HashMap<String, u64>,

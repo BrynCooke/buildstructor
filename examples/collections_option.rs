@@ -8,6 +8,7 @@ pub struct Collections {
 
 #[builder]
 impl Collections {
+    #[builder]
     fn new(map: HashMap<Option<String>, Option<String>>) -> Collections {
         Self { map }
     }

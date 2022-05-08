@@ -2,7 +2,8 @@
 extern crate core;
 
 use proc_macro::TokenStream;
-use quote::ToTokens;
+use quote::{format_ident, ToTokens};
+use syn::ImplItem;
 use syn::__private::TokenStream2;
 
 mod buildstructor;
@@ -10,6 +11,7 @@ use crate::buildstructor::analyze;
 use crate::buildstructor::codegen;
 use crate::buildstructor::lower;
 use crate::buildstructor::parse;
+use crate::parse::Ast;
 
 /// Derive a builder from a constructor!
 ///
@@ -30,6 +32,7 @@ use crate::buildstructor::parse;
 ///
 /// #[builder]
 /// impl MyStruct {
+///     #[builder]
 ///     fn new(a: usize, b: usize) -> MyStruct {
 ///         Self { sum: a + b }
 ///     }
@@ -45,7 +48,7 @@ pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
     match parse::parse(TokenStream::from_iter(vec![attr, item.clone()]).into())
         .map_err(|e| e.into_compile_error())
     {
-        Ok(ast) => {
+        Ok(mut ast) => {
             // We have the AST, we can return the token stream regardless of if there was success or not as long as we sanitize it of helper attributes.
             let mut results: Vec<proc_macro::TokenStream> = match analyze::analyze(&ast)
                 .map_err(|e| e.into_compile_error())
@@ -68,7 +71,7 @@ pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
             };
 
             // Now sanitize the AST of any helper attributes.
-            // TODO sanitize(&mut ast);
+            sanitize(&mut ast);
 
             // Finally output the results.
             let sanitized_token_stream = ast.item.to_token_stream();
@@ -80,4 +83,13 @@ pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
             TokenStream::from_iter([item, e.into()])
         }
     }
+}
+
+fn sanitize(ast: &mut Ast) {
+    ast.item.items.iter_mut().for_each(|item| {
+        if let ImplItem::Method(m) = item {
+            m.attrs
+                .retain(|a| a.path.get_ident() != Some(&format_ident!("builder")));
+        }
+    });
 }

@@ -5,12 +5,15 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new(simple: usize) -> Result<Foo, String> {
         Ok(Self { simple })
     }
+    #[builder]
     fn self_new(simple: usize) -> Result<Self, String> {
         Ok(Self { simple })
     }
+    #[builder]
     fn deep_self_new(simple: usize) -> Result<Result<Self, String>, String> {
         Ok(Ok(Self { simple }))
     }

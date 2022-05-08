@@ -6,6 +6,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new(simple: usize, simple2: usize) -> Foo {
         Self { simple, simple2 }
     }

@@ -1,4 +1,5 @@
 use crate::buildstructor::utils::TypeExt;
+use quote::format_ident;
 use syn::spanned::Spanned;
 use syn::{
     FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Result, ReturnType, Visibility,
@@ -44,11 +45,11 @@ fn get_constructors(item: &ItemImpl) -> Vec<&ImplItemMethod> {
     item.items
         .iter()
         .filter_map(|item| {
+            let builder_attr = Some(format_ident!("builder"));
             if let ImplItem::Method(m) = item {
-                let method_name = m.sig.ident.to_string();
-                if method_name.ends_with("_new")
-                    || method_name == "new"
-                        && !m.sig.inputs.iter().any(|a| matches!(a, FnArg::Receiver(_)))
+                if m.attrs
+                    .iter()
+                    .any(|attr| attr.path.get_ident() == builder_attr.as_ref())
                 {
                     return Some(m);
                 }

@@ -6,6 +6,7 @@ pub struct Async {
 
 #[builder]
 impl Async {
+    #[builder]
     async fn new(simple: usize) -> Async {
         Self { simple }
     }

@@ -9,6 +9,7 @@ pub struct Request<T> {
 
 #[builder]
 impl<T> Request<T> {
+    #[builder]
     pub fn fake_new<K, V>(
         headers: Vec<(K, V)>,
         uri: Option<http::Uri>,

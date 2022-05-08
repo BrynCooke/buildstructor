@@ -5,6 +5,7 @@ pub struct Foo<T> {
 
 #[builder]
 impl<T> Foo<T> {
+    #[builder]
     fn new(simple: T) -> Foo<T> {
         Self { simple }
     }

@@ -13,6 +13,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(simple: usize) -> Foo {
                     Self { simple }
                 }
@@ -24,6 +25,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 pub fn new(simple: usize) -> Foo {
                     Self { simple }
                 }
@@ -35,6 +37,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(simple: usize, simple2: usize) -> Foo {
                     Self { simple, simple2 }
                 }
@@ -46,6 +49,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(simple: usize) -> Result<Foo, String> {
                     Ok(Self { simple })
                 }
@@ -57,6 +61,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 async fn new(simple: usize) -> Foo {
                     Foo { simple }
                 }
@@ -68,6 +73,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl<T> Foo<T> {
+                #[builder]
                 fn new(simple: T) -> Foo<T> {
                     Self { simple }
                 }
@@ -79,6 +85,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new<T: Into<String>>(simple: T) -> Foo {
                     Foo {
                         simple: simple.into(),
@@ -92,6 +99,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new<T>(simple: T) -> Foo
                 where
                     T: Into<String>,
@@ -108,6 +116,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(option: Option<usize>) -> Foo {
                     Foo { option }
                 }
@@ -119,6 +128,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(
                     simple: usize,
                     set: HashSet<String>,
@@ -144,6 +154,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new<K: Into<String> + Eq + Hash, V: Into<String>>(param: HashMap<K, V>) -> Foo {
                     Self {
                         param: param
@@ -160,6 +171,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(param: HashMap<Option<String>, Option<String>>) -> Foo {
                     Self {
                         param: param
@@ -176,6 +188,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Foo {
+                #[builder]
                 fn new(simple: usize) -> Self {
                     Self { simple }
                 }
@@ -187,6 +200,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl<T> Request<T> {
+                #[builder]
                 pub fn fake_new<K, V>(
                     headers: Vec<(K, V)>,
                     uri: Option<http::Uri>,
@@ -215,6 +229,7 @@ mod tests {
         parse_quote!(
             #[builder]
             impl Collections {
+                #[builder]
                 fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
                     map: HashMap<K, V>,
                     set: HashSet<K>,

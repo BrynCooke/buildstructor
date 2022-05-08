@@ -6,6 +6,7 @@ pub struct Optional {
 
 #[builder]
 impl Optional {
+    #[builder]
     fn new(simple: Option<usize>) -> Optional {
         Self { simple }
     }

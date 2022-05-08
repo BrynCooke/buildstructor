@@ -10,6 +10,7 @@ pub struct Collections {
 
 #[builder]
 impl Collections {
+    #[builder]
     fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
         map: HashMap<K, V>,
         set: HashSet<K>,

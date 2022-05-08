@@ -6,6 +6,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     async fn new(simple: usize) -> Foo {
         Foo { simple }
     }

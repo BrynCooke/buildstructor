@@ -6,6 +6,7 @@ pub struct IntoType {
 
 #[builder]
 impl IntoType {
+    #[builder]
     fn new<T: Into<String>>(simple: T) -> IntoType {
         IntoType {
             simple: simple.into(),

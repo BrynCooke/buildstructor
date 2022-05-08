@@ -8,6 +8,7 @@ pub struct Fallible {
 
 #[builder]
 impl Fallible {
+    #[builder]
     fn try_new(simple: usize) -> Result<Fallible, Box<dyn Error>> {
         Ok(Self { simple })
     }

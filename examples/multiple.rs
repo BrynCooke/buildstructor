@@ -7,6 +7,7 @@ pub struct Multiple {
 
 #[builder]
 impl Multiple {
+    #[builder]
     fn new(simple: usize, simple2: usize) -> Multiple {
         Self { simple, simple2 }
     }

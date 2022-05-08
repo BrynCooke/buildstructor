@@ -11,6 +11,7 @@ pub struct Collections {
 
 #[builder]
 impl Collections {
+    #[builder]
     fn new(
         headers: MultiMap<IntoHeaderName, IntoHeaderValue>,
     ) -> Result<Collections, Box<dyn Error>> {

@@ -9,6 +9,7 @@ pub struct Foo2 {
 
 #[builder]
 impl Foo1 {
+    #[builder]
     fn new(simple: usize) -> Foo1 {
         Self { simple }
     }
@@ -16,6 +17,7 @@ impl Foo1 {
 
 #[builder]
 impl Foo2 {
+    #[builder]
     fn new(simple: usize) -> Foo2 {
         Self { simple }
     }

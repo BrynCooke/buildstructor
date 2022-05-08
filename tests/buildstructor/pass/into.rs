@@ -5,6 +5,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new<T: Into<String>>(simple: T) -> Foo {
         Self {
             simple: simple.into(),

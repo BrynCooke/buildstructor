@@ -9,6 +9,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new(names: HashSet<String>, ages: HashMap<String, u64>, addresses: Vec<String>) -> Foo {
         Self {
             names,

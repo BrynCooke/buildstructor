@@ -27,6 +27,7 @@ pub struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     fn new(a: usize, b: usize) -> MyStruct {
         Self { sum: a + b }
     }
@@ -70,12 +71,15 @@ struct Multi {
 
 #[builder]
 impl Multi {
+    #[builder]
     fn new(simple: usize) -> Multi {
         Self { simple }
     }
+    #[builder]
     fn try_new(simple: usize) -> Result<Multi, Box<dyn Error>> {
         Ok(Self { simple })
     }
+    #[builder]
     fn maybe_new(simple: usize) -> Option<Multi> {
         Some(Self { simple })
     }
@@ -106,6 +110,7 @@ struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     fn new(param: Option<usize>) -> MyStruct {
         Self { param: param.unwrap_or(3) }
     }
@@ -142,6 +147,7 @@ struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     fn new<T: Into<String>>(param: T) -> MyStruct {
         Self { param: param.into() }
     }
@@ -165,6 +171,7 @@ struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     async fn new(param: usize) -> MyStruct {
         Self { param }
     }
@@ -190,6 +197,7 @@ struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     fn new(param: usize) -> Result<MyStruct, Box<dyn Error>> {
         Ok(Self { param })
     }
@@ -214,6 +222,7 @@ struct MyStruct {
 
 #[builder]
 impl MyStruct {
+    #[builder]
     fn new(addresses: Vec<String>) -> MyStruct {
         Self { addresses }
     }

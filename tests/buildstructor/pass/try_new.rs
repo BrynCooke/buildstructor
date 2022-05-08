@@ -5,6 +5,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn try_new(simple: usize) -> Result<Foo, String> {
         Ok(Self { simple })
     }

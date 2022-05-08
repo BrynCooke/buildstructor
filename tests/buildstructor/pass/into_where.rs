@@ -5,6 +5,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new<T>(simple: T) -> Foo
     where
         T: Into<String>,

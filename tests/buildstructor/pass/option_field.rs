@@ -5,6 +5,7 @@ pub struct Foo {
 
 #[builder]
 impl Foo {
+    #[builder]
     fn new(simple: Option<String>) -> Foo {
         Self { simple }
     }
