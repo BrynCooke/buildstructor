@@ -4,6 +4,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0 - Unreleased
+[#45](https://github.com/BrynCooke/buildstructor/issues/45)
+Major refactor to expand the scope of buildstructor.
+
+This is a **breaking** change.
+
+To use buildstructor you now have to annotate the impl and the methods you want a builder for:
+
+Annotate the impl with: `#[buildstructor::buildstructor]`
+Annotate the method with: `#[builder]`
+
+```rust
+#[buildstructor::buildstructor]
+impl Foo {
+    #[builder]
+    fn new(simple: String) -> Foo {
+        Self { simple }
+    }
+}
+```
+
+You can configure your builder using the `#[builder]` annotation, which has the following attributes:
+* `entry` => The entry point for your builder. If not specified then the pre-existing rules around `new/*_new` are used. If your method does not match one of the new patterns then it is suffixed with `_builder`.
+* `exit` => The terminal method for the generated builder. Defaults to `builder`.
+
+In addition, you can now specify builders on methods that take self:
+
+```rust
+#[derive(Default)]
+pub struct Client;
+
+#[buildstructor::buildstructor]
+impl Client {
+    #[builder(entry = "message", exit = "send")]
+    fn call_with_no_return(self, _simple: String) {}
+
+    #[builder(entry = "message_ref", exit = "send")]
+    fn call_with_no_return_ref(&self, _simple: String) {}
+
+    #[builder(entry = "message_ref_mut", exit = "send")]
+    fn call_with_no_return_ref_mut(&mut self, _simple: String) {}
+    
+}
+
+fn main() {
+    Client::default().message().simple("3".to_string()).send();
+
+    let client = Client::default();
+    client.message_ref().simple("3".to_string()).send();
+
+    let mut client = Client::default();
+    client.message_ref_mut().simple("3".to_string()).send();
+}
+```
+
+Note, if method parameters begin with `_` then this is stripped for the builder method names.
+
+
 ## 0.1.12 - 2022-05-06
 [#39](https://github.com/BrynCooke/buildstructor/issues/39)
 Visibility of builder now matches the visibility of each constructor.

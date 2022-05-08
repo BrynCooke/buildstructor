@@ -185,7 +185,12 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                 Some(BuilderField {
                     ty: *t.ty.clone(),
                     into,
-                    name: ident.ident.clone(),
+                    name: ident
+                        .ident
+                        .to_string()
+                        .strip_prefix("_")
+                        .map(|stripped| format_ident!("{}", stripped))
+                        .unwrap_or_else(|| ident.ident.clone()),
                     field_type,
                     key_type,
                     key_into,

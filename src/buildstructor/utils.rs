@@ -82,11 +82,13 @@ impl GenericsExt for Generics {
         AngleBracketedGenericArguments {
             colon2_token: None,
             lt_token: Default::default(),
-            args: Punctuated::from_iter(
-                self.type_params()
-                    .into_iter()
-                    .map(|i| GenericArgument::Type(Type::Path(i.ident.to_type_path()))),
-            ),
+            args: Punctuated::from_iter(self.params.iter().filter_map(|p| match p {
+                GenericParam::Type(t) => {
+                    Some(GenericArgument::Type(Type::Path(t.ident.to_type_path())))
+                }
+                GenericParam::Lifetime(l) => Some(GenericArgument::Lifetime(l.lifetime.clone())),
+                GenericParam::Const(_) => None,
+            })),
             gt_token: Default::default(),
         }
     }

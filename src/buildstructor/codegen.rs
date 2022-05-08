@@ -2,10 +2,13 @@ use crate::buildstructor::utils::{
     AngleBracketedGenericArgumentsExt, ExprTupleExt, GenericsExt, IdentExt, TypeExt, TypeTupleExt,
 };
 use crate::lower::{FieldType, Ir};
-use proc_macro2::{Ident, TokenStream};
+use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
-use syn::{Expr, ExprCall, GenericArgument, Generics, Index, Result, Type, WhereClause};
+use syn::{
+    Expr, ExprCall, GenericArgument, GenericParam, Generics, Index, Lifetime, LifetimeDef, Result,
+    Type, WhereClause,
+};
 extern crate inflector;
 use inflector::Inflector;
 
@@ -17,19 +20,41 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
     let param_generics = ir.param_generics();
 
+    let builder_lifetime = ir
+        .receiver
+        .as_ref()
+        .and_then(|r| r.reference.as_ref())
+        .map(|_| Lifetime::new("'__builder", Span::call_site()));
+
+    let builder_lifetime_generics = Generics {
+        params: builder_lifetime
+            .as_ref()
+            .map(|l| {
+                Punctuated::from_iter(vec![GenericParam::Lifetime(LifetimeDef::new(l.clone()))])
+            })
+            .unwrap_or_default(),
+        ..Default::default()
+    };
+
     let builder_generics = Generics::combine(vec![
+        &builder_lifetime_generics,
         &ir.impl_generics,
         &ir.delegate_generics,
         &param_generics,
     ]);
     let (builder_impl_generics, _, builder_where_clause) = builder_generics.split_for_impl();
 
-    let builder_generics_tuple = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
+    let builder_generics_tuple = Generics::combine(vec![
+        &builder_lifetime_generics,
+        &ir.impl_generics,
+        &ir.delegate_generics,
+    ]);
     let builder_tuple_ty_generics = builder_generics_tuple
         .to_generic_args()
         .insert(0, Type::Tuple(param_generics.to_tuple_type()));
 
     let all_generics = Generics::combine(vec![
+        &builder_lifetime_generics,
         &ir.builder_generics,
         &ir.impl_generics,
         &ir.delegate_generics,
@@ -50,7 +75,6 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let builder_return_type = &ir.builder_return_type;
     let builder_entry = &ir.builder_entry;
     let builder_exit = &ir.builder_exit;
-    let builder_methods = builder_methods(&ir, builder_where_clause)?;
     let builder_state_type_initial = ir.builder_state_type_initial();
     let builder_state_initial = ir.builder_state_initial();
 
@@ -58,20 +82,53 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let await_token = ir.is_async.then(|| quote! {.await});
     let vis = &ir.vis;
     let builder_vis = &ir.builder_vis;
+    let receiver = &ir.receiver;
+    let reference = &ir
+        .receiver
+        .as_ref()
+        .map(|r| r.reference.as_ref().map(|_| quote! { & }));
+    let mutability = ir.receiver.as_ref().map(|r| r.mutability);
+    let builder_receiver = ir.receiver.as_ref().map(|_| quote! { self });
+    let builder_receiver_param = ir
+        .receiver
+        .as_ref()
+        .map(|_| quote! { receiver: #reference #mutability #target_name #ty_generics });
+    let builder_receiver_field_definition = ir
+        .receiver
+        .as_ref()
+        .map(|_| quote! { receiver: #reference #builder_lifetime #mutability #target_name #ty_generics, });
+    let builder_receiver_field = ir.receiver.as_ref().map(|_| quote! { receiver, });
+    let builder_receiver_call = ir
+        .receiver
+        .as_ref()
+        .map(|_| quote! { self.receiver. })
+        .unwrap_or_else(|| quote! {#target_name::});
+    let builder_receiver_move = ir
+        .receiver
+        .as_ref()
+        .map(|_| quote! { receiver: self.receiver, });
+
+    let builder_methods = builder_methods(
+        &ir,
+        builder_where_clause,
+        builder_receiver_move,
+        &builder_lifetime_generics,
+    )?;
 
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
-            #vis fn #builder_entry #method_generics() -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
-                #module_name::new()
+            #vis fn #builder_entry #method_generics(#receiver) -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
+                #module_name::new(#builder_receiver)
             }
         }
 
         mod #module_name {
             use super::*;
 
-            #builder_vis fn new #builder_init_generics() -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
+            #builder_vis fn new #builder_init_generics(#builder_receiver_param) -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
             {
                 #builder_name {
+                    #builder_receiver_field
                     fields: (#(#builder_state_initial ,) *),
                     _phantom: core::default::Default::default()
                 }
@@ -113,6 +170,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
 
             #builder_vis struct #builder_name #all_ty_generics {
+                #builder_receiver_field_definition
                 fields: __P,
                 _phantom: (#(core::marker::PhantomData<#target_generics_raw>,) *)
             }
@@ -121,7 +179,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
             impl #builder_impl_generics #builder_name #builder_tuple_ty_generics #builder_where_clause {
                 #builder_vis #async_token fn #builder_exit(self) #builder_return_type {
-                    #target_name::#delegate_name(#(#delegate_args),*) #await_token
+                    #builder_receiver_call #delegate_name(#(#delegate_args),*) #await_token
                 }
             }
         }
@@ -131,8 +189,14 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 pub fn builder_methods(
     ir: &Ir,
     builder_where_clause: Option<&WhereClause>,
+    builder_receiver_move: Option<TokenStream>,
+    builder_lifetime_generics: &Generics,
 ) -> Result<Vec<TokenStream>> {
-    let builder_generics = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
+    let builder_generics = Generics::combine(vec![
+        builder_lifetime_generics,
+        &ir.impl_generics,
+        &ir.delegate_generics,
+    ]);
     let builder_vis = &ir.builder_vis;
 
     Ok(ir.builder_fields
@@ -194,6 +258,7 @@ pub fn builder_methods(
                             #builder_vis fn #method_name #into_generics(self, #field_name: #field_collection_type) -> #builder_name #after #builder_where_clause {
                                 let #field_name = Some(#field_name #into_call);
                                 #builder_name {
+                                    #builder_receiver_move
                                     fields: #new_state,
                                     _phantom: core::default::Default::default()
                                 }
@@ -201,6 +266,7 @@ pub fn builder_methods(
                             #builder_vis fn #and_method_name #into_generics(self, #field_name: Option<#field_collection_type>) -> #builder_name #after #builder_where_clause {
                                 let #field_name = #field_name.map(|v|v #into_call);
                                 #builder_name {
+                                    #builder_receiver_move
                                     fields: #new_state,
                                     _phantom: core::default::Default::default()
                                 }
@@ -341,6 +407,7 @@ pub fn builder_methods(
                             #builder_vis fn #method_name #into_generics(self, #field_name: #ty) -> #builder_name #after {
                                 let #field_name = #field_name #into_call;
                                 #builder_name {
+                                    #builder_receiver_move
                                     fields: #new_state,
                                     _phantom: core::default::Default::default()
                                 }
@@ -491,5 +558,10 @@ mod tests {
     #[test]
     fn collection_generics_test2() {
         assert_codegen!(collections_generics_test_case2());
+    }
+
+    #[test]
+    fn self_receiver() {
+        assert_codegen!(self_receiver_test_case());
     }
 }
