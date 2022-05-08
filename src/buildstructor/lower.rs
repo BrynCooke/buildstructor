@@ -192,16 +192,14 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
 
 fn builder_entry(model: &BuilderModel) -> Ident {
     match &model.config.entry {
-        None => {
-            format_ident!(
-                "{}builder",
-                model
-                    .delegate_name
-                    .to_string()
-                    .strip_suffix("new")
-                    .expect("already checked that the method ends with new, qed")
-            )
-        }
+        None => match (
+            model.delegate_name.to_string().as_str(),
+            model.delegate_name.to_string().strip_suffix("_new"),
+        ) {
+            ("new", _) => format_ident!("builder"),
+            (_, Some(stripped)) => format_ident!("{}_builder", stripped),
+            (delegate, _) => format_ident!("{}_builder", delegate),
+        },
         Some(name) => {
             format_ident!("{}", name)
         }
