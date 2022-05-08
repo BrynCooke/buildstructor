@@ -1,13 +1,13 @@
 error[E0599]: the method `build` exists for struct `__FooBuilder<(__Required<String>,)>`, but its trait bounds were not satisfied
-   --> tests/buildstructor/fail/missing.rs:14:28
+   --> tests/buildstructor/fail/missing.rs:15:28
     |
-6   | #[builder]
-    | ----------
+6   | #[buildstructor]
+    | ----------------
     | |
     | method `build` not found for this
     | doesn't satisfy `__Required<String>: Into<__Set<String>>`
 ...
-14  |     let _ = Foo::builder().build();
+15  |     let _ = Foo::builder().build();
     |                            ^^^^^ method cannot be called on `__FooBuilder<(__Required<String>,)>` due to unsatisfied trait bounds
     |
     = note: the following trait bounds were not satisfied:

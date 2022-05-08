@@ -1,10 +1,10 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Optional {
     simple: Option<usize>,
 }
 
-#[builder]
+#[buildstructor]
 impl Optional {
     #[builder]
     fn new(simple: Option<usize>) -> Optional {

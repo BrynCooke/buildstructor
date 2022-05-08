@@ -24,13 +24,13 @@ use crate::parse::Ast;
 /// # Examples
 ///
 /// ```rust
-/// use buildstructor::builder;
+/// use buildstructor::buildstructor;
 ///
 /// struct MyStruct {
 ///     sum: usize,
 /// }
 ///
-/// #[builder]
+/// #[buildstructor]
 /// impl MyStruct {
 ///     #[builder]
 ///     fn new(a: usize, b: usize) -> MyStruct {
@@ -44,7 +44,7 @@ use crate::parse::Ast;
 /// # }
 /// ```
 #[proc_macro_attribute]
-pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
     match parse::parse(TokenStream::from_iter(vec![attr, item.clone()]).into())
         .map_err(|e| e.into_compile_error())
     {

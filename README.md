@@ -19,13 +19,13 @@ buildstructor = "*"
 3. Use your automatically derived builder.
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct MyStruct {
     sum: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     fn new(a: usize, b: usize) -> MyStruct {
@@ -62,14 +62,14 @@ Just write your rust code as usual and annotate the constructor impl with `[buil
 ### Mutliple constructors
 All methods that are suffixed with `_new` will create builders. Each builder is named appropriately.
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 use std::error::Error;
 
 struct Multi {
     simple: usize
 }
 
-#[builder]
+#[buildstructor]
 impl Multi {
     #[builder]
     fn new(simple: usize) -> Multi {
@@ -103,12 +103,12 @@ fn main() {
 Fields that are optional will also be optional in the builder. You should do defaulting in your constructor.
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     fn new(param: Option<usize>) -> MyStruct {
@@ -140,12 +140,12 @@ This is useful for Strings, but also other types where you want to overload the 
 You can use generics as usual in your constructor. However, this has the downside of not being able to support optional fields.
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 struct MyStruct {
     param: String   
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     fn new<T: Into<String>>(param: T) -> MyStruct {
@@ -164,12 +164,12 @@ fn main() {
 To create an `async` builder just make your constructor `async`.
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     async fn new(param: usize) -> MyStruct {
@@ -189,13 +189,13 @@ async fn main() {
 To create a fallible builder just make your constructor fallible using `Result`. 
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 use std::error::Error;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     fn new(param: usize) -> Result<MyStruct, Box<dyn Error>> {
@@ -215,12 +215,12 @@ Collections and maps are given special treatment, the builder will add additiona
 
 
 ```rust
-use buildstructor::builder;
+use buildstructor::buildstructor;
 struct MyStruct {
     addresses: Vec<String>
 }
 
-#[builder]
+#[buildstructor]
 impl MyStruct {
     #[builder]
     fn new(addresses: Vec<String>) -> MyStruct {

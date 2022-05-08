@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 use std::error::Error;
 
@@ -6,7 +6,7 @@ pub struct Fallible {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Fallible {
     #[builder]
     fn try_new(simple: usize) -> Result<Fallible, Box<dyn Error>> {

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Collections {
     map: HashMap<Option<String>, Option<String>>,
 }
 
-#[builder]
+#[buildstructor]
 impl Collections {
     #[builder]
     fn new(map: HashMap<Option<String>, Option<String>>) -> Collections {

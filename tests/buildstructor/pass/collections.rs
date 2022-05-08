@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 use std::collections::{HashMap, HashSet};
 
 pub struct Foo {
@@ -7,7 +7,7 @@ pub struct Foo {
     addresses: Vec<String>,
 }
 
-#[builder]
+#[buildstructor]
 impl Foo {
     #[builder]
     fn new(names: HashSet<String>, ages: HashMap<String, u64>, addresses: Vec<String>) -> Foo {

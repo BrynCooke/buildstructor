@@ -1,10 +1,10 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Foo {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Foo {
     #[builder]
     async fn new(simple: usize) -> Foo {

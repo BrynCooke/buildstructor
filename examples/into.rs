@@ -1,10 +1,10 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct IntoType {
     simple: String,
 }
 
-#[builder]
+#[buildstructor]
 impl IntoType {
     #[builder]
     fn new<T: Into<String>>(simple: T) -> IntoType {

@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 use std::error::Error;
 
@@ -6,7 +6,7 @@ pub struct Multi {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Multi {
     #[builder]
     fn new(simple: usize) -> Multi {

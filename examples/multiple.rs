@@ -1,11 +1,11 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Multiple {
     simple: usize,
     simple2: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Multiple {
     #[builder]
     fn new(simple: usize, simple2: usize) -> Multiple {
