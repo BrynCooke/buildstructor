@@ -68,7 +68,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         impl_generics: model.impl_generics.clone(),
         delegate_name: model.delegate_name.clone(),
         delegate_generics: model.delegate_generics.clone(),
-        builder_name: format_ident!("__{}Builder", model.impl_name.clone()),
+        builder_name: format_ident!("__{}Builder", model.impl_name),
         builder_return_type: builder_return_type(&model.delegate_return_type, &model.impl_name),
         builder_entry: builder_entry(&model),
         builder_exit: builder_exit(&model),
@@ -188,7 +188,7 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                     name: ident
                         .ident
                         .to_string()
-                        .strip_prefix("_")
+                        .strip_prefix('_')
                         .map(|stripped| format_ident!("{}", stripped))
                         .unwrap_or_else(|| ident.ident.clone()),
                     field_type,

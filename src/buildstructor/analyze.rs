@@ -44,7 +44,7 @@ impl TryFrom<&Attribute> for BuilderConfig {
                 }
                 _ => return Err(syn::Error::new(
                     value.span(),
-                    format!("invalid builder attribute '{}', only 'entry' and 'exit' are allowed and their type must be string", name.to_string()),
+                    format!("invalid builder attribute '{}', only 'entry' and 'exit' are allowed and their type must be string", name),
                 )),
             }
             Ok(())
@@ -55,11 +55,8 @@ impl TryFrom<&Attribute> for BuilderConfig {
             Meta::List(l) => {
                 let mut config = BuilderConfig::default();
                 for nested in l.nested {
-                    match nested {
-                        NestedMeta::Meta(Meta::NameValue(name_value)) => {
-                            apply(&mut config, &name_value)?;
-                        }
-                        _ => {}
+                    if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested {
+                        apply(&mut config, &name_value)?;
                     }
                 }
                 config
