@@ -45,7 +45,23 @@ use crate::parse::Ast;
 /// ```
 #[proc_macro_attribute]
 pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
-    match parse::parse(TokenStream::from_iter(vec![attr, item.clone()]).into())
+    do_buildstructor(attr, item)
+}
+
+#[proc_macro_attribute]
+#[deprecated(
+    since = "0.2.0",
+    note = "#[buildstructor::builder] should be migrated to #[buildstructor::buildstructor] and methods annotated with #[builder]"
+)]
+pub fn builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let config = quote::quote! {default_builders = true};
+    buildstructor(config.into(), item)
+}
+
+fn do_buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
+    let attr: proc_macro2::TokenStream = attr.into();
+    let attr = quote::quote! {#[buildstructor(#attr)]};
+    match parse::parse(TokenStream::from_iter(vec![attr.into(), item.clone()]).into())
         .map_err(|e| e.into_compile_error())
     {
         Ok(mut ast) => {

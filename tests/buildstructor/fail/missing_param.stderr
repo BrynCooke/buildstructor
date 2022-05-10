@@ -1,5 +1,5 @@
 error[E0599]: the method `build` exists for struct `__FooBuilder<(__Required<String>,)>`, but its trait bounds were not satisfied
-   --> tests/buildstructor/fail/missing.rs:15:28
+   --> tests/buildstructor/fail/missing_param.rs:15:28
     |
 6   | #[buildstructor]
     | ----------------

@@ -55,7 +55,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
     // Either visibility is set explicitly or we default to super.
     let vis = model.vis.clone();
     let builder_vis = builder_vilibility(&vis);
-
+    let receiver = receiver(&model);
     Ok(Ir {
         vis,
         builder_vis,
@@ -70,20 +70,24 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         delegate_generics: model.delegate_generics.clone(),
         builder_name: format_ident!("__{}Builder", model.impl_name),
         builder_return_type: builder_return_type(&model.delegate_return_type, &model.impl_name),
-        builder_entry: builder_entry(&model),
-        builder_exit: builder_exit(&model),
+        builder_entry: builder_entry(&model, &receiver)?,
+        builder_exit: builder_exit(&model, &receiver),
         builder_fields: builder_fields(&model),
         builder_generics: Ir::builder_generics(),
         is_async: model.is_async,
-        receiver: model
-            .delegate_args
-            .iter()
-            .filter_map(|a| match a {
-                FnArg::Receiver(r) => Some(r.clone()),
-                FnArg::Typed(_) => None,
-            })
-            .next(),
+        receiver,
     })
+}
+
+fn receiver(model: &BuilderModel) -> Option<Receiver> {
+    model
+        .delegate_args
+        .iter()
+        .filter_map(|a| match a {
+            FnArg::Receiver(r) => Some(r.clone()),
+            FnArg::Typed(_) => None,
+        })
+        .next()
 }
 
 fn builder_vilibility(vis: &Visibility) -> Visibility {
@@ -205,30 +209,36 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
         .collect()
 }
 
-fn builder_entry(model: &BuilderModel) -> Ident {
-    match &model.config.entry {
-        None => match (
-            model.delegate_name.to_string().as_str(),
-            model.delegate_name.to_string().strip_suffix("_new"),
-        ) {
-            ("new", _) => format_ident!("builder"),
-            (_, Some(stripped)) => format_ident!("{}_builder", stripped),
-            (delegate, _) => format_ident!("{}_builder", delegate),
+fn builder_entry(model: &BuilderModel, receiver: &Option<Receiver>) -> Result<Ident> {
+    let method_name = model.delegate_name.to_string();
+    match (&model.config.entry, receiver) {
+        (Some(name), _) => return Ok(format_ident!("{}", name)),
+        // constructor
+        (None, None) => match (method_name.as_str(), method_name.strip_suffix("_new")) {
+            ("new", _) => return Ok(format_ident!("builder")),
+            (_, Some(stripped)) => return Ok(format_ident!("{}_builder", stripped)),
+            _ => {}
         },
-        Some(name) => {
-            format_ident!("{}", name)
-        }
+        _ => {}
     }
+    Err(syn::Error::new(
+        model
+            .config
+            .span
+            .unwrap_or_else(|| model.delegate_name.span()),
+        format!(
+            "builder 'entry' name cannot be derived for '{}' and must be specified via annotation #[builder(entry = \"<name>\")]", method_name
+        ),
+    ))
 }
 
-fn builder_exit(model: &BuilderModel) -> Ident {
-    match &model.config.exit {
-        None => {
-            format_ident!("build")
-        }
-        Some(name) => {
-            format_ident!("{}", name)
-        }
+fn builder_exit(model: &BuilderModel, receiver: &Option<Receiver>) -> Ident {
+    match (&model.config.exit, receiver) {
+        (Some(name), _) => format_ident!("{}", name),
+        // constructor
+        (None, None) => format_ident!("build"),
+        // call
+        (None, Some(_)) => format_ident!("call"),
     }
 }
 
