@@ -18,7 +18,7 @@ buildstructor = "*"
 ## Usage / Example
 
 1. Annotate your `impl` with `#[buildstructor::buildstructor]`.
-2. Annotate your `impl` with `#[builder]`.
+2. Annotate your `fn` with `#[builder]`.
 3. Use your automatically derived builder.
 
 ```rust
