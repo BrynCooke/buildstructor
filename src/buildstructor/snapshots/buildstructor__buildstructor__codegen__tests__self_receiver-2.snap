@@ -1,0 +1,79 @@
+---
+source: src/buildstructor/codegen.rs
+assertion_line: 565
+expression: output
+---
+impl Client {
+    fn message_ref(
+        &self,
+    ) -> __client_call_with_no_return_ref_builder::__ClientBuilder<
+            (__client_call_with_no_return_ref_builder::__Required<String>,),
+        > {
+        __client_call_with_no_return_ref_builder::new(self)
+    }
+}
+mod __client_call_with_no_return_ref_builder {
+    use super::*;
+    pub(super) fn new(
+        receiver: &Client,
+    ) -> __ClientBuilder<
+            (__client_call_with_no_return_ref_builder::__Required<String>,),
+        > {
+        __ClientBuilder {
+            receiver,
+            fields: (__required(),),
+            _phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        _phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            _phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub(super) struct __ClientBuilder<'__builder, __P> {
+        receiver: &'__builder Client,
+        fields: __P,
+        _phantom: (),
+    }
+    impl<'__builder> __ClientBuilder<'__builder, (__Required<String>,)> {
+        pub(super) fn simple<__T: Into<String>>(
+            self,
+            simple: __T,
+        ) -> __ClientBuilder<'__builder, (__Set<String>,)> {
+            let simple = simple.into();
+            __ClientBuilder {
+                receiver: self.receiver,
+                fields: (__set(simple),),
+                _phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<'__builder, __P0: Into<__Set<String>>> __ClientBuilder<'__builder, (__P0,)> {
+        pub(super) fn send(self) {
+            self.receiver.call_with_no_return_ref(self.fields.0.into().value)
+        }
+    }
+}
+

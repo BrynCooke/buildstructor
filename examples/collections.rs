@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Collections {
     names: HashSet<String>,
@@ -8,8 +8,9 @@ pub struct Collections {
     addresses: Vec<String>,
 }
 
-#[builder]
+#[buildstructor]
 impl Collections {
+    #[builder]
     fn new(
         names: HashSet<String>,
         ages: HashMap<String, u64>,

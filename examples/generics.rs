@@ -1,11 +1,12 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Generic<T> {
     simple: T,
 }
 
-#[builder]
+#[buildstructor]
 impl<T> Generic<T> {
+    #[builder]
     fn new(simple: T) -> Generic<T> {
         Self { simple }
     }

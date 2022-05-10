@@ -1,15 +1,16 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Collections {
     map: HashMap<String, String>,
     set: HashSet<String>,
 }
 
-#[builder]
+#[buildstructor]
 impl Collections {
+    #[builder]
     fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
         map: HashMap<K, V>,
         set: HashSet<K>,

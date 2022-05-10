@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.0 - Unreleased
+[#45](https://github.com/BrynCooke/buildstructor/issues/45)
+Major refactor to expand the scope of buildstructor.
+
+To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
+
+`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
+ 
+1. Annotate the impl with: `#[buildstructor::buildstructor]`
+2. Annotate methods to create a builders for with: `#[builder]`
+
+```rust
+#[buildstructor::buildstructor]
+impl Foo {
+    #[builder]
+    fn new(simple: String) -> Foo {
+        Self { simple }
+    }
+}
+```
+
+You can configure your builder using the `#[builder]` annotation, which has the following attributes:
+* `entry` => The entry point for your builder. If not specified then the pre-existing rules around `new/*_new` are used.
+* `exit` => The terminal method for the generated builder. Defaults to `builder` for constructors and `call` for methods.
+
+In addition, you can now specify builders on methods that take self:
+
+```rust
+#[derive(Default)]
+pub struct Client;
+
+#[buildstructor::buildstructor]
+impl Client {
+    #[builder(entry = "phone", exit = "call")]
+    fn phone_call(self, _simple: String) {}
+}
+
+fn main() {
+    Client::default().phone().simple("3").call();
+}
+```
+Note, if method parameters begin with `_` then this is stripped for the builder method names.
+
 ## 0.1.12 - 2022-05-06
 [#39](https://github.com/BrynCooke/buildstructor/issues/39)
 Visibility of builder now matches the visibility of each constructor.

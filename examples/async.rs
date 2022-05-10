@@ -1,11 +1,12 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Async {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Async {
+    #[builder]
     async fn new(simple: usize) -> Async {
         Self { simple }
     }

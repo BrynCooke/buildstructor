@@ -1,11 +1,12 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct Single {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Single {
+    #[builder]
     fn new(simple: usize) -> Single {
         Self { simple }
     }

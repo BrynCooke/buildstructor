@@ -1,10 +1,13 @@
 # Buildstructor
 
-Derive a builder from a constructor!
+Derive a builder from constructors/methods using the typesafe builder pattern!
 
-Use this if you want a derived builder but with less annotation magic.
+Use this if your constructors/method has:
+* Optional parameters.
+* A large number of parameters.
+* Collections parameters.
 
-## Installation:
+## Installation
 
 Add the dependency to your `Cargo.toml`
 ```toml
@@ -12,43 +15,51 @@ Add the dependency to your `Cargo.toml`
 buildstructor = "*"
 ```
 
-## Usage / Example:
+## Usage / Example
 
-1. Import the `builder` macro.
-2. Annotate your `impl` containing a `new` function. 
+1. Annotate your `impl` with `#[buildstructor::buildstructor]`.
+2. Annotate your `impl` with `#[builder]`.
 3. Use your automatically derived builder.
 
 ```rust
-use buildstructor::builder;
-
 pub struct MyStruct {
     sum: usize,
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     fn new(a: usize, b: usize) -> MyStruct {
         Self { sum: a + b }
+    }
+    
+    #[builder(entry = "more", exit = "add")]
+    fn add_more(&mut self, c: usize, d: usize, e: Option<usize>) {
+        self.sum += c + d + e.unwrap_or(3);
     }
 }
 
 fn main() {
-    let mine = MyStruct::builder().a(2).b(3).build();
+    let mut mine = MyStruct::builder().a(2).b(3).build();
     assert_eq!(mine.sum, 5);
+    
+    mine.more().c(1).d(2).add();
+    assert_eq!(mine.sum, 11);
 }
 ```
 
 ## Motivation
 
-The difference between this and other builder crates is that constructors are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
+The difference between this and other builder crates is that constructors/methods**** are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
 
 Advantages:
 
 * You can specify fields in your constructor that do not appear in your struct.
-* No magic to default values, just use an `Option` param in your constructor and default as normal.
+* No magic to default values, just use an `Option` param in your `fn` and default as normal.
 * `async` constructors derives `async` builders.
 * Fallible constructors (`Result`) derives fallible builders.
 * Special `Vec`, `Deque`, `Heap`, `Set`, `Map` support. Add single or multiple items.
+* Generated builders can have receiver, `self`, `&self` and `&mut self` are supported.
 
 This crate is heavily inspired by the excellent [typed-builder](https://github.com/idanarye/rust-typed-builder) crate. It is a good alternative to this crate and well worth considering.
 
@@ -58,54 +69,103 @@ All of these recipes and more can be found in the [examples directory](https://g
 
 Just write your rust code as usual and annotate the constructor impl with `[builder]`
 
-### Mutliple constructors
-All methods that are suffixed with `_new` will create builders. Each builder is named appropriately.
-```rust
-use buildstructor::builder;
-use std::error::Error;
+### Constructors
+Builders can be generated on methods that have no receiver.
 
-struct Multi {
+Configuration:
+* `entry` defaults based on `fn` name:
+  * `new` => `builder`
+  * `<name>_new` => `<name>_builder`
+  * `<anything_else>` => cannot be defaulted and must be specified.
+* `exit` defaults to `build`
+
+```rust
+struct MyStruct {
     simple: usize
 }
 
-#[builder]
-impl Multi {
-    fn new(simple: usize) -> Multi {
+#[buildstructor::buildstructor]
+impl MyStruct {
+    #[builder]
+    fn new(simple: usize) -> MyStruct {
         Self { simple }
     }
-    fn try_new(simple: usize) -> Result<Multi, Box<dyn Error>> {
-        Ok(Self { simple })
+    #[builder]
+    fn try_new(simple: usize) -> MyStruct {
+        Self { simple }
     }
-    fn maybe_new(simple: usize) -> Option<Multi> {
-        Some(Self { simple })
+    #[builder(entry = "random", exit = "create")]
+    fn do_random(simple: usize) -> MyStruct {
+        Self { simple }
     }
 }
 
 fn main() {
-    let regular = Multi::builder().simple(2).build();
-    assert_eq!(regular.simple, 2);
+    let mine = MyStruct::builder().simple(2).build();
+    assert_eq!(mine.simple, 2);
 
-    let fallible = Multi::try_builder().simple(2).build().unwrap();
-    assert_eq!(fallible.simple, 2);
+    let mine = MyStruct::try_builder().simple(2).build();
+    assert_eq!(mine.simple, 2);
 
-    let option = Multi::maybe_builder().simple(2).build().unwrap();
-    assert_eq!(option.simple, 2);
+    let mine = MyStruct::random().simple(2).create();
+    assert_eq!(mine.simple, 2);
+}
+```
+
+### Methods
+Builders can be generated on methods that take `self`, `&self` and `&mut self` as a parameter.
+
+Configuration:
+* `entry` cannot be defaulted and must be specified.
+* `exit` defaults to `call`
+
+```rust
+use buildstructor::buildstructor;
+
+#[derive(Default)]
+pub struct MyStruct;
+
+#[buildstructor]
+impl MyStruct {
+    #[builder(entry = "query")]
+    fn do_query(self, _simple: String) -> bool {
+        true
+    }
+
+    #[builder(entry = "query_ref", exit = "stop")]
+    fn do_query_ref(&self, _simple: String) -> bool {
+        true
+    }
+
+    #[builder(entry = "query_ref_mut", exit = "go")]
+    fn do_query_ref_mut(&mut self, _simple: String) -> bool {
+        true
+    }
 }
 
+fn main() {
+    MyStruct::default().query().simple("3".to_string()).call(); // self
+
+    let mine = MyStruct::default();
+    mine.query_ref().simple("3".to_string()).stop(); // &self
+
+    let mut mine = MyStruct::default();
+    mine.query_ref_mut().simple("3".to_string()).go(); // &mut self
+}
 ```
 
 ### Optional field
 
-Fields that are optional will also be optional in the builder. You should do defaulting in your constructor.
+Fields that are `Option` will also be optional in the builder. You should do defaulting in your constructor.
 
 ```rust
-use buildstructor::builder;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     fn new(param: Option<usize>) -> MyStruct {
         Self { param: param.unwrap_or(3) }
     }
@@ -121,6 +181,8 @@ fn main() {
 }
 ```
 
+Note that if a field is an `Option` or collection then if a user forgets to set it a compile error will be generated.
+
 ### Into field
 
 #### Simple types
@@ -135,13 +197,13 @@ This is useful for Strings, but also other types where you want to overload the 
 You can use generics as usual in your constructor. However, this has the downside of not being able to support optional fields.
 
 ```rust
-use buildstructor::builder;
 struct MyStruct {
     param: String   
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     fn new<T: Into<String>>(param: T) -> MyStruct {
         Self { param: param.into() }
     }
@@ -158,13 +220,13 @@ fn main() {
 To create an `async` builder just make your constructor `async`.
 
 ```rust
-use buildstructor::builder;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     async fn new(param: usize) -> MyStruct {
         Self { param }
     }
@@ -182,14 +244,14 @@ async fn main() {
 To create a fallible builder just make your constructor fallible using `Result`. 
 
 ```rust
-use buildstructor::builder;
 use std::error::Error;
 struct MyStruct {
     param: usize
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     fn new(param: usize) -> Result<MyStruct, Box<dyn Error>> {
         Ok(Self { param })
     }
@@ -207,13 +269,13 @@ Collections and maps are given special treatment, the builder will add additiona
 
 
 ```rust
-use buildstructor::builder;
 struct MyStruct {
     addresses: Vec<String>
 }
 
-#[builder]
+#[buildstructor::buildstructor]
 impl MyStruct {
+    #[builder]
     fn new(addresses: Vec<String>) -> MyStruct {
         Self { addresses }
     }
@@ -267,6 +329,16 @@ Adding a singular entry will automatically perform an into conversion if:
 This is useful for Strings, but also other types where you want to overload the singular build method. Create an enum that derives From for all the types you want to support and then use this type in your constructor.
 
 There had to be some magic somewhere.
+
+## Upgrade to 0.2.0
+
+To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
+
+`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
+
+1. Annotate the impl with: `#[buildstructor::buildstructor]`
+2. Annotate methods to create a builders for with: `#[builder]`
+
 
 ## TODO
 

@@ -1,10 +1,11 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 pub struct Foo {
     simple: String,
 }
 
-#[builder]
+#[buildstructor]
 impl Foo {
+    #[builder]
     fn new(simple: String) -> Foo {
         Self { simple }
     }

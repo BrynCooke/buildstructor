@@ -1,0 +1,77 @@
+---
+source: src/buildstructor/codegen.rs
+assertion_line: 530
+expression: output
+---
+impl Client {
+    fn query(
+        self,
+    ) -> __client_call_with_return_builder::__ClientBuilder<
+            (__client_call_with_return_builder::__Required<String>,),
+        > {
+        __client_call_with_return_builder::new(self)
+    }
+}
+mod __client_call_with_return_builder {
+    use super::*;
+    pub(super) fn new(
+        receiver: Client,
+    ) -> __ClientBuilder<(__client_call_with_return_builder::__Required<String>,)> {
+        __ClientBuilder {
+            receiver,
+            fields: (__required(),),
+            _phantom: core::default::Default::default(),
+        }
+    }
+    pub struct __Required<T> {
+        _phantom: std::marker::PhantomData<T>,
+    }
+    pub struct __Optional<T> {
+        lazy: Option<T>,
+    }
+    pub struct __Set<T> {
+        value: T,
+    }
+    fn __set<T>(value: T) -> __Set<T> {
+        __Set { value }
+    }
+    fn __required<T>() -> __Required<T> {
+        __Required::<T> {
+            _phantom: core::default::Default::default(),
+        }
+    }
+    fn __optional<T>() -> __Optional<T> {
+        __Optional::<T> { lazy: None }
+    }
+    impl<T: Default> From<__Optional<T>> for __Set<T> {
+        fn from(o: __Optional<T>) -> Self {
+            __Set {
+                value: o.lazy.unwrap_or_default(),
+            }
+        }
+    }
+    pub(super) struct __ClientBuilder<__P> {
+        receiver: Client,
+        fields: __P,
+        _phantom: (),
+    }
+    impl __ClientBuilder<(__Required<String>,)> {
+        pub(super) fn simple<__T: Into<String>>(
+            self,
+            simple: __T,
+        ) -> __ClientBuilder<(__Set<String>,)> {
+            let simple = simple.into();
+            __ClientBuilder {
+                receiver: self.receiver,
+                fields: (__set(simple),),
+                _phantom: core::default::Default::default(),
+            }
+        }
+    }
+    impl<__P0: Into<__Set<String>>> __ClientBuilder<(__P0,)> {
+        pub(super) fn call(self) -> bool {
+            self.receiver.call_with_return(self.fields.0.into().value)
+        }
+    }
+}
+

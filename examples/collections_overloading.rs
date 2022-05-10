@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 use derive_more::From;
 use http::header::{HeaderName, CONTENT_TYPE};
 use http::{HeaderMap, HeaderValue};
@@ -9,8 +9,9 @@ pub struct Collections {
     headers: HeaderMap,
 }
 
-#[builder]
+#[buildstructor]
 impl Collections {
+    #[builder]
     fn new(
         headers: MultiMap<IntoHeaderName, IntoHeaderValue>,
     ) -> Result<Collections, Box<dyn Error>> {

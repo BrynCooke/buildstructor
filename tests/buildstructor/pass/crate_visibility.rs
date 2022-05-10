@@ -7,8 +7,9 @@ mod sub1 {
         pub(crate) simple: usize,
     }
 
-    #[buildstructor::builder]
+    #[buildstructor::buildstructor]
     impl Foo {
+        #[builder]
         pub(crate) fn new(simple: Bar1) -> Self {
             Self { simple }
         }
@@ -24,8 +25,9 @@ mod sub2 {
         pub(crate) simple: usize,
     }
 
-    #[buildstructor::builder]
+    #[buildstructor::buildstructor]
     impl Foo {
+        #[builder]
         pub fn new(simple: Bar2) -> Self {
             Self { simple }
         }
@@ -41,8 +43,9 @@ mod sub3 {
         pub simple: usize,
     }
 
-    #[buildstructor::builder]
+    #[buildstructor::buildstructor]
     impl Foo {
+        #[builder]
         fn new(simple: Bar3) -> Self {
             Self { simple }
         }

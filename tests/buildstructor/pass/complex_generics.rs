@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 use http::header::HeaderName;
 use http::HeaderValue;
 use std::error::Error;
@@ -7,8 +7,9 @@ pub struct Request<T> {
     inner: http::Request<T>,
 }
 
-#[builder]
+#[buildstructor]
 impl<T> Request<T> {
+    #[builder]
     pub fn fake_new<K, V>(
         headers: Vec<(K, V)>,
         uri: Option<http::Uri>,

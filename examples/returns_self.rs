@@ -1,11 +1,12 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 pub struct ReturnsSelf {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl ReturnsSelf {
+    #[builder]
     fn new(simple: usize) -> Self {
         Self { simple }
     }

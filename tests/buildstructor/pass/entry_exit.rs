@@ -5,13 +5,12 @@ pub struct Foo {
 
 #[buildstructor]
 impl Foo {
-    #[builder]
+    #[builder(entry = "entry", exit = "exit")]
     fn new(simple: String) -> Foo {
         Self { simple }
     }
 }
 
 fn main() {
-    let _ = Foo::builder().simple("3").build();
-    let _ = Foo::builder().simple("3".to_string()).build();
+    let _ = Foo::entry().simple("3").exit();
 }

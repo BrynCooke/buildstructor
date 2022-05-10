@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 
 use std::error::Error;
 
@@ -6,14 +6,19 @@ pub struct Multi {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Multi {
+    #[builder]
     fn new(simple: usize) -> Multi {
         Self { simple }
     }
+
+    #[builder]
     fn try_new(simple: usize) -> Result<Multi, Box<dyn Error>> {
         Ok(Self { simple })
     }
+
+    #[builder]
     fn maybe_new(simple: usize) -> Option<Multi> {
         Some(Self { simple })
     }

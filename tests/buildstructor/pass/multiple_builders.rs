@@ -1,4 +1,4 @@
-use buildstructor::builder;
+use buildstructor::buildstructor;
 pub struct Foo1 {
     simple: usize,
 }
@@ -7,15 +7,17 @@ pub struct Foo2 {
     simple: usize,
 }
 
-#[builder]
+#[buildstructor]
 impl Foo1 {
+    #[builder]
     fn new(simple: usize) -> Foo1 {
         Self { simple }
     }
 }
 
-#[builder]
+#[buildstructor]
 impl Foo2 {
+    #[builder]
     fn new(simple: usize) -> Foo2 {
         Self { simple }
     }

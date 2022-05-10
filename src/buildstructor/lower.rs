@@ -1,4 +1,4 @@
-use crate::analyze::ConstrutorModel;
+use crate::analyze::BuilderModel;
 use crate::buildstructor::utils::{IdentExt, PunctuatedExt, TypeExt};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -6,25 +6,27 @@ use std::default::Default;
 use syn::punctuated::Punctuated;
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
-    PathArguments, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted, Visibility,
+    PathArguments, Receiver, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted,
+    Visibility,
 };
 use try_match::try_match;
 
 pub struct Ir {
     pub module_name: Ident,
-    pub target_name: Ident,
+    pub impl_name: Ident,
+    pub impl_generics: Generics,
+    pub delegate_name: Ident,
+    pub delegate_generics: Generics,
     pub builder_name: Ident,
     pub builder_fields: Vec<BuilderField>,
-    pub constructor_name: Ident,
-    pub constructor_method_name: Ident,
-    pub return_type: ReturnType,
-    pub is_async: bool,
-    pub vis: Visibility,
+    pub builder_return_type: ReturnType,
     pub builder_vis: Visibility,
-    pub generics: Generics,
     pub builder_generics: Generics,
-    pub method_generics: Generics,
-    pub builder_method_name: Ident,
+    pub builder_entry: Ident,
+    pub builder_exit: Ident,
+    pub vis: Visibility,
+    pub is_async: bool,
+    pub receiver: Option<Receiver>,
 }
 
 pub struct BuilderField {
@@ -49,31 +51,43 @@ pub enum FieldType {
     Map,
 }
 
-pub fn lower(model: ConstrutorModel) -> Result<Ir> {
+pub fn lower(model: BuilderModel) -> Result<Ir> {
     // Either visibility is set explicitly or we default to super.
     let vis = model.vis.clone();
     let builder_vis = builder_vilibility(&vis);
-
+    let receiver = receiver(&model);
     Ok(Ir {
         vis,
         builder_vis,
         module_name: format_ident!(
             "__{}_{}_builder",
-            model.ident.to_string().to_lowercase(),
-            model.constructor_name.to_string().to_lowercase()
+            model.impl_name.to_string().to_lowercase(),
+            model.delegate_name.to_string().to_lowercase()
         ),
-        target_name: model.ident.clone(),
-        builder_name: format_ident!("__{}Builder", model.ident.clone()),
-        constructor_method_name: model.constructor_name.clone(),
-        builder_method_name: builder_method_name(&model),
+        impl_name: model.impl_name.clone(),
+        impl_generics: model.impl_generics.clone(),
+        delegate_name: model.delegate_name.clone(),
+        delegate_generics: model.delegate_generics.clone(),
+        builder_name: format_ident!("__{}Builder", model.impl_name),
+        builder_return_type: builder_return_type(&model.delegate_return_type, &model.impl_name),
+        builder_entry: builder_entry(&model, &receiver)?,
+        builder_exit: builder_exit(&model, &receiver),
         builder_fields: builder_fields(&model),
-        constructor_name: format_ident!("{}Constructor", model.ident.to_string()),
-        return_type: builder_return_type(model.output, &model.ident),
-        is_async: model.is_async,
-        generics: model.generics,
         builder_generics: Ir::builder_generics(),
-        method_generics: model.method_generics,
+        is_async: model.is_async,
+        receiver,
     })
+}
+
+fn receiver(model: &BuilderModel) -> Option<Receiver> {
+    model
+        .delegate_args
+        .iter()
+        .filter_map(|a| match a {
+            FnArg::Receiver(r) => Some(r.clone()),
+            FnArg::Typed(_) => None,
+        })
+        .next()
 }
 
 fn builder_vilibility(vis: &Visibility) -> Visibility {
@@ -89,7 +103,8 @@ fn builder_vilibility(vis: &Visibility) -> Visibility {
     }
 }
 
-fn builder_return_type(mut return_type: ReturnType, target: &Ident) -> ReturnType {
+fn builder_return_type(return_type: &ReturnType, target: &Ident) -> ReturnType {
+    let mut return_type = return_type.clone();
     if let ReturnType::Type(_, ty) = &mut return_type {
         replace_self(ty, target);
     }
@@ -115,9 +130,9 @@ fn replace_self(ty: &mut Type, target: &Ident) {
     }
 }
 
-fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
+fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
     model
-        .args
+        .delegate_args
         .iter()
         .filter_map(|f| match f {
             FnArg::Typed(t) => {
@@ -139,8 +154,10 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                             (None, false),
                             (
                                 Some(collection_type.clone()),
-                                collection_type
-                                    .is_into_capable(&model.generics, &model.method_generics),
+                                collection_type.is_into_capable(
+                                    &model.impl_generics,
+                                    &model.delegate_generics,
+                                ),
                             ),
                         ),
                         (
@@ -150,11 +167,17 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                         ) => (
                             (
                                 Some(key_type.clone()),
-                                key_type.is_into_capable(&model.generics, &model.method_generics),
+                                key_type.is_into_capable(
+                                    &model.impl_generics,
+                                    &model.delegate_generics,
+                                ),
                             ),
                             (
                                 Some(value_type.clone()),
-                                value_type.is_into_capable(&model.generics, &model.method_generics),
+                                value_type.is_into_capable(
+                                    &model.impl_generics,
+                                    &model.delegate_generics,
+                                ),
                             ),
                             (None, false),
                         ),
@@ -162,11 +185,16 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
                     };
 
                 let into =
-                    t.ty.is_into_capable(&model.generics, &model.method_generics);
+                    t.ty.is_into_capable(&model.impl_generics, &model.delegate_generics);
                 Some(BuilderField {
                     ty: *t.ty.clone(),
                     into,
-                    name: ident.ident.clone(),
+                    name: ident
+                        .ident
+                        .to_string()
+                        .strip_prefix('_')
+                        .map(|stripped| format_ident!("{}", stripped))
+                        .unwrap_or_else(|| ident.ident.clone()),
                     field_type,
                     key_type,
                     key_into,
@@ -181,15 +209,37 @@ fn builder_fields(model: &ConstrutorModel) -> Vec<BuilderField> {
         .collect()
 }
 
-fn builder_method_name(model: &ConstrutorModel) -> Ident {
-    format_ident!(
-        "{}builder",
+fn builder_entry(model: &BuilderModel, receiver: &Option<Receiver>) -> Result<Ident> {
+    let method_name = model.delegate_name.to_string();
+    match (&model.config.entry, receiver) {
+        (Some(name), _) => return Ok(format_ident!("{}", name)),
+        // constructor
+        (None, None) => match (method_name.as_str(), method_name.strip_suffix("_new")) {
+            ("new", _) => return Ok(format_ident!("builder")),
+            (_, Some(stripped)) => return Ok(format_ident!("{}_builder", stripped)),
+            _ => {}
+        },
+        _ => {}
+    }
+    Err(syn::Error::new(
         model
-            .constructor_name
-            .to_string()
-            .strip_suffix("new")
-            .expect("already checked that the method ends with new, qed")
-    )
+            .config
+            .span
+            .unwrap_or_else(|| model.delegate_name.span()),
+        format!(
+            "#[builder(entry = \"<name>\")] cannot be defaulted for 'fn {}' and must be specified via annotation", method_name
+        ),
+    ))
+}
+
+fn builder_exit(model: &BuilderModel, receiver: &Option<Receiver>) -> Ident {
+    match (&model.config.exit, receiver) {
+        (Some(name), _) => format_ident!("{}", name),
+        // constructor
+        (None, None) => format_ident!("build"),
+        // call
+        (None, Some(_)) => format_ident!("call"),
+    }
 }
 
 fn field_type(ty: &Type) -> FieldType {
@@ -207,7 +257,7 @@ fn field_type(ty: &Type) -> FieldType {
 }
 
 impl Ir {
-    pub fn constructor_args(&self) -> Vec<TokenStream> {
+    pub fn delegate_args(&self) -> Vec<TokenStream> {
         self.builder_fields
             .iter()
             .enumerate()
