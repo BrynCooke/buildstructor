@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#45](https://github.com/BrynCooke/buildstructor/issues/45)
 Major refactor to expand the scope of buildstructor.
 
-This is a **breaking** change.
+To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
 
-To use buildstructor you now have to annotate the impl and the methods you want a builder for:
-
-Annotate the impl with: `#[buildstructor::buildstructor]`
-Annotate the method with: `#[builder]`
+`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
+ 
+1. Annotate the impl with: `#[buildstructor::buildstructor]`
+2. Annotate methods to create a builders for with: `#[builder]`
 
 ```rust
 #[buildstructor::buildstructor]
@@ -26,8 +26,8 @@ impl Foo {
 ```
 
 You can configure your builder using the `#[builder]` annotation, which has the following attributes:
-* `entry` => The entry point for your builder. If not specified then the pre-existing rules around `new/*_new` are used. If your method does not match one of the new patterns then it is suffixed with `_builder`.
-* `exit` => The terminal method for the generated builder. Defaults to `builder`.
+* `entry` => The entry point for your builder. If not specified then the pre-existing rules around `new/*_new` are used.
+* `exit` => The terminal method for the generated builder. Defaults to `builder` for constructors and `call` for methods.
 
 In addition, you can now specify builders on methods that take self:
 
@@ -37,30 +37,15 @@ pub struct Client;
 
 #[buildstructor::buildstructor]
 impl Client {
-    #[builder(entry = "message", exit = "send")]
-    fn call_with_no_return(self, _simple: String) {}
-
-    #[builder(entry = "message_ref", exit = "send")]
-    fn call_with_no_return_ref(&self, _simple: String) {}
-
-    #[builder(entry = "message_ref_mut", exit = "send")]
-    fn call_with_no_return_ref_mut(&mut self, _simple: String) {}
-    
+    #[builder(entry = "phone", exit = "call")]
+    fn phone_call(self, _simple: String) {}
 }
 
 fn main() {
-    Client::default().message().simple("3".to_string()).send();
-
-    let client = Client::default();
-    client.message_ref().simple("3".to_string()).send();
-
-    let mut client = Client::default();
-    client.message_ref_mut().simple("3".to_string()).send();
+    Client::default().phone().simple("3").call();
 }
 ```
-
 Note, if method parameters begin with `_` then this is stripped for the builder method names.
-
 
 ## 0.1.12 - 2022-05-06
 [#39](https://github.com/BrynCooke/buildstructor/issues/39)

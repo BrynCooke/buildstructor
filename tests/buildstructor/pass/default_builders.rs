@@ -3,12 +3,14 @@ pub struct Exchange {
     location: String,
 }
 
-#[buildstructor(default_builders = true)]
+#[buildstructor]
 impl Exchange {
+    #[builder]
     fn new(location: String) -> Exchange {
         Self { location }
     }
 
+    #[builder]
     fn fake_new() -> Exchange {
         Self {
             location: "Fakenham".to_string(),

@@ -468,7 +468,7 @@ mod tests {
 
     macro_rules! assert_codegen {
         ($input:expr) => {
-            let models = analyze(&$input).expect("Analysis failed");
+            let models = analyze(false, &$input).expect("Analysis failed");
             for model in models {
                 let ir = lower(model.expect("Analysis failed")).expect("Ir failed");
                 if let Ok(codegen) = codegen(ir) {

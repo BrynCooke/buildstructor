@@ -1,13 +1,13 @@
 # Buildstructor
 
-Derive a builder from methods/constructors using the typesafe builder pattern!
+Derive a builder from constructors/methods using the typesafe builder pattern!
 
-Use this if your method/constructor has:
+Use this if your constructors/method has:
 * Optional parameters.
 * A large number of parameters.
 * Collections parameters.
 
-## Installation:
+## Installation
 
 Add the dependency to your `Cargo.toml`
 ```toml
@@ -15,7 +15,7 @@ Add the dependency to your `Cargo.toml`
 buildstructor = "*"
 ```
 
-## Usage / Example:
+## Usage / Example
 
 1. Annotate your `impl` with `#[buildstructor::buildstructor]`.
 2. Annotate your `impl` with `#[builder]`.
@@ -42,6 +42,7 @@ impl MyStruct {
 fn main() {
     let mut mine = MyStruct::builder().a(2).b(3).build();
     assert_eq!(mine.sum, 5);
+    
     mine.more().c(1).d(2).add();
     assert_eq!(mine.sum, 11);
 }
@@ -49,12 +50,12 @@ fn main() {
 
 ## Motivation
 
-The difference between this and other builder crates is that methods/constructors are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
+The difference between this and other builder crates is that constructors/methods**** are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
 
 Advantages:
 
 * You can specify fields in your constructor that do not appear in your struct.
-* No magic to default values, just use an `Option` param in your methods/constructors and default as normal.
+* No magic to default values, just use an `Option` param in your `fn` and default as normal.
 * `async` constructors derives `async` builders.
 * Fallible constructors (`Result`) derives fallible builders.
 * Special `Vec`, `Deque`, `Heap`, `Set`, `Map` support. Add single or multiple items.
@@ -68,78 +69,88 @@ All of these recipes and more can be found in the [examples directory](https://g
 
 Just write your rust code as usual and annotate the constructor impl with `[builder]`
 
-### Mutliple builders
-All methods that are annotated with `#[builder]` will create builders. Each builder is named appropriately.
-```rust
-use std::error::Error;
+### Constructors
+Builders can be generated on methods that have no receiver.
 
-struct Multi {
+Configuration:
+* `entry` defaults based on `fn` name:
+  * `new` => `builder`
+  * `<name>_new` => `<name>_builder`
+  * `<anything_else>` => cannot be defaulted and must be specified.
+* `exit` defaults to `build`
+
+```rust
+struct MyStruct {
     simple: usize
 }
 
 #[buildstructor::buildstructor]
-impl Multi {
+impl MyStruct {
     #[builder]
-    fn new(simple: usize) -> Multi {
+    fn new(simple: usize) -> MyStruct {
         Self { simple }
     }
     #[builder]
-    fn try_new(simple: usize) -> Result<Multi, Box<dyn Error>> {
-        Ok(Self { simple })
+    fn try_new(simple: usize) -> MyStruct {
+        Self { simple }
     }
-    #[builder]
-    fn maybe_new(simple: usize) -> Option<Multi> {
-        Some(Self { simple })
+    #[builder(entry = "random", exit = "create")]
+    fn do_random(simple: usize) -> MyStruct {
+        Self { simple }
     }
 }
 
 fn main() {
-    let regular = Multi::builder().simple(2).build();
-    assert_eq!(regular.simple, 2);
+    let mine = MyStruct::builder().simple(2).build();
+    assert_eq!(mine.simple, 2);
 
-    let fallible = Multi::try_builder().simple(2).build().unwrap();
-    assert_eq!(fallible.simple, 2);
+    let mine = MyStruct::try_builder().simple(2).build();
+    assert_eq!(mine.simple, 2);
 
-    let option = Multi::maybe_builder().simple(2).build().unwrap();
-    assert_eq!(option.simple, 2);
+    let mine = MyStruct::random().simple(2).create();
+    assert_eq!(mine.simple, 2);
 }
 ```
 
-### Builders with a receiver
-Builders can be generated on methods that take `self`, `&self` and `&mut self` as a parameter. This is useful for APIs where you have a large number of parameters some of which may be optional.
+### Methods
+Builders can be generated on methods that take `self`, `&self` and `&mut self` as a parameter.
+
+Configuration:
+* `entry` cannot be defaulted and must be specified.
+* `exit` defaults to `call`
 
 ```rust
 use buildstructor::buildstructor;
 
 #[derive(Default)]
-pub struct Client;
+pub struct MyStruct;
 
 #[buildstructor]
-impl Client {
-    #[builder(entry = "query", exit = "call")]
+impl MyStruct {
+    #[builder(entry = "query")]
     fn do_query(self, _simple: String) -> bool {
         true
     }
 
-    #[builder(entry = "query_ref", exit = "call")]
+    #[builder(entry = "query_ref", exit = "stop")]
     fn do_query_ref(&self, _simple: String) -> bool {
         true
     }
 
-    #[builder(entry = "query_ref_mut", exit = "call")]
+    #[builder(entry = "query_ref_mut", exit = "go")]
     fn do_query_ref_mut(&mut self, _simple: String) -> bool {
         true
     }
 }
 
 fn main() {
-    Client::default().query().simple("3".to_string()).call(); // self
+    MyStruct::default().query().simple("3".to_string()).call(); // self
 
-    let client = Client::default();
-    client.query_ref().simple("3".to_string()).call(); // &self
+    let mine = MyStruct::default();
+    mine.query_ref().simple("3".to_string()).stop(); // &self
 
-    let mut client = Client::default();
-    client.query_ref_mut().simple("3".to_string()).call(); // &mut self
+    let mut mine = MyStruct::default();
+    mine.query_ref_mut().simple("3".to_string()).go(); // &mut self
 }
 ```
 
@@ -318,6 +329,16 @@ Adding a singular entry will automatically perform an into conversion if:
 This is useful for Strings, but also other types where you want to overload the singular build method. Create an enum that derives From for all the types you want to support and then use this type in your constructor.
 
 There had to be some magic somewhere.
+
+## Upgrade to 0.2.0
+
+To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
+
+`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
+
+1. Annotate the impl with: `#[buildstructor::buildstructor]`
+2. Annotate methods to create a builders for with: `#[builder]`
+
 
 ## TODO
 

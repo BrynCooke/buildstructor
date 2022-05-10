@@ -227,7 +227,7 @@ fn builder_entry(model: &BuilderModel, receiver: &Option<Receiver>) -> Result<Id
             .span
             .unwrap_or_else(|| model.delegate_name.span()),
         format!(
-            "builder 'entry' name cannot be derived for '{}' and must be specified via annotation #[builder(entry = \"<name>\")]", method_name
+            "#[builder(entry = \"<name>\")] cannot be defaulted for 'fn {}' and must be specified via annotation", method_name
         ),
     ))
 }

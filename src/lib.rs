@@ -45,20 +45,23 @@ use crate::parse::Ast;
 /// ```
 #[proc_macro_attribute]
 pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
-    do_buildstructor(attr, item)
+    do_buildstructor(false, attr, item)
 }
 
 #[proc_macro_attribute]
 #[deprecated(
     since = "0.2.0",
-    note = "#[buildstructor::builder] should be migrated to #[buildstructor::buildstructor] and methods annotated with #[builder]"
+    note = "#[buildstructor::builder] should be migrated to #[buildstructor::buildstructor] and individual methods annotated with #[builder]"
 )]
-pub fn builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let config = quote::quote! {default_builders = true};
-    buildstructor(config.into(), item)
+pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
+    do_buildstructor(true, attr, item)
 }
 
-fn do_buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
+fn do_buildstructor(
+    legacy_default_builders: bool,
+    attr: TokenStream,
+    item: TokenStream,
+) -> TokenStream {
     let attr: proc_macro2::TokenStream = attr.into();
     let attr = quote::quote! {#[buildstructor(#attr)]};
     match parse::parse(TokenStream::from_iter(vec![attr.into(), item.clone()]).into())
@@ -66,29 +69,31 @@ fn do_buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
     {
         Ok(mut ast) => {
             // We have the AST, we can return the token stream regardless of if there was success or not as long as we sanitize it of helper attributes.
-            let mut results: Vec<proc_macro::TokenStream> = match analyze::analyze(&ast)
-                .map_err(|e| e.into_compile_error())
-            {
-                Ok(builders) => builders
-                    .into_iter()
-                    .map(|builder| match builder {
-                        Ok(builder) => {
-                            let ir = lower::lower(builder).map_err(|e| e.into_compile_error())?;
-                            let code_gen =
-                                codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
-                            Ok(code_gen)
-                        }
-                        Err(e) => Err(e.into_compile_error()),
-                    })
-                    .map(|r: Result<TokenStream2, TokenStream2>| match r {
-                        Ok(r) => r.into(),
-                        Err(e) => e.into(),
-                    })
-                    .collect(),
-                Err(e) => {
-                    vec![e.into()]
-                }
-            };
+            let mut results: Vec<proc_macro::TokenStream> =
+                match analyze::analyze(legacy_default_builders, &ast)
+                    .map_err(|e| e.into_compile_error())
+                {
+                    Ok(builders) => builders
+                        .into_iter()
+                        .map(|builder| match builder {
+                            Ok(builder) => {
+                                let ir =
+                                    lower::lower(builder).map_err(|e| e.into_compile_error())?;
+                                let code_gen =
+                                    codegen::codegen(ir).map_err(|e| e.into_compile_error())?;
+                                Ok(code_gen)
+                            }
+                            Err(e) => Err(e.into_compile_error()),
+                        })
+                        .map(|r: Result<TokenStream2, TokenStream2>| match r {
+                            Ok(r) => r.into(),
+                            Err(e) => e.into(),
+                        })
+                        .collect(),
+                    Err(e) => {
+                        vec![e.into()]
+                    }
+                };
 
             // Now sanitize the AST of any helper attributes.
             sanitize(&mut ast);

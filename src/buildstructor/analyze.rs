@@ -21,35 +21,21 @@ pub struct BuilderModel {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct BuildstructorConfig {
-    pub default_builders: bool,
-}
+pub struct BuildstructorConfig {}
 
 impl TryFrom<&Vec<Attribute>> for BuildstructorConfig {
     type Error = syn::Error;
 
     fn try_from(attributes: &Vec<Attribute>) -> std::result::Result<Self, Self::Error> {
-        fn apply(config: &mut BuildstructorConfig, name_value: &MetaNameValue) -> Result<()> {
+        fn apply(_config: &mut BuildstructorConfig, name_value: &MetaNameValue) -> Result<()> {
             let name = name_value
                 .path
                 .get_ident()
                 .expect("config ident must be preset, qed");
-            let value = &name_value.lit;
-            match (name.to_string().as_str(), value) {
-                ("default_builders", Lit::Bool(value)) => {
-                    config.default_builders = value.value();
-                }
-                _ => {
-                    return Err(syn::Error::new(
-                        value.span(),
-                        format!(
-                        "invalid buildstructor attribute '{}', only 'default_builders' is allowed",
-                        name
-                    ),
-                    ))
-                }
-            }
-            Ok(())
+            return Err(syn::Error::new(
+                name_value.span(),
+                format!("invalid buildstructor attribute '{}'", name),
+            ));
         }
 
         let mut config = BuildstructorConfig::default();
@@ -126,9 +112,9 @@ impl TryFrom<&Attribute> for BuilderConfig {
     }
 }
 
-pub fn analyze(ast: &Ast) -> Result<Vec<Result<BuilderModel>>> {
-    let buildstructor_config: BuildstructorConfig = (&ast.attributes).try_into()?;
-    let methods = get_eligible_methods(&ast.item, buildstructor_config.default_builders);
+pub fn analyze(legacy_default_builders: bool, ast: &Ast) -> Result<Vec<Result<BuilderModel>>> {
+    let _buildstructor_config: BuildstructorConfig = (&ast.attributes).try_into()?;
+    let methods = get_eligible_methods(&ast.item, legacy_default_builders);
     let ident = ast
         .item
         .self_ty
@@ -192,56 +178,56 @@ mod tests {
 
     #[test]
     fn single_field_test() {
-        analyze(&single_field_test_case()).unwrap();
+        analyze(false, &single_field_test_case()).unwrap();
     }
 
     #[test]
     fn pub_test() {
-        analyze(&pub_test_case()).unwrap();
+        analyze(false, &pub_test_case()).unwrap();
     }
 
     #[test]
     fn multi_field_test() {
-        analyze(&multi_field_test_case()).unwrap();
+        analyze(false, &multi_field_test_case()).unwrap();
     }
 
     #[test]
     fn generic_test() {
-        analyze(&generic_test_case()).unwrap();
+        analyze(false, &generic_test_case()).unwrap();
     }
 
     #[test]
     fn async_test() {
-        analyze(&async_test_case()).unwrap();
+        analyze(false, &async_test_case()).unwrap();
     }
 
     #[test]
     fn fallible_test() {
-        analyze(&fallible_test_case()).unwrap();
+        analyze(false, &fallible_test_case()).unwrap();
     }
 
     #[test]
     fn into_test() {
-        analyze(&into_test_case()).unwrap();
+        analyze(false, &into_test_case()).unwrap();
     }
 
     #[test]
     fn into_where_test() {
-        analyze(&into_where_test_case()).unwrap();
+        analyze(false, &into_where_test_case()).unwrap();
     }
 
     #[test]
     fn option_test() {
-        analyze(&option_test_case()).unwrap();
+        analyze(false, &option_test_case()).unwrap();
     }
 
     #[test]
     fn collection_test() {
-        analyze(&collections_test_case()).unwrap();
+        analyze(false, &collections_test_case()).unwrap();
     }
 
     #[test]
     fn collection_generics_test() {
-        analyze(&collections_generics_test_case()).unwrap();
+        analyze(false, &collections_generics_test_case()).unwrap();
     }
 }
