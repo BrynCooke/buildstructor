@@ -50,7 +50,7 @@ fn main() {
 
 ## Motivation
 
-The difference between this and other builder crates is that constructors/methods**** are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
+The difference between this and other builder crates is that constructors/methods are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
 
 Advantages:
 
