@@ -11,6 +11,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
+    #[inline(always)]
     pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
         __FooBuilder {
             fields: (__required(),),
@@ -26,18 +27,22 @@ mod __foo_new_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -49,6 +54,7 @@ mod __foo_new_builder {
         _phantom: (),
     }
     impl __FooBuilder<(__Required<usize>,)> {
+        #[inline(always)]
         pub(super) fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
             let simple = simple;
             __FooBuilder {
@@ -58,6 +64,7 @@ mod __foo_new_builder {
         }
     }
     impl<__P0: Into<__Set<usize>>> __FooBuilder<(__P0,)> {
+        #[inline(always)]
         pub(super) fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value)
         }

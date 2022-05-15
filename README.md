@@ -2,7 +2,7 @@
 
 Derive a builder from constructors/methods using the typesafe builder pattern!
 
-Use this if your constructors/method has:
+Use this if your constructor/method has:
 * Optional parameters.
 * A large number of parameters.
 * Collections parameters.

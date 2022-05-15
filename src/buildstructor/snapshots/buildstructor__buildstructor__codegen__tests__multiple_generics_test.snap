@@ -19,6 +19,7 @@ impl<T> Request<T> {
 }
 mod __request_fake_new_builder {
     use super::*;
+    #[inline(always)]
     pub fn new<T, K, V>() -> __RequestBuilder<
             (
                 __request_fake_new_builder::__Optional<Vec<(K, V)>>,
@@ -44,18 +45,22 @@ mod __request_fake_new_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -78,6 +83,7 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__Optional<Vec<(K, V)>>, __1, __2, __3), T, K, V> {
+        #[inline(always)]
         pub fn headers(
             mut self,
             headers: Vec<(K, V)>,
@@ -95,6 +101,7 @@ mod __request_fake_new_builder {
                 .extend(headers.into_iter());
             self
         }
+        #[inline(always)]
         pub fn header(
             mut self,
             value: (K, V),
@@ -121,6 +128,7 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__0, __Optional<Option<http::Uri>>, __2, __3), T, K, V> {
+        #[inline(always)]
         pub fn uri<__T: Into<http::Uri>>(
             self,
             uri: __T,
@@ -137,6 +145,7 @@ mod __request_fake_new_builder {
                 _phantom: core::default::Default::default(),
             }
         }
+        #[inline(always)]
         pub fn and_uri<__T: Into<http::Uri>>(
             self,
             uri: Option<__T>,
@@ -162,6 +171,7 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__0, __1, __Optional<Option<http::Method>>, __3), T, K, V> {
+        #[inline(always)]
         pub fn method<__T: Into<http::Method>>(
             self,
             method: __T,
@@ -178,6 +188,7 @@ mod __request_fake_new_builder {
                 _phantom: core::default::Default::default(),
             }
         }
+        #[inline(always)]
         pub fn and_method<__T: Into<http::Method>>(
             self,
             method: Option<__T>,
@@ -203,6 +214,7 @@ mod __request_fake_new_builder {
         K,
         V,
     > __RequestBuilder<(__0, __1, __2, __Required<T>), T, K, V> {
+        #[inline(always)]
         pub fn body(
             self,
             body: T,
@@ -229,6 +241,7 @@ mod __request_fake_new_builder {
         HeaderValue: TryFrom<V>,
         <HeaderValue as TryFrom<V>>::Error: Into<http::Error>,
     {
+        #[inline(always)]
         pub fn build(self) -> http::Result<Request<T>> {
             Request::fake_new(
                 self.fields.0.into().value,
