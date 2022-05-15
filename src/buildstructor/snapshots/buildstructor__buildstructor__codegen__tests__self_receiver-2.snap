@@ -1,6 +1,5 @@
 ---
 source: src/buildstructor/codegen.rs
-assertion_line: 565
 expression: output
 ---
 impl Client {
@@ -14,6 +13,7 @@ impl Client {
 }
 mod __client_call_with_no_return_ref_builder {
     use super::*;
+    #[inline(always)]
     pub(super) fn new(
         receiver: &Client,
     ) -> __ClientBuilder<
@@ -34,18 +34,22 @@ mod __client_call_with_no_return_ref_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -58,6 +62,7 @@ mod __client_call_with_no_return_ref_builder {
         _phantom: (),
     }
     impl<'__builder> __ClientBuilder<'__builder, (__Required<String>,)> {
+        #[inline(always)]
         pub(super) fn simple<__T: Into<String>>(
             self,
             simple: __T,
@@ -71,6 +76,7 @@ mod __client_call_with_no_return_ref_builder {
         }
     }
     impl<'__builder, __P0: Into<__Set<String>>> __ClientBuilder<'__builder, (__P0,)> {
+        #[inline(always)]
         pub(super) fn send(self) {
             self.receiver.call_with_no_return_ref(self.fields.0.into().value)
         }

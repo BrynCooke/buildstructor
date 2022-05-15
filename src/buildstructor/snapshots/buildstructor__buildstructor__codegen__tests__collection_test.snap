@@ -18,6 +18,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
+    #[inline(always)]
     pub(super) fn new() -> __FooBuilder<
             (
                 __foo_new_builder::__Required<usize>,
@@ -49,18 +50,22 @@ mod __foo_new_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -78,6 +83,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__Required<usize>, __1, __2, __3, __4, __5)> {
+        #[inline(always)]
         pub(super) fn simple(
             self,
             simple: usize,
@@ -103,6 +109,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __Optional<HashSet<String>>, __2, __3, __4, __5)> {
+        #[inline(always)]
         pub(super) fn set(
             mut self,
             set: HashSet<String>,
@@ -114,6 +121,7 @@ mod __foo_new_builder {
                 .extend(set.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn set_entry<__T: Into<String>>(
             mut self,
             value: __T,
@@ -133,6 +141,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5)> {
+        #[inline(always)]
         pub(super) fn map(
             mut self,
             map: HashMap<String, String>,
@@ -146,6 +155,7 @@ mod __foo_new_builder {
                 .extend(map.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn map_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
             key: __K,
@@ -168,6 +178,7 @@ mod __foo_new_builder {
         __4,
         __5,
     > __FooBuilder<(__0, __1, __2, __Optional<Vec<String>>, __4, __5)> {
+        #[inline(always)]
         pub(super) fn vec(
             mut self,
             vec: Vec<String>,
@@ -179,6 +190,7 @@ mod __foo_new_builder {
                 .extend(vec.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn vec_entry<__T: Into<String>>(
             mut self,
             value: __T,
@@ -198,6 +210,7 @@ mod __foo_new_builder {
         __3,
         __5,
     > __FooBuilder<(__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5)> {
+        #[inline(always)]
         pub(super) fn btmap(
             mut self,
             btmap: BTreeMap<String, String>,
@@ -211,6 +224,7 @@ mod __foo_new_builder {
                 .extend(btmap.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn btmap_entry<__K: Into<String>, __V: Into<String>>(
             mut self,
             key: __K,
@@ -233,6 +247,7 @@ mod __foo_new_builder {
         __3,
         __4,
     > __FooBuilder<(__0, __1, __2, __3, __4, __Optional<BTreeSet<String>>)> {
+        #[inline(always)]
         pub(super) fn btset(
             mut self,
             btset: BTreeSet<String>,
@@ -244,6 +259,7 @@ mod __foo_new_builder {
                 .extend(btset.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn btset_entry<__T: Into<String>>(
             mut self,
             value: __T,
@@ -264,6 +280,7 @@ mod __foo_new_builder {
         __P4: Into<__Set<BTreeMap<String, String>>>,
         __P5: Into<__Set<BTreeSet<String>>>,
     > __FooBuilder<(__P0, __P1, __P2, __P3, __P4, __P5)> {
+        #[inline(always)]
         pub(super) fn build(self) -> Foo {
             Foo::new(
                 self.fields.0.into().value,

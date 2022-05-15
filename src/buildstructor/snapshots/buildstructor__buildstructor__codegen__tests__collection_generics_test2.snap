@@ -16,6 +16,7 @@ impl Collections {
 }
 mod __collections_new_builder {
     use super::*;
+    #[inline(always)]
     pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __CollectionsBuilder<
             (
                 __collections_new_builder::__Optional<HashMap<K, V>>,
@@ -38,18 +39,22 @@ mod __collections_new_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -65,6 +70,7 @@ mod __collections_new_builder {
         K: Into<String> + Eq + Hash,
         V: Into<String>,
     > __CollectionsBuilder<(__Optional<HashMap<K, V>>, __1), K, V> {
+        #[inline(always)]
         pub(super) fn map(
             mut self,
             map: HashMap<K, V>,
@@ -76,6 +82,7 @@ mod __collections_new_builder {
                 .extend(map.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn map_entry(
             mut self,
             key: K,
@@ -94,6 +101,7 @@ mod __collections_new_builder {
         K: Into<String> + Eq + Hash,
         V: Into<String>,
     > __CollectionsBuilder<(__0, __Optional<HashSet<K>>), K, V> {
+        #[inline(always)]
         pub(super) fn set(
             mut self,
             set: HashSet<K>,
@@ -105,6 +113,7 @@ mod __collections_new_builder {
                 .extend(set.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn set_entry(
             mut self,
             value: K,
@@ -123,6 +132,7 @@ mod __collections_new_builder {
         __P0: Into<__Set<HashMap<K, V>>>,
         __P1: Into<__Set<HashSet<K>>>,
     > __CollectionsBuilder<(__P0, __P1), K, V> {
+        #[inline(always)]
         pub(super) fn build(self) -> Collections {
             Collections::new(self.fields.0.into().value, self.fields.1.into().value)
         }

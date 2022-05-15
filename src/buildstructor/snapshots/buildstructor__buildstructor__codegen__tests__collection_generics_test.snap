@@ -13,6 +13,7 @@ impl Foo {
 }
 mod __foo_new_builder {
     use super::*;
+    #[inline(always)]
     pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __FooBuilder<
             (__foo_new_builder::__Optional<HashMap<K, V>>,),
             K,
@@ -32,18 +33,22 @@ mod __foo_new_builder {
     pub struct __Set<T> {
         value: T,
     }
+    #[inline(always)]
     fn __set<T>(value: T) -> __Set<T> {
         __Set { value }
     }
+    #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
             _phantom: core::default::Default::default(),
         }
     }
+    #[inline(always)]
     fn __optional<T>() -> __Optional<T> {
         __Optional::<T> { lazy: None }
     }
     impl<T: Default> From<__Optional<T>> for __Set<T> {
+        #[inline(always)]
         fn from(o: __Optional<T>) -> Self {
             __Set {
                 value: o.lazy.unwrap_or_default(),
@@ -58,6 +63,7 @@ mod __foo_new_builder {
         K: Into<String> + Eq + Hash,
         V: Into<String>,
     > __FooBuilder<(__Optional<HashMap<K, V>>,), K, V> {
+        #[inline(always)]
         pub(super) fn param(
             mut self,
             param: HashMap<K, V>,
@@ -69,6 +75,7 @@ mod __foo_new_builder {
                 .extend(param.into_iter());
             self
         }
+        #[inline(always)]
         pub(super) fn param_entry(
             mut self,
             key: K,
@@ -87,6 +94,7 @@ mod __foo_new_builder {
         V: Into<String>,
         __P0: Into<__Set<HashMap<K, V>>>,
     > __FooBuilder<(__P0,), K, V> {
+        #[inline(always)]
         pub(super) fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value)
         }
