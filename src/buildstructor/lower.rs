@@ -31,15 +31,16 @@ pub struct Ir {
 
 pub struct BuilderField {
     pub name: Ident,
-    pub ty: Type,
-    pub into: bool,
     pub field_type: FieldType,
+    pub ty: Type,
+    pub ty_into: bool,
     pub key_type: Option<Type>,
     pub key_into: bool,
     pub value_type: Option<Type>,
     pub value_into: bool,
     pub generic_type: Option<Type>,
     pub generic_into: bool,
+    pub doc: Option<String>,
 }
 
 #[derive(Debug)]
@@ -138,57 +139,15 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
             FnArg::Typed(t) => {
                 let ident = try_match!(&*t.pat, Pat::Ident(x)=>x).ok()?;
                 let field_type = field_type(&*t.ty);
-                let args = t.ty.generic_args();
+
                 let ((key_type, key_into), (value_type, value_into), (generic_type, generic_into)) =
-                    match (
-                        &field_type,
-                        args.and_then(|args| args.iter().next()),
-                        args.and_then(|args| args.iter().nth(1)),
-                    ) {
-                        (
-                            FieldType::Option | FieldType::Vec | FieldType::Set,
-                            Some(GenericArgument::Type(collection_type)),
-                            None,
-                        ) => (
-                            (None, false),
-                            (None, false),
-                            (
-                                Some(collection_type.clone()),
-                                collection_type.is_into_capable(
-                                    &model.impl_generics,
-                                    &model.delegate_generics,
-                                ),
-                            ),
-                        ),
-                        (
-                            FieldType::Map,
-                            Some(GenericArgument::Type(key_type)),
-                            Some(GenericArgument::Type(value_type)),
-                        ) => (
-                            (
-                                Some(key_type.clone()),
-                                key_type.is_into_capable(
-                                    &model.impl_generics,
-                                    &model.delegate_generics,
-                                ),
-                            ),
-                            (
-                                Some(value_type.clone()),
-                                value_type.is_into_capable(
-                                    &model.impl_generics,
-                                    &model.delegate_generics,
-                                ),
-                            ),
-                            (None, false),
-                        ),
-                        _ => ((None, false), (None, false), (None, false)),
-                    };
+                    types(&model, &field_type, &t.ty);
 
                 let into =
                     t.ty.is_into_capable(&model.impl_generics, &model.delegate_generics);
                 Some(BuilderField {
                     ty: *t.ty.clone(),
-                    into,
+                    ty_into: into,
                     name: ident
                         .ident
                         .to_string()
@@ -202,11 +161,58 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                     value_into,
                     generic_type,
                     generic_into,
+                    doc: None,
                 })
             }
             FnArg::Receiver(_) => None,
         })
         .collect()
+}
+
+fn types(
+    model: &&BuilderModel,
+    field_type: &FieldType,
+    ty: &Type,
+) -> (
+    (Option<Type>, bool),
+    (Option<Type>, bool),
+    (Option<Type>, bool),
+) {
+    let args = ty.generic_args();
+    match (
+        &field_type,
+        args.and_then(|args| args.iter().next()),
+        args.and_then(|args| args.iter().nth(1)),
+    ) {
+        (
+            FieldType::Option | FieldType::Vec | FieldType::Set,
+            Some(GenericArgument::Type(collection_type)),
+            None,
+        ) => (
+            (None, false),
+            (None, false),
+            (
+                Some(collection_type.clone()),
+                collection_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
+            ),
+        ),
+        (
+            FieldType::Map,
+            Some(GenericArgument::Type(key_type)),
+            Some(GenericArgument::Type(value_type)),
+        ) => (
+            (
+                Some(key_type.clone()),
+                key_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
+            ),
+            (
+                Some(value_type.clone()),
+                value_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
+            ),
+            (None, false),
+        ),
+        _ => ((None, false), (None, false), (None, false)),
+    }
 }
 
 fn builder_entry(model: &BuilderModel, receiver: &Option<Receiver>) -> Result<Ident> {

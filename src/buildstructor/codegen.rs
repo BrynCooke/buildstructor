@@ -407,7 +407,7 @@ pub fn builder_methods(
                     let mut into_generics = None;
                     let mut into_call = None;
                     let mut ty = Some(ty.clone());
-                    if f.into {
+                    if f.ty_into {
                         let into_type = ty.replace(Type::parse("__T"));
                         let _ = into_generics.insert(Some(quote! {
                             <__T: Into<#into_type>>
