@@ -18,6 +18,7 @@ pub struct BuilderModel {
     pub is_async: bool,
     pub vis: Visibility,
     pub config: BuilderConfig,
+    pub attributes: Vec<Attribute>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -133,6 +134,7 @@ pub fn analyze(legacy_default_builders: bool, ast: &Ast) -> Result<Vec<Result<Bu
                 is_async: builder.sig.asyncness.is_some(),
                 vis: builder.vis.clone(),
                 config: config?,
+                attributes: builder.attrs.clone(),
             })
         })
         .collect();

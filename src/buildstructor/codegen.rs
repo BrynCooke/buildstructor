@@ -247,10 +247,10 @@ pub fn builder_methods(
             match f.field_type {
                 FieldType::Option => {
                     let and_method_name = format_ident!("and_{}", f.name);
-                    let mut field_collection_type = f.generic_type.clone();
+                    let mut field_collection_type = f.generic_types.generic_type.clone();
                     let mut into_generics = None;
                     let mut into_call = None;
-                    if f.generic_into {
+                    if f.generic_types.generic_into {
                         let into_type = field_collection_type.replace(Type::parse("__T"));
                         let _ = into_generics.insert(Some(quote! {
                             <__T: Into<#into_type>>
@@ -284,10 +284,10 @@ pub fn builder_methods(
                 },
                 FieldType::Set => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let mut field_collection_type = f.generic_type.clone();
+                    let mut field_collection_type = f.generic_types.generic_type.clone();
                     let mut into_generics = None;
                     let mut into_call = None;
-                    if f.generic_into {
+                    if f.generic_types.generic_into {
                         let into_type = field_collection_type.replace(Type::parse("__T"));
                         let _ = into_generics.insert(Some(quote! {
                             <__T: Into<#into_type>>
@@ -317,10 +317,10 @@ pub fn builder_methods(
                 },
                 FieldType::Vec => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let mut field_collection_type = f.generic_type.clone();
+                    let mut field_collection_type = f.generic_types.generic_type.clone();
                     let mut into_generics = None;
                     let mut into_call = None;
-                    if f.generic_into {
+                    if f.generic_types.generic_into {
                         let into_type = field_collection_type.replace(Type::parse("__T"));
                         let _ = into_generics.insert(Some(quote! {
                             <__T: Into<#into_type>>
@@ -351,12 +351,12 @@ pub fn builder_methods(
                 },
                 FieldType::Map => {
                     let (singular, plural) = single_plural_names(field_name);
-                    let mut field_key_type = f.key_type.clone();
-                    let mut field_value_type = f.value_type.clone();
+                    let mut field_key_type = f.generic_types.key_type.clone();
+                    let mut field_value_type = f.generic_types.value_type.clone();
                     let mut into_generics = Vec::new();
                     let mut field_key_into_call = None;
                     let mut field_value_into_call = None;
-                    if f.key_into {
+                    if f.generic_types.key_into {
                         let into_type = field_key_type.replace(Type::parse("__K"));
                         let _ = into_generics.push(quote! {
                             __K: Into<#into_type>
@@ -365,7 +365,7 @@ pub fn builder_methods(
                             .into()
                         })
                     }
-                    if f.value_into {
+                    if f.generic_types.value_into {
                         let into_type = field_value_type.replace(Type::parse("__V"));
                         let _ = into_generics.push(quote! {
                             __V: Into<#into_type>
@@ -407,7 +407,7 @@ pub fn builder_methods(
                     let mut into_generics = None;
                     let mut into_call = None;
                     let mut ty = Some(ty.clone());
-                    if f.into {
+                    if f.ty_into {
                         let into_type = ty.replace(Type::parse("__T"));
                         let _ = into_generics.insert(Some(quote! {
                             <__T: Into<#into_type>>
