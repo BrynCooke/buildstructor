@@ -265,4 +265,17 @@ mod tests {
             }
         )
     }
+
+    pub fn doc_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl Foo {
+                /// Test doc
+                #[builder]
+                fn new(simple: usize) -> Foo {
+                    Self { simple }
+                }
+            }
+        )
+    }
 }
