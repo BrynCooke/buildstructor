@@ -115,8 +115,10 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         &builder_lifetime_generics,
     )?;
 
+    let doc = ir.doc;
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
+            #(#doc)*
             #vis fn #builder_entry #method_generics(#receiver) -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
                 #module_name::new(#builder_receiver)
             }
@@ -578,5 +580,10 @@ mod tests {
     #[test]
     fn self_receiver() {
         assert_codegen!(self_receiver_test_case());
+    }
+
+    #[test]
+    fn doc() {
+        assert_codegen!(doc_test_case());
     }
 }

@@ -41,19 +41,21 @@ impl TryFrom<&Vec<Attribute>> for BuildstructorConfig {
 
         let mut config = BuildstructorConfig::default();
         for attribute in attributes {
-            match attribute.parse_meta()? {
-                Meta::List(l) => {
-                    for nested in l.nested {
-                        if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested {
-                            apply(&mut config, &name_value)?;
+            if attribute.path.get_ident() == Some(&format_ident!("buildstructor")) {
+                match attribute.parse_meta()? {
+                    Meta::List(l) => {
+                        for nested in l.nested {
+                            if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested {
+                                apply(&mut config, &name_value)?;
+                            }
                         }
                     }
+                    Meta::NameValue(name_value) => {
+                        let mut config = BuildstructorConfig::default();
+                        apply(&mut config, &name_value)?;
+                    }
+                    _ => {}
                 }
-                Meta::NameValue(name_value) => {
-                    let mut config = BuildstructorConfig::default();
-                    apply(&mut config, &name_value)?;
-                }
-                _ => {}
             }
         }
         Ok(config)

@@ -4,6 +4,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::default::Default;
 use syn::punctuated::Punctuated;
+use syn::Attribute;
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
     PathArguments, Receiver, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted,
@@ -27,6 +28,7 @@ pub struct Ir {
     pub vis: Visibility,
     pub is_async: bool,
     pub receiver: Option<Receiver>,
+    pub doc: Vec<Attribute>,
 }
 
 pub struct BuilderField {
@@ -35,7 +37,7 @@ pub struct BuilderField {
     pub ty: Type,
     pub ty_into: bool,
     pub generic_types: GenericTypes,
-    pub doc: Option<String>,
+    pub doc: Vec<Attribute>,
 }
 
 #[derive(Debug)]
@@ -71,8 +73,18 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         builder_fields: builder_fields(&model),
         builder_generics: Ir::builder_generics(),
         is_async: model.is_async,
+        doc: extract_docs(&model.attributes),
         receiver,
     })
+}
+
+fn extract_docs(attributes: &[Attribute]) -> Vec<Attribute> {
+    let doc_ident = format_ident!("doc");
+    attributes
+        .iter()
+        .filter(|a| a.path.get_ident() == Some(&doc_ident))
+        .cloned()
+        .collect()
 }
 
 fn receiver(model: &BuilderModel) -> Option<Receiver> {
@@ -150,7 +162,7 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                         .unwrap_or_else(|| ident.ident.clone()),
                     field_type,
                     generic_types,
-                    doc: None,
+                    doc: vec![],
                 })
             }
             FnArg::Receiver(_) => None,
