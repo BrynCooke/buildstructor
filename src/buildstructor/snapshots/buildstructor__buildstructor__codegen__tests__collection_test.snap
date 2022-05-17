@@ -41,13 +41,13 @@ mod __foo_new_builder {
             _phantom: core::default::Default::default(),
         }
     }
-    pub struct __Required<T> {
+    pub(super) struct __Required<T> {
         _phantom: std::marker::PhantomData<T>,
     }
-    pub struct __Optional<T> {
+    pub(super) struct __Optional<T> {
         lazy: Option<T>,
     }
-    pub struct __Set<T> {
+    pub(super) struct __Set<T> {
         value: T,
     }
     #[inline(always)]

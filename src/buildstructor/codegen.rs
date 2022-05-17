@@ -137,13 +137,13 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
                 }
             }
 
-            pub struct __Required<T> {
+            #builder_vis struct __Required<T> {
                 _phantom: std::marker::PhantomData<T>,
             }
-            pub struct __Optional<T> {
+            #builder_vis struct __Optional<T> {
                 lazy: Option<T>,
             }
-            pub struct __Set<T> {
+            #builder_vis struct __Set<T> {
                 value: T,
             }
 
