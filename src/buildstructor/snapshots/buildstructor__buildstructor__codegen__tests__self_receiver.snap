@@ -3,14 +3,13 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Client {
-    fn message(
-        self,
-    ) -> __client_call_with_no_return_builder::__ClientBuilder<
-            (__client_call_with_no_return_builder::__Required<String>,),
-        > {
+    fn message(self) -> CallWithNoReturnClientBuilder {
         __client_call_with_no_return_builder::new(self)
     }
 }
+type CallWithNoReturnClientBuilder = __client_call_with_no_return_builder::__ClientBuilder<
+    (__client_call_with_no_return_builder::__Required<String>,),
+>;
 mod __client_call_with_no_return_builder {
     use super::*;
     #[inline(always)]
@@ -57,7 +56,7 @@ mod __client_call_with_no_return_builder {
     pub(super) struct __ClientBuilder<__P> {
         receiver: Client,
         fields: __P,
-        _phantom: (),
+        _phantom: core::marker::PhantomData<()>,
     }
     impl __ClientBuilder<(__Required<String>,)> {
         #[inline(always)]

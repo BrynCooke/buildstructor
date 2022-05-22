@@ -3,13 +3,14 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Foo {
-    fn builder<T: Into<String>>() -> __foo_new_builder::__FooBuilder<
-            (__foo_new_builder::__Required<T>,),
-            T,
-        > {
+    fn builder<T: Into<String>>() -> NewFooBuilder<T> {
         __foo_new_builder::new()
     }
 }
+type NewFooBuilder<T> = __foo_new_builder::__FooBuilder<
+    (__foo_new_builder::__Required<T>,),
+    T,
+>;
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
@@ -55,7 +56,7 @@ mod __foo_new_builder {
     }
     pub(super) struct __FooBuilder<__P, T> {
         fields: __P,
-        _phantom: (core::marker::PhantomData<T>,),
+        _phantom: core::marker::PhantomData<(T)>,
     }
     impl<T: Into<String>> __FooBuilder<(__Required<T>,), T> {
         #[inline(always)]

@@ -4,7 +4,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::default::Default;
 use syn::punctuated::Punctuated;
-use syn::Attribute;
+use syn::{Attribute, TypeReference};
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
     PathArguments, Receiver, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted,
@@ -29,6 +29,7 @@ pub struct Ir {
     pub is_async: bool,
     pub receiver: Option<Receiver>,
     pub doc: Vec<Attribute>,
+    pub implicit_lifetime: bool,
 }
 
 pub struct BuilderField {
@@ -74,8 +75,30 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         builder_generics: Ir::builder_generics(),
         is_async: model.is_async,
         doc: extract_docs(&model.attributes),
+        implicit_lifetime: implicit_lifetime(&model),
         receiver,
     })
+}
+
+// If the first parameter of a function is a reference it will have an implicit lifetime.
+fn implicit_lifetime(model: &BuilderModel) -> bool {
+    match model.delegate_args.get(0) {
+        None => {}
+        Some(arg) => match arg {
+            FnArg::Receiver(Receiver {
+                // If the lifetime has been set explicitly we can ignore it.
+                reference: Some((_, None)),
+                ..
+            }) => return true,
+            FnArg::Typed(arg) => {
+                if let Type::Reference(TypeReference { lifetime: None, .. }) = *arg.ty {
+                    return true;
+                }
+            }
+            _ => {}
+        },
+    }
+    false
 }
 
 fn extract_docs(attributes: &[Attribute]) -> Vec<Attribute> {

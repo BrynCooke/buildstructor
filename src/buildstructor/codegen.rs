@@ -7,7 +7,7 @@ use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::{
     Expr, ExprCall, GenericArgument, GenericParam, Generics, Index, Lifetime, LifetimeDef, Result,
-    Type, WhereClause,
+    Token, Type, TypeReference, TypeTuple, WhereClause,
 };
 extern crate inflector;
 use inflector::Inflector;
@@ -15,6 +15,11 @@ use inflector::Inflector;
 pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let module_name = &ir.module_name;
     let target_name = &ir.impl_name;
+    let builder_alias_name = format_ident!(
+        "{}{}Builder",
+        ir.delegate_name.to_string().to_pascal_case(),
+        ir.impl_name,
+    );
 
     let (impl_generics, ty_generics, where_clause) = &ir.impl_generics.split_for_impl();
 
@@ -63,11 +68,35 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
 
     let method_generics = &ir.delegate_generics;
     let builder_init_generics = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
-    let target_generics_raw: Vec<GenericArgument> = builder_init_generics
+    let builder_init_generic_args = builder_init_generics.to_generic_args().maybe();
+    let builder_init_generic_args_with_lifetime = builder_init_generics
         .to_generic_args()
-        .args
-        .into_iter()
-        .collect();
+        .with_implicit_lifetime(ir.implicit_lifetime);
+    let builder_init_generic_args_phantom = builder_init_generic_args.clone().map(|a| {
+        let args: Punctuated<GenericArgument, Token![,]> =
+            Punctuated::from_iter(a.args.into_iter().map(|a| match a {
+                GenericArgument::Lifetime(l) => {
+                    GenericArgument::Type(Type::Reference(TypeReference {
+                        and_token: Default::default(),
+                        lifetime: Some(l),
+                        mutability: None,
+                        elem: Box::new(Type::Tuple(TypeTuple {
+                            paren_token: Default::default(),
+                            elems: Default::default(),
+                        })),
+                    }))
+                }
+                _ => a,
+            }));
+        args
+    });
+    let builder_init_generic_args_with_state = builder_init_generics
+        .to_generic_args()
+        .insert(0, ir.builder_state_type_initial());
+    let builder_init_generic_args_with_state_with_lifetime = builder_init_generics
+        .to_generic_args()
+        .insert(0, ir.builder_state_type_initial())
+        .with_implicit_lifetime(ir.implicit_lifetime);
 
     let delegate_name = &ir.delegate_name;
     let delegate_args = ir.delegate_args();
@@ -75,7 +104,6 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let builder_return_type = &ir.builder_return_type;
     let builder_entry = &ir.builder_entry;
     let builder_exit = &ir.builder_exit;
-    let builder_state_type_initial = ir.builder_state_type_initial();
     let builder_state_initial = ir.builder_state_initial();
 
     let async_token = ir.is_async.then(|| quote! {async});
@@ -119,16 +147,18 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     Ok(quote! {
         impl #impl_generics #target_name #ty_generics #where_clause {
             #(#doc)*
-            #vis fn #builder_entry #method_generics(#receiver) -> #module_name::#builder_name<#builder_state_type_initial, #(#target_generics_raw), *> {
+            #vis fn #builder_entry #method_generics(#receiver) -> #builder_alias_name #builder_init_generic_args {
                 #module_name::new(#builder_receiver)
             }
         }
+
+        #vis type #builder_alias_name #builder_init_generic_args_with_lifetime = #module_name::#builder_name #builder_init_generic_args_with_state_with_lifetime;
 
         mod #module_name {
             use super::*;
 
             #[inline(always)]
-            #builder_vis fn new #builder_init_generics(#builder_receiver_param) -> #builder_name<#builder_state_type_initial, #(#target_generics_raw), *>
+            #builder_vis fn new #builder_init_generics(#builder_receiver_param) -> #builder_name #builder_init_generic_args_with_state
             {
                 #builder_name {
                     #builder_receiver_field
@@ -179,7 +209,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             #builder_vis struct #builder_name #all_ty_generics {
                 #builder_receiver_field_definition
                 fields: __P,
-                _phantom: (#(core::marker::PhantomData<#target_generics_raw>,) *)
+                _phantom: core::marker::PhantomData<(#builder_init_generic_args_phantom)>
             }
 
             #(#builder_methods)*
@@ -585,5 +615,20 @@ mod tests {
     #[test]
     fn doc() {
         assert_codegen!(doc_test_case());
+    }
+
+    #[test]
+    fn reference() {
+        assert_codegen!(reference_test_case());
+    }
+
+    #[test]
+    fn self_reference() {
+        assert_codegen!(self_reference_test_case());
+    }
+
+    #[test]
+    fn lifetime() {
+        assert_codegen!(lifetime_test_case());
     }
 }

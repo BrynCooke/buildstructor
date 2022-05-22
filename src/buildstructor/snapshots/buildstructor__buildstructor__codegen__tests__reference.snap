@@ -8,13 +8,14 @@ impl Foo {
         __foo_new_builder::new()
     }
 }
-type NewFooBuilder = __foo_new_builder::__FooBuilder<
-    (__foo_new_builder::__Required<usize>,),
+type NewFooBuilder<'__a> = __foo_new_builder::__FooBuilder<
+    '__a,
+    (__foo_new_builder::__Required<&usize>,),
 >;
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
-    pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
+    pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<&usize>,)> {
         __FooBuilder {
             fields: (__required(),),
             _phantom: core::default::Default::default(),
@@ -55,9 +56,9 @@ mod __foo_new_builder {
         fields: __P,
         _phantom: core::marker::PhantomData<()>,
     }
-    impl __FooBuilder<(__Required<usize>,)> {
+    impl __FooBuilder<(__Required<&usize>,)> {
         #[inline(always)]
-        pub(super) fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
+        pub(super) fn simple(self, simple: &usize) -> __FooBuilder<(__Set<&usize>,)> {
             let simple = simple;
             __FooBuilder {
                 fields: (__set(simple),),
@@ -65,7 +66,7 @@ mod __foo_new_builder {
             }
         }
     }
-    impl<__P0: Into<__Set<usize>>> __FooBuilder<(__P0,)> {
+    impl<__P0: Into<__Set<&usize>>> __FooBuilder<(__P0,)> {
         #[inline(always)]
         pub(super) fn build(self) -> Foo {
             Foo::new(self.fields.0.into().value)

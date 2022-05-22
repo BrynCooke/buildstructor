@@ -3,14 +3,14 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Client {
-    fn query_ref(
-        &self,
-    ) -> __client_call_with_return_ref_builder::__ClientBuilder<
-            (__client_call_with_return_ref_builder::__Required<String>,),
-        > {
+    fn query_ref(&self) -> CallWithReturnRefClientBuilder {
         __client_call_with_return_ref_builder::new(self)
     }
 }
+type CallWithReturnRefClientBuilder<'__a> = __client_call_with_return_ref_builder::__ClientBuilder<
+    '__a,
+    (__client_call_with_return_ref_builder::__Required<String>,),
+>;
 mod __client_call_with_return_ref_builder {
     use super::*;
     #[inline(always)]
@@ -57,7 +57,7 @@ mod __client_call_with_return_ref_builder {
     pub(super) struct __ClientBuilder<'__builder, __P> {
         receiver: &'__builder Client,
         fields: __P,
-        _phantom: (),
+        _phantom: core::marker::PhantomData<()>,
     }
     impl<'__builder> __ClientBuilder<'__builder, (__Required<String>,)> {
         #[inline(always)]

@@ -2,19 +2,22 @@
 source: src/buildstructor/codegen.rs
 expression: output
 ---
-impl Foo {
-    /// Test doc
-    fn builder() -> NewFooBuilder {
+impl<'a> Foo<'a> {
+    fn builder() -> NewFooBuilder<'a> {
         __foo_new_builder::new()
     }
 }
-type NewFooBuilder = __foo_new_builder::__FooBuilder<
-    (__foo_new_builder::__Required<usize>,),
+type NewFooBuilder<'a> = __foo_new_builder::__FooBuilder<
+    'a,
+    (__foo_new_builder::__Required<&'a String>,),
 >;
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
-    pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
+    pub(super) fn new<'a>() -> __FooBuilder<
+            'a,
+            (__foo_new_builder::__Required<&'a String>,),
+        > {
         __FooBuilder {
             fields: (__required(),),
             _phantom: core::default::Default::default(),
@@ -51,13 +54,16 @@ mod __foo_new_builder {
             }
         }
     }
-    pub(super) struct __FooBuilder<__P> {
+    pub(super) struct __FooBuilder<'a, __P> {
         fields: __P,
-        _phantom: core::marker::PhantomData<()>,
+        _phantom: core::marker::PhantomData<(&'a ())>,
     }
-    impl __FooBuilder<(__Required<usize>,)> {
+    impl<'a> __FooBuilder<'a, (__Required<&'a String>,)> {
         #[inline(always)]
-        pub(super) fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
+        pub(super) fn simple(
+            self,
+            simple: &'a String,
+        ) -> __FooBuilder<'a, (__Set<&'a String>,)> {
             let simple = simple;
             __FooBuilder {
                 fields: (__set(simple),),
@@ -65,9 +71,9 @@ mod __foo_new_builder {
             }
         }
     }
-    impl<__P0: Into<__Set<usize>>> __FooBuilder<(__P0,)> {
+    impl<'a, __P0: Into<__Set<&'a String>>> __FooBuilder<'a, (__P0,)> {
         #[inline(always)]
-        pub(super) fn build(self) -> Foo {
+        pub(super) fn build(self) -> Foo<'a> {
             Foo::new(self.fields.0.into().value)
         }
     }

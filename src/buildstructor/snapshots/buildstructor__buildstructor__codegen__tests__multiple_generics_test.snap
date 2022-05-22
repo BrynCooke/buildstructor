@@ -3,20 +3,21 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl<T> Request<T> {
-    pub fn fake_builder<K, V>() -> __request_fake_new_builder::__RequestBuilder<
-            (
-                __request_fake_new_builder::__Optional<Vec<(K, V)>>,
-                __request_fake_new_builder::__Optional<Option<http::Uri>>,
-                __request_fake_new_builder::__Optional<Option<http::Method>>,
-                __request_fake_new_builder::__Required<T>,
-            ),
-            T,
-            K,
-            V,
-        > {
+    pub fn fake_builder<K, V>() -> FakeNewRequestBuilder<T, K, V> {
         __request_fake_new_builder::new()
     }
 }
+pub type FakeNewRequestBuilder<T, K, V> = __request_fake_new_builder::__RequestBuilder<
+    (
+        __request_fake_new_builder::__Optional<Vec<(K, V)>>,
+        __request_fake_new_builder::__Optional<Option<http::Uri>>,
+        __request_fake_new_builder::__Optional<Option<http::Method>>,
+        __request_fake_new_builder::__Required<T>,
+    ),
+    T,
+    K,
+    V,
+>;
 mod __request_fake_new_builder {
     use super::*;
     #[inline(always)]
@@ -69,11 +70,7 @@ mod __request_fake_new_builder {
     }
     pub struct __RequestBuilder<__P, T, K, V> {
         fields: __P,
-        _phantom: (
-            core::marker::PhantomData<T>,
-            core::marker::PhantomData<K>,
-            core::marker::PhantomData<V>,
-        ),
+        _phantom: core::marker::PhantomData<(T, K, V)>,
     }
     impl<
         __1,

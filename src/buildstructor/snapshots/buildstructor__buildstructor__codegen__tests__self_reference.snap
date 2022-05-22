@@ -2,21 +2,19 @@
 source: src/buildstructor/codegen.rs
 expression: output
 ---
-impl Foo {
-    /// Test doc
-    fn builder() -> NewFooBuilder {
-        __foo_new_builder::new()
+impl Client {
+    fn builder(&self) -> NewClientBuilder {
+        __client_new_builder::new(self)
     }
 }
-type NewFooBuilder = __foo_new_builder::__FooBuilder<
-    (__foo_new_builder::__Required<usize>,),
->;
-mod __foo_new_builder {
+type NewClientBuilder<'__a> = __client_new_builder::__ClientBuilder<'__a, ()>;
+mod __client_new_builder {
     use super::*;
     #[inline(always)]
-    pub(super) fn new() -> __FooBuilder<(__foo_new_builder::__Required<usize>,)> {
-        __FooBuilder {
-            fields: (__required(),),
+    pub(super) fn new(receiver: &Client) -> __ClientBuilder<()> {
+        __ClientBuilder {
+            receiver,
+            fields: (),
             _phantom: core::default::Default::default(),
         }
     }
@@ -51,24 +49,15 @@ mod __foo_new_builder {
             }
         }
     }
-    pub(super) struct __FooBuilder<__P> {
+    pub(super) struct __ClientBuilder<'__builder, __P> {
+        receiver: &'__builder Client,
         fields: __P,
         _phantom: core::marker::PhantomData<()>,
     }
-    impl __FooBuilder<(__Required<usize>,)> {
+    impl<'__builder> __ClientBuilder<'__builder, ()> {
         #[inline(always)]
-        pub(super) fn simple(self, simple: usize) -> __FooBuilder<(__Set<usize>,)> {
-            let simple = simple;
-            __FooBuilder {
-                fields: (__set(simple),),
-                _phantom: core::default::Default::default(),
-            }
-        }
-    }
-    impl<__P0: Into<__Set<usize>>> __FooBuilder<(__P0,)> {
-        #[inline(always)]
-        pub(super) fn build(self) -> Foo {
-            Foo::new(self.fields.0.into().value)
+        pub(super) fn call(self) {
+            self.receiver.new()
         }
     }
 }

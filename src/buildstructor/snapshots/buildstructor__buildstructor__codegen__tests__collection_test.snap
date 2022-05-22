@@ -3,19 +3,20 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Foo {
-    fn builder() -> __foo_new_builder::__FooBuilder<
-            (
-                __foo_new_builder::__Required<usize>,
-                __foo_new_builder::__Optional<HashSet<String>>,
-                __foo_new_builder::__Optional<HashMap<String, String>>,
-                __foo_new_builder::__Optional<Vec<String>>,
-                __foo_new_builder::__Optional<BTreeMap<String, String>>,
-                __foo_new_builder::__Optional<BTreeSet<String>>,
-            ),
-        > {
+    fn builder() -> NewFooBuilder {
         __foo_new_builder::new()
     }
 }
+type NewFooBuilder = __foo_new_builder::__FooBuilder<
+    (
+        __foo_new_builder::__Required<usize>,
+        __foo_new_builder::__Optional<HashSet<String>>,
+        __foo_new_builder::__Optional<HashMap<String, String>>,
+        __foo_new_builder::__Optional<Vec<String>>,
+        __foo_new_builder::__Optional<BTreeMap<String, String>>,
+        __foo_new_builder::__Optional<BTreeSet<String>>,
+    ),
+>;
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
@@ -74,7 +75,7 @@ mod __foo_new_builder {
     }
     pub(super) struct __FooBuilder<__P> {
         fields: __P,
-        _phantom: (),
+        _phantom: core::marker::PhantomData<()>,
     }
     impl<
         __1,
