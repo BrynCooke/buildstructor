@@ -1,9 +1,10 @@
 use quote::format_ident;
 use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
 use syn::{
     AngleBracketedGenericArguments, Expr, ExprPath, ExprTuple, GenericArgument, GenericParam,
-    Generics, Ident, Path, PathArguments, PathSegment, Token, TraitBound, TraitBoundModifier, Type,
-    TypeParam, TypeParamBound, TypePath, TypeTuple, WhereClause,
+    Generics, Ident, Lifetime, Path, PathArguments, PathSegment, Token, TraitBound,
+    TraitBoundModifier, Type, TypeParam, TypeParamBound, TypePath, TypeTuple, WhereClause,
 };
 
 static SCALAR_TYPES: &[&str] = &[
@@ -158,11 +159,31 @@ impl GenericsExt for Generics {
 
 pub trait AngleBracketedGenericArgumentsExt {
     fn insert(self, idx: usize, ty: Type) -> Self;
+    fn maybe(self) -> Option<AngleBracketedGenericArguments>;
+    fn with_implicit_lifetime(self, implicit_lifetime: bool) -> Self;
 }
 
 impl AngleBracketedGenericArgumentsExt for AngleBracketedGenericArguments {
     fn insert(mut self, idx: usize, ty: Type) -> Self {
         self.args.insert(idx, GenericArgument::Type(ty));
+        self
+    }
+
+    fn maybe(self) -> Option<Self> {
+        if self.args.is_empty() {
+            None
+        } else {
+            Some(self)
+        }
+    }
+
+    fn with_implicit_lifetime(mut self, implicit_lifetime: bool) -> Self {
+        if implicit_lifetime {
+            self.args.insert(
+                0,
+                GenericArgument::Lifetime(Lifetime::new("'__a", self.span())),
+            )
+        }
         self
     }
 }

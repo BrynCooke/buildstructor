@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.2.1 - unreleased
+## 0.3.0 - unreleased
+
+[#55](https://github.com/BrynCooke/buildstructor/issues/55)
+Lifetimes are supported now.
+
+[#52](https://github.com/BrynCooke/buildstructor/issues/52)
+Add docs to generated builder.
+In addition, a type alias is introduced for the initial builder type so that:
+1. the docs looks nice
+2. the builder can be passed to a function (although this is of limited real world use).
+
 [#4](https://github.com/BrynCooke/buildstructor/issues/4)
 Use `#[inline(always)]` on generated code.
 

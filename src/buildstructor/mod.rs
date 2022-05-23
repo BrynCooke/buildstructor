@@ -278,4 +278,39 @@ mod tests {
             }
         )
     }
+
+    pub fn reference_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl Foo {
+                /// Test doc
+                #[builder]
+                fn new(simple: &usize) -> Foo {
+                    Self { simple }
+                }
+            }
+        )
+    }
+
+    pub fn self_reference_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl Client {
+                #[builder(entry = "builder")]
+                fn new(&self) {}
+            }
+        )
+    }
+
+    pub fn lifetime_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl<'a> Foo<'a> {
+                #[builder]
+                fn new(simple: &'a String) -> Foo<'a> {
+                    Self { simple }
+                }
+            }
+        )
+    }
 }

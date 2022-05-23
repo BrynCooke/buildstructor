@@ -341,8 +341,6 @@ To provide more control over generated builders and allow builders for methods w
 
 
 ## TODO
-
-* Transfer docs from the constructor to the generated builder methods.
 * Better error messages.
 * More testing.
 
