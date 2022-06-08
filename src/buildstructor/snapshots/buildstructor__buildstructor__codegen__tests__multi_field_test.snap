@@ -15,8 +15,8 @@ mod __foo_new_builder {
     use super::*;
     #[inline(always)]
     pub(super) fn new() -> __FooBuilder<
-            (__foo_new_builder::__Required<usize>, __foo_new_builder::__Required<usize>),
-        > {
+        (__foo_new_builder::__Required<usize>, __foo_new_builder::__Required<usize>),
+    > {
         __FooBuilder {
             fields: (__required(), __required()),
             _phantom: core::default::Default::default(),

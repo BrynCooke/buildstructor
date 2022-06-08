@@ -18,8 +18,8 @@ mod __client_call_with_no_return_ref_builder {
     pub(super) fn new(
         receiver: &Client,
     ) -> __ClientBuilder<
-            (__client_call_with_no_return_ref_builder::__Required<String>,),
-        > {
+        (__client_call_with_no_return_ref_builder::__Required<String>,),
+    > {
         __ClientBuilder {
             receiver,
             fields: (__required(),),

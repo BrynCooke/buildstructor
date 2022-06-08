@@ -15,8 +15,8 @@ mod __foo_new_builder {
     use super::*;
     #[inline(always)]
     pub(super) fn new() -> __FooBuilder<
-            (__foo_new_builder::__Optional<HashMap<Option<String>, Option<String>>>,),
-        > {
+        (__foo_new_builder::__Optional<HashMap<Option<String>, Option<String>>>,),
+    > {
         __FooBuilder {
             fields: (__optional(),),
             _phantom: core::default::Default::default(),

@@ -22,15 +22,15 @@ mod __foo_new_builder {
     use super::*;
     #[inline(always)]
     pub(super) fn new() -> __FooBuilder<
-            (
-                __foo_new_builder::__Required<usize>,
-                __foo_new_builder::__Optional<HashSet<String>>,
-                __foo_new_builder::__Optional<HashMap<String, String>>,
-                __foo_new_builder::__Optional<Vec<String>>,
-                __foo_new_builder::__Optional<BTreeMap<String, String>>,
-                __foo_new_builder::__Optional<BTreeSet<String>>,
-            ),
-        > {
+        (
+            __foo_new_builder::__Required<usize>,
+            __foo_new_builder::__Optional<HashSet<String>>,
+            __foo_new_builder::__Optional<HashMap<String, String>>,
+            __foo_new_builder::__Optional<Vec<String>>,
+            __foo_new_builder::__Optional<BTreeMap<String, String>>,
+            __foo_new_builder::__Optional<BTreeSet<String>>,
+        ),
+    > {
         __FooBuilder {
             fields: (
                 __required(),
@@ -148,8 +148,8 @@ mod __foo_new_builder {
             mut self,
             map: HashMap<String, String>,
         ) -> __FooBuilder<
-                (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
-            > {
+            (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
+        > {
             self.fields
                 .2
                 .lazy
@@ -163,8 +163,8 @@ mod __foo_new_builder {
             key: __K,
             value: __V,
         ) -> __FooBuilder<
-                (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
-            > {
+            (__0, __1, __Optional<HashMap<String, String>>, __3, __4, __5),
+        > {
             self.fields
                 .2
                 .lazy
@@ -217,8 +217,8 @@ mod __foo_new_builder {
             mut self,
             btmap: BTreeMap<String, String>,
         ) -> __FooBuilder<
-                (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
-            > {
+            (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
+        > {
             self.fields
                 .4
                 .lazy
@@ -232,8 +232,8 @@ mod __foo_new_builder {
             key: __K,
             value: __V,
         ) -> __FooBuilder<
-                (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
-            > {
+            (__0, __1, __2, __3, __Optional<BTreeMap<String, String>>, __5),
+        > {
             self.fields
                 .4
                 .lazy

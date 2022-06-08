@@ -16,9 +16,9 @@ mod __foo_new_builder {
     use super::*;
     #[inline(always)]
     pub(super) fn new<'a>() -> __FooBuilder<
-            'a,
-            (__foo_new_builder::__Required<&'a String>,),
-        > {
+        'a,
+        (__foo_new_builder::__Required<&'a String>,),
+    > {
         __FooBuilder {
             fields: (__required(),),
             _phantom: core::default::Default::default(),

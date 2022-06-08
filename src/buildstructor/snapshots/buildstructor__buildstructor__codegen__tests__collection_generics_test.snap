@@ -17,10 +17,10 @@ mod __foo_new_builder {
     use super::*;
     #[inline(always)]
     pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __FooBuilder<
-            (__foo_new_builder::__Optional<HashMap<K, V>>,),
-            K,
-            V,
-        > {
+        (__foo_new_builder::__Optional<HashMap<K, V>>,),
+        K,
+        V,
+    > {
         __FooBuilder {
             fields: (__optional(),),
             _phantom: core::default::Default::default(),

@@ -23,16 +23,16 @@ mod __request_fake_new_builder {
     use super::*;
     #[inline(always)]
     pub fn new<T, K, V>() -> __RequestBuilder<
-            (
-                __request_fake_new_builder::__Optional<Vec<(K, V)>>,
-                __request_fake_new_builder::__Optional<Option<http::Uri>>,
-                __request_fake_new_builder::__Optional<Option<http::Method>>,
-                __request_fake_new_builder::__Required<T>,
-            ),
-            T,
-            K,
-            V,
-        > {
+        (
+            __request_fake_new_builder::__Optional<Vec<(K, V)>>,
+            __request_fake_new_builder::__Optional<Option<http::Uri>>,
+            __request_fake_new_builder::__Optional<Option<http::Method>>,
+            __request_fake_new_builder::__Required<T>,
+        ),
+        T,
+        K,
+        V,
+    > {
         __RequestBuilder {
             fields: (__optional(), __optional(), __optional(), __required()),
             _phantom: core::default::Default::default(),
