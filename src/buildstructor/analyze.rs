@@ -4,7 +4,7 @@ use quote::format_ident;
 use syn::spanned::Spanned;
 use syn::{
     Attribute, FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Lit, Meta,
-    MetaNameValue, NestedMeta, Result, ReturnType, Visibility,
+    MetaNameValue, NestedMeta, Result, ReturnType, Type, Visibility,
 };
 
 use crate::parse::Ast;
@@ -19,6 +19,7 @@ pub struct BuilderModel {
     pub vis: Visibility,
     pub config: BuilderConfig,
     pub attributes: Vec<Attribute>,
+    pub self_ty: Box<Type>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -129,6 +130,7 @@ pub fn analyze(legacy_default_builders: bool, ast: &Ast) -> Result<Vec<Result<Bu
             Ok(BuilderModel {
                 impl_name: ident.clone(),
                 impl_generics: ast.item.generics.clone(),
+                self_ty: ast.item.self_ty.clone(),
                 delegate_name: builder.sig.ident.clone(),
                 delegate_generics: builder.sig.generics.clone(),
                 delegate_args: builder.sig.inputs.clone().into_iter().collect(),

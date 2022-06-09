@@ -27,8 +27,17 @@ impl<T: std::fmt::Debug> Foo<T> {
     }
 }
 
+#[buildstructor]
+impl Foo<usize> {
+    #[builder]
+    fn bound3_new(simple: usize) -> Foo<usize> {
+        Self { simple }
+    }
+}
+
 fn main() {
     let _ = Foo::builder().simple(3).build();
     let _ = Foo::bound1_builder().simple(3).build();
     let _ = Foo::bound2_builder().simple(3).build();
+    let _ = Foo::bound3_builder().simple(3).build();
 }
