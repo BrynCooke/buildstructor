@@ -642,4 +642,9 @@ mod tests {
     fn specialization() {
         assert_codegen!(specialization_test_case());
     }
+
+    #[test]
+    fn specialization_self() {
+        assert_codegen!(specialization_returns_self_test_case());
+    }
 }

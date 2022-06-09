@@ -70,7 +70,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         delegate_name: model.delegate_name.clone(),
         delegate_generics: model.delegate_generics.clone(),
         builder_name: format_ident!("__{}Builder", model.impl_name),
-        builder_return_type: builder_return_type(&model.delegate_return_type, &model.impl_name),
+        builder_return_type: builder_return_type(&model.delegate_return_type, &model.self_ty),
         builder_entry: builder_entry(&model, &receiver)?,
         builder_exit: builder_exit(&model, &receiver),
         builder_fields: builder_fields(&model),
@@ -136,7 +136,7 @@ fn builder_vilibility(vis: &Visibility) -> Visibility {
     }
 }
 
-fn builder_return_type(return_type: &ReturnType, target: &Ident) -> ReturnType {
+fn builder_return_type(return_type: &ReturnType, target: &Type) -> ReturnType {
     let mut return_type = return_type.clone();
     if let ReturnType::Type(_, ty) = &mut return_type {
         replace_self(ty, target);
@@ -144,11 +144,11 @@ fn builder_return_type(return_type: &ReturnType, target: &Ident) -> ReturnType {
     return_type
 }
 
-fn replace_self(ty: &mut Type, target: &Ident) {
+fn replace_self(ty: &mut Type, target: &Type) {
     let self_type = format_ident!("Self").to_type_path();
-    if let Type::Path(path) = ty {
+    if let (Type::Path(path), Type::Path(self_ty)) = (ty, target) {
         if path == &self_type {
-            *path = target.to_type_path();
+            *path = self_ty.clone();
         } else {
             for segment in path.path.segments.iter_mut() {
                 if let PathArguments::AngleBracketed(args) = &mut segment.arguments {

@@ -33,6 +33,10 @@ impl Foo<usize> {
     fn bound3_new(simple: usize) -> Foo<usize> {
         Self { simple }
     }
+    #[builder]
+    fn bound4_new(simple: usize) -> Self {
+        Self { simple }
+    }
 }
 
 fn main() {
@@ -40,4 +44,5 @@ fn main() {
     let _ = Foo::bound1_builder().simple(3).build();
     let _ = Foo::bound2_builder().simple(3).build();
     let _ = Foo::bound3_builder().simple(3).build();
+    let _ = Foo::bound4_builder().simple(3).build();
 }
