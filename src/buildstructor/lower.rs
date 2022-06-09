@@ -30,6 +30,7 @@ pub struct Ir {
     pub receiver: Option<Receiver>,
     pub doc: Vec<Attribute>,
     pub implicit_lifetime: bool,
+    pub self_ty: Box<Type>,
 }
 
 pub struct BuilderField {
@@ -65,6 +66,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
         ),
         impl_name: model.impl_name.clone(),
         impl_generics: model.impl_generics.clone(),
+        self_ty: model.self_ty.clone(),
         delegate_name: model.delegate_name.clone(),
         delegate_generics: model.delegate_generics.clone(),
         builder_name: format_ident!("__{}Builder", model.impl_name),

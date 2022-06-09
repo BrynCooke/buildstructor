@@ -313,4 +313,16 @@ mod tests {
             }
         )
     }
+
+    pub fn specialization_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl Foo<usize> {
+                #[builder]
+                fn bound_new(simple: usize) -> Foo<usize> {
+                    Self { simple }
+                }
+            }
+        )
+    }
 }
