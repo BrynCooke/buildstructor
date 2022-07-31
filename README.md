@@ -33,7 +33,7 @@ impl MyStruct {
         Self { sum: a + b }
     }
     
-    #[builder(entry = "more", exit = "add")]
+    #[builder(entry = "more", exit = "add", visibility="pub")]
     fn add_more(&mut self, c: usize, d: usize, e: Option<usize>) {
         self.sum += c + d + e.unwrap_or(3);
     }
@@ -48,9 +48,28 @@ fn main() {
 }
 ```
 
+## Derive usage
+
+For simple usage a default constructor and builder may be adequate. 
+Use `#[derive(buildstructor::Builder)]` to generate `fn new` that is annotated with `#[builder]`.  
+
+```rust
+#[derive(buildstructor::Builder)]
+pub struct MyStruct {
+    simple: usize,
+}
+
+fn main() {
+    let mut mine = MyStruct::builder().simple(2).build();
+    assert_eq!(mine.simple, 2);
+}
+```
+
+The generated constructor will have private visibility and the builder will match the visibility of the struct.
+
 ## Motivation
 
-The difference between this and other builder crates is that constructors/methods are used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
+The difference between this and other builder crates is that constructors/methods can be used to derive builders rather than structs. This results in a more natural fit with regular Rust code, and no annotation magic to define behavior.
 
 Advantages:
 
