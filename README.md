@@ -349,15 +349,6 @@ This is useful for Strings, but also other types where you want to overload the 
 
 There had to be some magic somewhere.
 
-## Upgrade to 0.2.0
-
-To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
-
-`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
-
-1. Annotate the impl with: `#[buildstructor::buildstructor]`
-2. Annotate methods to create a builders for with: `#[builder]`
-
 ### Visibility
 
 Builders will automatically inherit the visibility of the method that they are decorating. However, if you want to override this then you can use the visibility.
@@ -389,6 +380,17 @@ fn main() {
     assert_eq!(mine.param, 2);
 }
 ```
+
+
+## Upgrade to 0.2.0
+
+To provide more control over generated builders and allow builders for methods with receivers the top level annotation has changed:
+
+`#[buildstructor::builder]` => `#[buildstructor::buildstructor]`
+
+1. Annotate the impl with: `#[buildstructor::buildstructor]`
+2. Annotate methods to create a builders for with: `#[builder]`
+
 
 ## TODO
 * Better error messages.
