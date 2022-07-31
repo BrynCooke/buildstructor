@@ -396,7 +396,7 @@ pub fn builder_methods(
                     let mut field_value_into_call = None;
                     if f.generic_types.key_into {
                         let into_type = field_key_type.replace(Type::parse("__K"));
-                        let _ = into_generics.push(quote! {
+                        into_generics.push(quote! {
                             __K: Into<#into_type>
                         });
                         field_key_into_call = Some(quote!{
@@ -405,7 +405,7 @@ pub fn builder_methods(
                     }
                     if f.generic_types.value_into {
                         let into_type = field_value_type.replace(Type::parse("__V"));
-                        let _ = into_generics.push(quote! {
+                        into_generics.push(quote! {
                             __V: Into<#into_type>
                         });
                         field_value_into_call = Some(quote!{
