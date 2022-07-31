@@ -1,3 +1,6 @@
+[![Build Status](https://github.com/bryncooke/buildstructor/workflows/Continuous%20integration/badge.svg)](https://github.com/bryncooke/buildstructor/actions)
+[![Latest Version](https://img.shields.io/crates/v/buildstructor.svg)](https://crates.io/crates/buildstructor)
+
 # Buildstructor
 
 Derive a builder from constructors/methods using the typesafe builder pattern!
