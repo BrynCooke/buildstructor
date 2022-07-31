@@ -174,7 +174,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             }
 
             #builder_vis struct __Required<T> {
-                _phantom: std::marker::PhantomData<T>,
+                _uninit: std::mem::MaybeUninit<T>,
             }
             #builder_vis struct __Optional<T> {
                 lazy: Option<T>,
@@ -191,7 +191,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
             #[inline(always)]
             fn __required<T>() -> __Required<T> {
                 __Required::<T> {
-                    _phantom: core::default::Default::default(),
+                    _uninit: std::mem::MaybeUninit::uninit(),
                 }
             }
 

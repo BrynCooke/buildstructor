@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.3 - Unreleased
+
+[#3](https://github.com/BrynCooke/buildstructor/issues/3)
+Changed the storage of required but not yet supplied values to use MaybeUninit.
+The tuple that represents the builder state stays the same memory layout regardless of if a field has been initialized or not. 
+
+This does not require any unsafe code!
+
 ## 0.3.2 - 2022-06-09
 
 [#60](https://github.com/BrynCooke/buildstructor/issues/55)

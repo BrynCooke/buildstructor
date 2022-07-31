@@ -24,7 +24,7 @@ mod __client_call_with_no_return_builder {
         }
     }
     pub(super) struct __Required<T> {
-        _phantom: std::marker::PhantomData<T>,
+        _uninit: std::mem::MaybeUninit<T>,
     }
     pub(super) struct __Optional<T> {
         lazy: Option<T>,
@@ -39,7 +39,7 @@ mod __client_call_with_no_return_builder {
     #[inline(always)]
     fn __required<T>() -> __Required<T> {
         __Required::<T> {
-            _phantom: core::default::Default::default(),
+            _uninit: std::mem::MaybeUninit::uninit(),
         }
     }
     #[inline(always)]
