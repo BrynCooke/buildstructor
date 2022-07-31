@@ -68,6 +68,7 @@ pub struct BuilderConfig {
     pub entry: Option<String>,
     pub exit: Option<String>,
     pub span: Option<Span>,
+    pub visibility: Option<String>,
 }
 
 impl TryFrom<&Attribute> for BuilderConfig {
@@ -87,9 +88,19 @@ impl TryFrom<&Attribute> for BuilderConfig {
                 ("exit", Lit::Str(value)) => {
                     config.exit = Some(value.value());
                 }
+                ("visibility", Lit::Str(value)) => {
+                    let value = value.value();
+                    if value != "pub" && value != "pub (crate)" {
+                        return Err(syn::Error::new(
+                            value.span(),
+                            "invalid builder attribute value for 'visibility', allowed values are 'pub' or 'pub (crate)",
+                        ));
+                    }
+                    config.visibility = Some(value);
+                }
                 _ => return Err(syn::Error::new(
                     value.span(),
-                    format!("invalid builder attribute '{}', only 'entry' and 'exit' are allowed and their type must be string", name),
+                    format!("invalid builder attribute '{}', only 'entry', 'exit' and 'visibility' are allowed and their type must be string", name),
                 )),
             }
             Ok(())

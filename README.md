@@ -307,7 +307,7 @@ Collections are matched by type name:
 | ...Map    | insert(_, _)          |
 | Vec       | push(_)               |
 
-If your type does not conform to these patterns then you can use a type alias to trick buildstructor into giving the parameter special treatment.
+If your type does not conform to these patterns then you can use a type alias to trick Buildstructor into giving the parameter special treatment.
 
 #### Naming
 
@@ -339,6 +339,37 @@ To provide more control over generated builders and allow builders for methods w
 1. Annotate the impl with: `#[buildstructor::buildstructor]`
 2. Annotate methods to create a builders for with: `#[builder]`
 
+### Visibility
+
+Builders will automatically inherit the visibility of the method that they are decorating. However, if you want to override this then you can use the visibility.
+Valid values are :
+* `pub`
+* `pub (crate)`
+
+This is useful if you want Buildstructor builders to be the sole entry point for creating your struct.
+
+```rust
+use std::error::Error;
+
+pub mod foo {
+    pub struct MyStruct {
+        pub param: usize
+    }
+    
+    #[buildstructor::buildstructor]
+    impl MyStruct {
+        #[builder(visibility = "pub")]
+        fn new(param: usize) -> MyStruct {
+            Self { param }
+        }
+    }
+}
+
+fn main() {
+    let mine = foo::MyStruct::builder().param(2).build();
+    assert_eq!(mine.param, 2);
+}
+```
 
 ## TODO
 * Better error messages.
