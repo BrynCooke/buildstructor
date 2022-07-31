@@ -2,10 +2,11 @@
 extern crate core;
 
 use proc_macro::TokenStream;
+use proc_macro2::Ident;
 use quote::{format_ident, ToTokens};
-use syn::ImplItem;
 use syn::__private::TokenStream2;
-
+use syn::spanned::Spanned;
+use syn::{parse2, Data, DeriveInput, ImplItem};
 mod buildstructor;
 use crate::buildstructor::analyze;
 use crate::buildstructor::codegen;
@@ -55,6 +56,11 @@ pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
 )]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
     do_buildstructor(true, attr, item)
+}
+
+#[proc_macro_derive(Builder)]
+pub fn derive_builder(item: TokenStream) -> TokenStream {
+    do_derive(item)
 }
 
 fn do_buildstructor(
@@ -117,4 +123,46 @@ fn sanitize(ast: &mut Ast) {
                 .retain(|a| a.path.get_ident() != Some(&format_ident!("builder")));
         }
     });
+}
+
+pub(crate) fn do_derive(item: TokenStream) -> TokenStream {
+    let input: DeriveInput = parse2(item.into()).unwrap();
+    let vis = &input.vis.to_token_stream().to_string();
+    let self_ty = &input.ident;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
+    if let Data::Struct(s) = &input.data {
+        let parameters: Vec<TokenStream2> = s
+            .fields
+            .iter()
+            .map(|f| {
+                let name = &f.ident;
+                let ty = &f.ty;
+                quote::quote! {
+                    #name : #ty
+                }
+            })
+            .collect();
+
+        let fields: Vec<&Option<Ident>> = s.fields.iter().map(|f| &f.ident).collect();
+
+        quote::quote! {
+            #[buildstructor::buildstructor]
+            impl #impl_generics #self_ty #ty_generics #where_clause {
+                #[builder(visibility=#vis)]
+                fn new(
+                    #(#parameters),*
+                )->#self_ty #ty_generics{
+                    Self {
+                        #(#fields),*
+                    }
+                }
+            }
+
+        }
+        .into()
+    } else {
+        syn::Error::new(input.span(), "derive(Builder) can only be used on structs")
+            .into_compile_error()
+            .into()
+    }
 }

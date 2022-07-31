@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## 0.3.3 - Unreleased
+
+[#69](https://github.com/BrynCooke/buildstructor/issues/69)
+Add the ability to override the visibility of generated builder.
+
+```rust
+#[derive(buildstructor::Builder)]
+pub struct MyStruct {
+    simple: usize,
+}
+```
+
+The generated constructor will have private visibility and the builder will be public.
+
 [#70](https://github.com/BrynCooke/buildstructor/issues/70)
 Add the ability to override the visibility of generated builder.
 
@@ -19,7 +32,7 @@ This does not require any unsafe code!
 [#60](https://github.com/BrynCooke/buildstructor/issues/55)
 Fix impl with concrete types in generics where self is used in the return type.
 
-```
+```rust
 #[buildstructor]
 impl Foo<usize> {
     #[builder]
@@ -36,7 +49,7 @@ Previously the generated builder method was not including concrete generic type.
 [#60](https://github.com/BrynCooke/buildstructor/issues/55)
 Fix impl with concrete types in generics.
 
-```
+```rust
 #[buildstructor]
 impl Foo<usize> {
     #[builder]
