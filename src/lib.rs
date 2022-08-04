@@ -16,7 +16,7 @@ use crate::parse::Ast;
 
 /// Derive a builder from a constructor!
 ///
-/// 1. Import the `builder` macro.
+/// 1. Import the `buildstructor` macro.
 /// 2. Annotate your `impl` containing a `new` function.
 /// 3. Use your automatically derived builder.
 ///
@@ -58,6 +58,29 @@ pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
     do_buildstructor(true, attr, item)
 }
 
+/// Derive a builder AND a constructor!
+///
+/// 1. Import the `Builder` macro.
+/// 2. Use your automatically derived builder.
+///
+/// TLDR: Write your Rust constructors as you would normally, and get a generated builder.
+///
+/// # Examples
+///
+/// ```rust
+/// use buildstructor::Builder;
+///
+/// #[derive(Builder)]
+/// struct MyStruct {
+///     sum: usize,
+/// }
+///
+/// # #[allow(clippy::needless_doctest_main)]
+/// # fn main() {
+///   let mine = MyStruct::builder().sum(3).build();
+///   assert_eq!(mine.sum, 3);
+/// # }
+/// ```
 #[proc_macro_derive(Builder)]
 pub fn derive_builder(item: TokenStream) -> TokenStream {
     do_derive(item)
