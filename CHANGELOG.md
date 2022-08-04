@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.5.0 - 2022-08-04
 
+[81](https://github.com/BrynCooke/buildstructor/issues/81)
+Fix derive builder when used with module level visibility.
+
 [77](https://github.com/BrynCooke/buildstructor/issues/77)
 Remove validation of visibility specifier.****
 

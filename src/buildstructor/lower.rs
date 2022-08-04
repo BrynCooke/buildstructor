@@ -139,7 +139,11 @@ fn builder_visibility(
 ) -> Result<Visibility> {
     // Either visibility is set explicitly or we default to super.
     Ok(if let Some(visibility) = &model.config.visibility {
-        syn::parse_str(visibility)?
+        if visibility.trim().is_empty() {
+            default.clone()
+        } else {
+            syn::parse_str(visibility)?
+        }
     } else if let Visibility::Inherited = model.vis {
         default.clone()
     } else {
