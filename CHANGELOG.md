@@ -6,13 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.5.0 - 2022-08-05
 
-[81](https://github.com/BrynCooke/buildstructor/issues/81)
+[#81](https://github.com/BrynCooke/buildstructor/issues/81)
 Fix derive builder when used with module level visibility.
 
-[77](https://github.com/BrynCooke/buildstructor/issues/77)
+[#77](https://github.com/BrynCooke/buildstructor/issues/77)
 Remove validation of visibility specifier.
 
-[74](https://github.com/BrynCooke/buildstructor/issues/74)
+[#74](https://github.com/BrynCooke/buildstructor/issues/74)
 Automatically add `#[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]` to functions annotated with `#[builder]`.
 
 ## 0.4.0 - 2022-07-31
