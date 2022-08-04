@@ -4,7 +4,7 @@ use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 use std::default::Default;
 use syn::punctuated::Punctuated;
-use syn::{Attribute, TypeReference, VisPublic};
+use syn::{Attribute, TypeReference};
 use syn::{
     Expr, ExprField, FnArg, GenericArgument, GenericParam, Generics, Index, Member, Pat,
     PathArguments, Receiver, Result, ReturnType, Type, TypeParam, TypeTuple, VisRestricted,
@@ -53,7 +53,7 @@ pub enum FieldType {
 
 pub fn lower(model: BuilderModel) -> Result<Ir> {
     // Either visibility is set explicitly or we default to super.
-    let vis = builder_visibility(&model, &model.vis, &model.vis);
+    let vis = builder_visibility(&model, &model.vis, &model.vis)?;
     let builder_vis = builder_visibility(
         &model,
         &model.vis,
@@ -63,7 +63,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
             in_token: None,
             path: Box::new(format_ident!("super").to_path()),
         }),
-    );
+    )?;
     let receiver = receiver(&model);
     Ok(Ir {
         vis,
@@ -136,28 +136,15 @@ fn builder_visibility(
     model: &BuilderModel,
     visibility: &Visibility,
     default: &Visibility,
-) -> Visibility {
+) -> Result<Visibility> {
     // Either visibility is set explicitly or we default to super.
-    if let Some(visibility) = &model.config.visibility {
-        if visibility == "pub" {
-            Visibility::Public(VisPublic {
-                pub_token: Default::default(),
-            })
-        } else if visibility == "pub (crate)" {
-            Visibility::Restricted(VisRestricted {
-                pub_token: Default::default(),
-                paren_token: Default::default(),
-                in_token: None,
-                path: Box::new(format_ident!("crate").to_path()),
-            })
-        } else {
-            panic!("should have already validated visibility");
-        }
+    Ok(if let Some(visibility) = &model.config.visibility {
+        syn::parse_str(visibility)?
     } else if let Visibility::Inherited = model.vis {
         default.clone()
     } else {
         visibility.clone()
-    }
+    })
 }
 
 fn builder_return_type(return_type: &ReturnType, target: &Type) -> ReturnType {
