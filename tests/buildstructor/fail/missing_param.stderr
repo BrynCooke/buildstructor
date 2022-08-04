@@ -13,3 +13,12 @@ error[E0599]: the method `build` exists for struct `__FooBuilder<(__Required<Str
     = note: the following trait bounds were not satisfied:
             `__Required<String>: Into<__Set<String>>`
 note: the following trait must be implemented
+   --> $RUST/core/src/convert/mod.rs
+    |
+    | / pub trait Into<T>: Sized {
+    | |     /// Converts this type into the (usually inferred) input type.
+    | |     #[must_use]
+    | |     #[stable(feature = "rust1", since = "1.0.0")]
+    | |     fn into(self) -> T;
+    | | }
+    | |_^

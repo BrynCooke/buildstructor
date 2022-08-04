@@ -6,7 +6,7 @@ use proc_macro2::Ident;
 use quote::{format_ident, ToTokens};
 use syn::__private::TokenStream2;
 use syn::spanned::Spanned;
-use syn::{parse2, Data, DeriveInput, ImplItem};
+use syn::{parse2, parse_quote, Attribute, Data, DeriveInput, ImplItem};
 mod buildstructor;
 use crate::buildstructor::analyze;
 use crate::buildstructor::codegen;
@@ -101,6 +101,9 @@ fn do_buildstructor(
                     }
                 };
 
+            // Relax clippy on constructors
+            allow_many_params(&mut ast);
+
             // Now sanitize the AST of any helper attributes.
             sanitize(&mut ast);
 
@@ -114,6 +117,21 @@ fn do_buildstructor(
             TokenStream::from_iter([item, e.into()])
         }
     }
+}
+
+fn allow_many_params(ast: &mut Ast) {
+    let allow_params: Attribute =
+        parse_quote!(#[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]);
+    ast.item.items.iter_mut().for_each(|item| {
+        if let ImplItem::Method(m) = item {
+            if m.attrs
+                .iter()
+                .any(|attr| attr.path.get_ident() == Some(&format_ident!("builder")))
+            {
+                m.attrs.push(allow_params.clone())
+            }
+        }
+    });
 }
 
 fn sanitize(ast: &mut Ast) {
