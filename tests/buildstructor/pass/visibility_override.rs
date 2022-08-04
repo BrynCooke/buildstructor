@@ -9,7 +9,7 @@ mod sub1 {
 
     #[buildstructor::buildstructor]
     impl Foo {
-        #[builder(visibility = "pub (crate)")]
+        #[builder(visibility = "pub(crate)")]
         fn new(simple: Bar1) -> Self {
             Self { simple }
         }

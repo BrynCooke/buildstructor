@@ -90,12 +90,6 @@ impl TryFrom<&Attribute> for BuilderConfig {
                 }
                 ("visibility", Lit::Str(value)) => {
                     let value = value.value();
-                    if value != "pub" && value != "pub (crate)" {
-                        return Err(syn::Error::new(
-                            value.span(),
-                            "invalid builder attribute value for 'visibility', allowed values are 'pub' or 'pub (crate)",
-                        ));
-                    }
                     config.visibility = Some(value);
                 }
                 _ => return Err(syn::Error::new(

@@ -355,9 +355,6 @@ There had to be some magic somewhere.
 ### Visibility
 
 Builders will automatically inherit the visibility of the method that they are decorating. However, if you want to override this then you can use the visibility.
-Valid values are :
-* `pub`
-* `pub (crate)`
 
 This is useful if you want Buildstructor builders to be the sole entry point for creating your struct.
 
