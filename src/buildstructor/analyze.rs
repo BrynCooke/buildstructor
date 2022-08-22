@@ -34,10 +34,10 @@ impl TryFrom<&Vec<Attribute>> for BuildstructorConfig {
                 .path
                 .get_ident()
                 .expect("config ident must be preset, qed");
-            return Err(syn::Error::new(
+            Err(syn::Error::new(
                 name_value.span(),
                 format!("invalid buildstructor attribute '{}'", name),
-            ));
+            ))
         }
 
         let mut config = BuildstructorConfig::default();
