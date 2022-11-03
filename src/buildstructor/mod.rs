@@ -337,4 +337,16 @@ mod tests {
             }
         )
     }
+
+    pub fn associated_types_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl<T: MyTrait> Foo<T> {
+                #[builder]
+                pub fn new(foo: T, bar: T::Bar) -> Foo<T> {
+                    Foo { foo, bar }
+                }
+            }
+        )
+    }
 }

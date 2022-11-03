@@ -2,8 +2,8 @@ use quote::format_ident;
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{
-    AngleBracketedGenericArguments, Expr, ExprPath, ExprTuple, GenericArgument, GenericParam,
-    Generics, Ident, Lifetime, Path, PathArguments, PathSegment, Token, TraitBound,
+    AngleBracketedGenericArguments, Constraint, Expr, ExprPath, ExprTuple, GenericArgument,
+    GenericParam, Generics, Ident, Lifetime, Path, PathArguments, PathSegment, Token, TraitBound,
     TraitBoundModifier, Type, TypeParam, TypeParamBound, TypePath, TypeTuple, WhereClause,
 };
 
@@ -60,6 +60,7 @@ impl IdentExt for Ident {
 pub trait GenericsExt {
     fn to_tuple_type(&self) -> TypeTuple;
     fn to_generic_args(&self) -> AngleBracketedGenericArguments;
+    fn to_generic_bounds(&self) -> AngleBracketedGenericArguments;
     fn to_expr_tuple(&self, populate: impl Fn(usize, &TypeParam) -> Expr) -> ExprTuple;
     fn without(self, idx: usize) -> Self;
     fn combine(generics: Vec<&Generics>) -> Generics;
@@ -87,6 +88,23 @@ impl GenericsExt for Generics {
                 GenericParam::Type(t) => {
                     Some(GenericArgument::Type(Type::Path(t.ident.to_type_path())))
                 }
+                GenericParam::Lifetime(l) => Some(GenericArgument::Lifetime(l.lifetime.clone())),
+                GenericParam::Const(_) => None,
+            })),
+            gt_token: Default::default(),
+        }
+    }
+
+    fn to_generic_bounds(&self) -> AngleBracketedGenericArguments {
+        AngleBracketedGenericArguments {
+            colon2_token: None,
+            lt_token: Default::default(),
+            args: Punctuated::from_iter(self.params.iter().filter_map(|p| match p {
+                GenericParam::Type(t) => Some(GenericArgument::Constraint(Constraint {
+                    ident: t.ident.clone(),
+                    bounds: t.bounds.clone(),
+                    colon_token: Default::default(),
+                })),
                 GenericParam::Lifetime(l) => Some(GenericArgument::Lifetime(l.lifetime.clone())),
                 GenericParam::Const(_) => None,
             })),

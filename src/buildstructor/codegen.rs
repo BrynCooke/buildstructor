@@ -72,7 +72,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
     let builder_init_generics = Generics::combine(vec![&ir.impl_generics, &ir.delegate_generics]);
     let builder_init_generic_args = builder_init_generics.to_generic_args().maybe();
     let builder_init_generic_args_with_lifetime = builder_init_generics
-        .to_generic_args()
+        .to_generic_bounds()
         .with_implicit_lifetime(ir.implicit_lifetime);
     let builder_init_generic_args_phantom = builder_init_generic_args.clone().map(|a| {
         let args: Punctuated<GenericArgument, Token![,]> =
@@ -158,6 +158,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         }
 
         #[doc=#type_doc]
+        #[allow(type_alias_bounds)]
         #vis type #builder_alias_name #builder_init_generic_args_with_lifetime = #module_name::#builder_name #builder_init_generic_args_with_state_with_lifetime;
 
         mod #module_name {
@@ -646,5 +647,10 @@ mod tests {
     #[test]
     fn specialization_self() {
         assert_codegen!(specialization_returns_self_test_case());
+    }
+
+    #[test]
+    fn associated_types() {
+        assert_codegen!(associated_types_test_case());
     }
 }

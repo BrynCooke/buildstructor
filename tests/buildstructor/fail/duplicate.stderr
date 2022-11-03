@@ -2,7 +2,7 @@ error[E0599]: no method named `simple` found for struct `__FooBuilder<(__Set<Str
   --> tests/buildstructor/fail/duplicate.rs:15:40
    |
 6  | #[buildstructor]
-   | ---------------- method `simple` not found for this
+   | ---------------- method `simple` not found for this struct
 ...
 15 |     let _ = Foo::builder().simple("3").simple("3").build();
    |                                        ^^^^^^ method not found in `__FooBuilder<(__Set<String>,)>`
