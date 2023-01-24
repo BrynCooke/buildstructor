@@ -6,11 +6,18 @@ pub struct Foo {
 /// Some other docs
 #[buildstructor]
 impl Foo {
-    ///Test docs
+    /// Test docs
     #[builder]
     fn new(simple: String) -> Foo {
         Self { simple }
     }
+}
+
+/// Some other docs
+#[derive(buildstructor::Builder)]
+pub struct Bar {
+    /// Test docs
+    simple: String,
 }
 
 fn main() {

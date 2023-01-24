@@ -12,6 +12,7 @@ use crate::buildstructor::analyze;
 use crate::buildstructor::codegen;
 use crate::buildstructor::lower;
 use crate::buildstructor::parse;
+use crate::buildstructor::utils::TypeExt;
 use crate::parse::Ast;
 
 /// Derive a builder from a constructor!
@@ -185,10 +186,44 @@ pub(crate) fn do_derive(item: TokenStream) -> TokenStream {
             .collect();
 
         let fields: Vec<&Option<Ident>> = s.fields.iter().map(|f| &f.ident).collect();
+        let arguments_doc = s
+            .fields
+            .iter()
+            .map(|f| {
+                format!(
+                    "* `{}`: {}{}",
+                    f.ident.as_ref().map(|i| i.to_string()).unwrap_or_default(),
+                    f.attrs
+                        .iter()
+                        .filter(|a| a.path.get_ident() == Some(&format_ident!("doc")))
+                        .map(|a| {
+                            let doc = a.tokens.to_string();
+                            let trimmed = doc[doc.find('\"').unwrap_or_default() + 1
+                                ..doc.rfind('\"').unwrap_or(doc.len())]
+                                .trim()
+                                .to_string();
+                            trimmed
+                        })
+                        .collect::<Vec<_>>()
+                        .join("\n"),
+                    if f.ty.raw_ident() == Some(format_ident!("Option")) {
+                        " (optional)"
+                    } else {
+                        ""
+                    }
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+        let constructor_doc = format!(
+            "Create a new {}\n\n # Arguments\n\n{}",
+            input.ident, arguments_doc
+        );
 
         quote::quote! {
             #[buildstructor::buildstructor]
             impl #impl_generics #self_ty #ty_generics #where_clause {
+                #[doc=#constructor_doc]
                 #[builder(visibility=#vis)]
                 fn new(
                     #(#parameters),*

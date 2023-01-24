@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.6.0**** - Unreleased
+[#103](https://github.com/BrynCooke/buildstructor/issues/103)
+Add docs to generated new when using `#[derive(Builder]`.
+
 ## 0.5.1 - 2022-11-03
 [#96](https://github.com/BrynCooke/buildstructor/issues/96)
 Fix associated type parameters:
