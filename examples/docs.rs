@@ -1,5 +1,8 @@
+#![warn(missing_docs)]
+//! Doc
 use buildstructor::buildstructor;
 
+/// Doc
 pub struct Single {
     simple1: usize,
     simple2: usize,
@@ -24,7 +27,7 @@ impl Single {
     ///
     /// ```
     #[builder]
-    fn new(simple1: usize, simple2: usize) -> Single {
+    pub fn new(simple1: usize, simple2: usize) -> Single {
         Self { simple1, simple2 }
     }
 }
