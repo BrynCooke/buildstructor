@@ -185,7 +185,7 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
         .filter_map(|f| match f {
             FnArg::Typed(t) => {
                 let ident = try_match!(&*t.pat, Pat::Ident(x)=>x).ok()?;
-                let field_type = field_type(&*t.ty);
+                let field_type = field_type(&t.ty);
 
                 let generic_types = generic_types(model, &field_type, &t.ty);
 
