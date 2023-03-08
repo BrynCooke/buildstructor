@@ -27,6 +27,6 @@ trybuild = "~1.0"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 insta = "1.26.0"
 prettyplease = "0.1.24"
-http = "0.2.8"
+http = "0.2.9"
 derive_more = "0.99.17"
 multimap = "0.8.3"
