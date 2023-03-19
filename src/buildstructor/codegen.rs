@@ -6,8 +6,8 @@ use proc_macro2::{Ident, Span, TokenStream};
 use quote::{format_ident, quote};
 use syn::punctuated::Punctuated;
 use syn::{
-    Expr, ExprCall, GenericArgument, GenericParam, Generics, Index, Lifetime, LifetimeDef, Result,
-    Token, Type, TypeReference, TypeTuple, WhereClause,
+    Expr, ExprCall, GenericArgument, GenericParam, Generics, Index, Lifetime, LifetimeParam,
+    Result, Token, Type, TypeReference, TypeTuple, WhereClause,
 };
 extern crate inflector;
 use inflector::Inflector;
@@ -37,7 +37,7 @@ pub fn codegen(ir: Ir) -> Result<TokenStream> {
         params: builder_lifetime
             .as_ref()
             .map(|l| {
-                Punctuated::from_iter(vec![GenericParam::Lifetime(LifetimeDef::new(l.clone()))])
+                Punctuated::from_iter(vec![GenericParam::Lifetime(LifetimeParam::new(l.clone()))])
             })
             .unwrap_or_default(),
         ..Default::default()
@@ -522,16 +522,15 @@ mod tests {
 
     macro_rules! assert_codegen {
         ($input:expr) => {
+            use rust_format::Formatter;
             let models = analyze(false, &$input).expect("Analysis failed");
             for model in models {
                 let ir = lower(model.expect("Analysis failed")).expect("Ir failed");
                 if let Ok(codegen) = codegen(ir) {
-                    if let Ok(new_ast) = syn::parse2(codegen.clone()) {
-                        let output = prettyplease::unparse(&new_ast);
-                        insta::assert_snapshot!(output);
-                    } else {
-                        panic!("Failed to generate valid code:\n{}", codegen);
-                    }
+                    let output = rust_format::RustFmt::default()
+                        .format_str(codegen.to_string())
+                        .unwrap();
+                    insta::assert_snapshot!(output);
                 } else {
                     panic!("Failed generate code");
                 }

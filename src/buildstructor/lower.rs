@@ -116,7 +116,7 @@ fn extract_docs(attributes: &[Attribute]) -> Vec<Attribute> {
     let doc_ident = format_ident!("doc");
     attributes
         .iter()
-        .filter(|a| a.path.get_ident() == Some(&doc_ident))
+        .filter(|a| a.path().get_ident() == Some(&doc_ident))
         .cloned()
         .collect()
 }

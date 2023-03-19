@@ -1,11 +1,11 @@
 error: #[builder(entry = "<name>")] cannot be defaulted for 'fn hmm' and must be specified via annotation
- --> tests/buildstructor/fail/unknown_naming.rs:8:5
+ --> tests/buildstructor/fail/unknown_naming.rs:9:8
   |
-8 |     #[builder]
-  |     ^
+9 |     fn hmm() -> Exchange {
+  |        ^^^
 
 error: #[builder(entry = "<name>")] cannot be defaulted for 'fn do_phone_call' and must be specified via annotation
-  --> tests/buildstructor/fail/unknown_naming.rs:14:5
+  --> tests/buildstructor/fail/unknown_naming.rs:15:8
    |
-14 |     #[builder]
-   |     ^
+15 |     fn do_phone_call(&self, _number: String) {}
+   |        ^^^^^^^^^^^^^

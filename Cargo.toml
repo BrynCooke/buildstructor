@@ -17,7 +17,7 @@ proc-macro = true
 lazy_static = "1.4.0"
 proc-macro2 = "~1.0.52"
 quote = "~1.0.26"
-syn = { version = "~1.0.109", features = ["full", "extra-traits"] }
+syn = { version = "~2.0", features = ["full", "extra-traits"] }
 thiserror = "1.0.40"
 try_match = "0.3.0"
 str_inflector = "0.12.0"
@@ -26,7 +26,7 @@ str_inflector = "0.12.0"
 trybuild = "~1.0.79"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 insta = "1.28.0"
-prettyplease = "0.1.25"
+rust-format = "0.3.4"
 http = "0.2.9"
 derive_more = "0.99.17"
 multimap = "0.8.3"

@@ -103,6 +103,7 @@ impl GenericsExt for Generics {
                     ident: t.ident.clone(),
                     bounds: t.bounds.clone(),
                     colon_token: Default::default(),
+                    generics: None,
                 })),
                 GenericParam::Lifetime(l) => Some(GenericArgument::Lifetime(l.lifetime.clone())),
                 GenericParam::Const(_) => None,

@@ -1,10 +1,11 @@
 use crate::buildstructor::utils::TypeExt;
 use proc_macro2::Span;
 use quote::format_ident;
+use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::{
-    Attribute, FnArg, Generics, Ident, ImplItem, ImplItemMethod, ItemImpl, Lit, Meta,
-    MetaNameValue, NestedMeta, Result, ReturnType, Type, Visibility,
+    Attribute, Expr, ExprLit, FnArg, Generics, Ident, ImplItem, ImplItemFn, ItemImpl, Lit, Meta,
+    MetaNameValue, Result, ReturnType, Token, Type, Visibility,
 };
 
 use crate::parse::Ast;
@@ -25,41 +26,9 @@ pub struct BuilderModel {
 #[derive(Debug, Clone, Default)]
 pub struct BuildstructorConfig {}
 
-impl TryFrom<&Vec<Attribute>> for BuildstructorConfig {
-    type Error = syn::Error;
-
-    fn try_from(attributes: &Vec<Attribute>) -> std::result::Result<Self, Self::Error> {
-        fn apply(_config: &mut BuildstructorConfig, name_value: &MetaNameValue) -> Result<()> {
-            let name = name_value
-                .path
-                .get_ident()
-                .expect("config ident must be preset, qed");
-            Err(syn::Error::new(
-                name_value.span(),
-                format!("invalid buildstructor attribute '{}'", name),
-            ))
-        }
-
-        let mut config = BuildstructorConfig::default();
-        for attribute in attributes {
-            if attribute.path.get_ident() == Some(&format_ident!("buildstructor")) {
-                match attribute.parse_meta()? {
-                    Meta::List(l) => {
-                        for nested in l.nested {
-                            if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested {
-                                apply(&mut config, &name_value)?;
-                            }
-                        }
-                    }
-                    Meta::NameValue(name_value) => {
-                        let mut config = BuildstructorConfig::default();
-                        apply(&mut config, &name_value)?;
-                    }
-                    _ => {}
-                }
-            }
-        }
-        Ok(config)
+impl Parse for BuildstructorConfig {
+    fn parse(_input: ParseStream) -> Result<Self> {
+        Ok(BuildstructorConfig::default())
     }
 }
 
@@ -70,25 +39,26 @@ pub struct BuilderConfig {
     pub span: Option<Span>,
     pub visibility: Option<String>,
 }
-
-impl TryFrom<&Attribute> for BuilderConfig {
-    type Error = syn::Error;
-
-    fn try_from(value: &Attribute) -> std::result::Result<Self, Self::Error> {
-        fn apply(config: &mut BuilderConfig, name_value: &MetaNameValue) -> Result<()> {
+impl Parse for BuilderConfig {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let mut config = BuilderConfig {
+            span: Some(input.span()),
+            ..Default::default()
+        };
+        for name_value in input.parse_terminated(MetaNameValue::parse, Token![,])? {
             let name = name_value
                 .path
                 .get_ident()
                 .expect("config ident must be preset, qed");
-            let value = &name_value.lit;
+            let value = &name_value.value;
             match (name.to_string().as_str(), value) {
-                ("entry", Lit::Str(value)) => {
+                ("entry", Expr::Lit(ExprLit{lit:Lit::Str(value), ..})) => {
                     config.entry = Some(value.value());
                 }
-                ("exit", Lit::Str(value)) => {
+                ("exit", Expr::Lit(ExprLit{lit:Lit::Str(value), ..})) => {
                     config.exit = Some(value.value());
                 }
-                ("visibility", Lit::Str(value)) => {
+                ("visibility", Expr::Lit(ExprLit{lit:Lit::Str(value), ..})) => {
                     let value = value.value();
                     config.visibility = Some(value);
                 }
@@ -97,32 +67,13 @@ impl TryFrom<&Attribute> for BuilderConfig {
                     format!("invalid builder attribute '{}', only 'entry', 'exit' and 'visibility' are allowed and their type must be string", name),
                 )),
             }
-            Ok(())
         }
 
-        let mut config = BuilderConfig {
-            span: Some(value.span()),
-            ..Default::default()
-        };
-        match value.parse_meta()? {
-            Meta::Path(_) => {}
-            Meta::List(l) => {
-                for nested in l.nested {
-                    if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested {
-                        apply(&mut config, &name_value)?;
-                    }
-                }
-            }
-            Meta::NameValue(name_value) => {
-                apply(&mut config, &name_value)?;
-            }
-        }
         Ok(config)
     }
 }
 
 pub fn analyze(legacy_default_builders: bool, ast: &Ast) -> Result<Vec<Result<BuilderModel>>> {
-    let _buildstructor_config: BuildstructorConfig = (&ast.attributes).try_into()?;
     let methods = get_eligible_methods(&ast.item, legacy_default_builders);
     let ident = ast
         .item
@@ -154,18 +105,23 @@ pub fn analyze(legacy_default_builders: bool, ast: &Ast) -> Result<Vec<Result<Bu
 fn get_eligible_methods(
     item: &ItemImpl,
     default_builders: bool,
-) -> Vec<(&ImplItemMethod, Result<BuilderConfig>)> {
+) -> Vec<(&ImplItemFn, Result<BuilderConfig>)> {
     item.items
         .iter()
         .filter_map(|item| {
             let builder_attr = Some(format_ident!("builder"));
-            if let ImplItem::Method(method) = item {
+            if let ImplItem::Fn(method) = item {
                 if let Some(attr) = method
                     .attrs
                     .iter()
-                    .find(|attr| attr.path.get_ident() == builder_attr.as_ref())
+                    .find(|attr| attr.path().get_ident() == builder_attr.as_ref())
                 {
-                    return Some((method, attr.try_into()));
+                    return Some((method, {
+                        match attr.meta {
+                            Meta::List(_) => attr.parse_args(),
+                            _ => Ok(BuilderConfig::default()),
+                        }
+                    }));
                 } else if default_builders {
                     // If the method doesn't have a receiver and it matches the new pattern.
                     let method_name = method.sig.ident.to_string();

@@ -6,9 +6,10 @@ use proc_macro2::Ident;
 use quote::{format_ident, ToTokens};
 use syn::__private::TokenStream2;
 use syn::spanned::Spanned;
-use syn::{parse2, parse_quote, Attribute, Data, DeriveInput, ImplItem};
+use syn::{parse2, parse_macro_input, parse_quote, Attribute, Data, DeriveInput, ImplItem};
 mod buildstructor;
 use crate::buildstructor::analyze;
+use crate::buildstructor::analyze::BuildstructorConfig;
 use crate::buildstructor::codegen;
 use crate::buildstructor::lower;
 use crate::buildstructor::parse;
@@ -46,8 +47,9 @@ use crate::parse::Ast;
 /// # }
 /// ```
 #[proc_macro_attribute]
-pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
-    do_buildstructor(false, attr, item)
+pub fn buildstructor(args: TokenStream, item: TokenStream) -> TokenStream {
+    let config = parse_macro_input!(args as BuildstructorConfig);
+    do_buildstructor(false, config, item)
 }
 
 #[proc_macro_attribute]
@@ -55,8 +57,8 @@ pub fn buildstructor(attr: TokenStream, item: TokenStream) -> TokenStream {
     since = "0.2.0",
     note = "#[buildstructor::builder] should be migrated to #[buildstructor::buildstructor] and individual methods annotated with #[builder]"
 )]
-pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
-    do_buildstructor(true, attr, item)
+pub fn builder(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    do_buildstructor(true, BuildstructorConfig::default(), item)
 }
 
 /// Derive a builder AND a constructor!
@@ -89,14 +91,10 @@ pub fn derive_builder(item: TokenStream) -> TokenStream {
 
 fn do_buildstructor(
     legacy_default_builders: bool,
-    attr: TokenStream,
+    _config: BuildstructorConfig,
     item: TokenStream,
 ) -> TokenStream {
-    let attr: proc_macro2::TokenStream = attr.into();
-    let attr = quote::quote! {#[buildstructor(#attr)]};
-    match parse::parse(TokenStream::from_iter(vec![attr.into(), item.clone()]).into())
-        .map_err(|e| e.into_compile_error())
-    {
+    match parse::parse(item.clone().into()).map_err(|e| e.into_compile_error()) {
         Ok(mut ast) => {
             // We have the AST, we can return the token stream regardless of if there was success or not as long as we sanitize it of helper attributes.
             let mut results: Vec<proc_macro::TokenStream> =
@@ -147,10 +145,10 @@ fn allow_many_params(ast: &mut Ast) {
     let allow_params: Attribute =
         parse_quote!(#[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]);
     ast.item.items.iter_mut().for_each(|item| {
-        if let ImplItem::Method(m) = item {
+        if let ImplItem::Fn(m) = item {
             if m.attrs
                 .iter()
-                .any(|attr| attr.path.get_ident() == Some(&format_ident!("builder")))
+                .any(|attr| attr.path().get_ident() == Some(&format_ident!("builder")))
             {
                 m.attrs.push(allow_params.clone())
             }
@@ -160,9 +158,9 @@ fn allow_many_params(ast: &mut Ast) {
 
 fn sanitize(ast: &mut Ast) {
     ast.item.items.iter_mut().for_each(|item| {
-        if let ImplItem::Method(m) = item {
+        if let ImplItem::Fn(m) = item {
             m.attrs
-                .retain(|a| a.path.get_ident() != Some(&format_ident!("builder")));
+                .retain(|a| a.path().get_ident() != Some(&format_ident!("builder")));
         }
     });
 }
@@ -195,9 +193,9 @@ pub(crate) fn do_derive(item: TokenStream) -> TokenStream {
                     f.ident.as_ref().map(|i| i.to_string()).unwrap_or_default(),
                     f.attrs
                         .iter()
-                        .filter(|a| a.path.get_ident() == Some(&format_ident!("doc")))
+                        .filter(|a| a.path().get_ident() == Some(&format_ident!("doc")))
                         .map(|a| {
-                            let doc = a.tokens.to_string();
+                            let doc = a.to_token_stream().to_string();
                             let trimmed = doc[doc.find('\"').unwrap_or_default() + 1
                                 ..doc.rfind('\"').unwrap_or(doc.len())]
                                 .trim()
