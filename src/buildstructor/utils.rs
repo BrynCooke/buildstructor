@@ -73,7 +73,6 @@ impl GenericsExt for Generics {
             paren_token: Default::default(),
             elems: Punctuated::from_iter(
                 self.type_params()
-                    .into_iter()
                     .map(|t| Type::Path(t.ident.to_type_path())),
             )
             .with_trailing(),
@@ -118,7 +117,6 @@ impl GenericsExt for Generics {
             paren_token: Default::default(),
             elems: Punctuated::from_iter(
                 self.type_params()
-                    .into_iter()
                     .enumerate()
                     .map(|(idx, ty)| (populate)(idx, ty)),
             )
