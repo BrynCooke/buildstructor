@@ -15,7 +15,7 @@ proc-macro = true
 
 [dependencies]
 lazy_static = "1.4.0"
-proc-macro2 = "~1.0.54"
+proc-macro2 = "~1.0.56"
 quote = "~1.0.26"
 syn = { version = "~2.0.12", features = ["full", "extra-traits"] }
 thiserror = "1.0.40"
