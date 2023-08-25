@@ -1,5 +1,4 @@
 use crate::analyze::BuilderModel;
-use crate::buildstructor::analyze::BuilderConfig;
 use crate::buildstructor::utils::{IdentExt, PunctuatedExt, TypeExt};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};

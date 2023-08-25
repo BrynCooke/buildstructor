@@ -1,0 +1,14 @@
+error: invalid builder attribute 'unknown', only 'entry' (string), 'exit' (string), 'visibility' (string) and 'with_into' (bool) are allowed
+ --> tests/buildstructor/fail/unknown_builder_config.rs:8:25
+  |
+8 |     #[builder(unknown = "unknown")]
+  |                         ^^^^^^^^^
+
+error[E0599]: no function or associated item named `builder` found for struct `Foo` in the current scope
+  --> tests/buildstructor/fail/unknown_builder_config.rs:15:18
+   |
+2  | pub struct Foo {
+   | -------------- function or associated item `builder` not found for this struct
+...
+15 |     let _ = Foo::builder().simple("foo").build();
+   |                  ^^^^^^^ function or associated item not found in `Foo`
