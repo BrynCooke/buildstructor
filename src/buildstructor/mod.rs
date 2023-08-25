@@ -112,6 +112,18 @@ mod tests {
         )
     }
 
+    pub fn string_without_implicit_into_test_case() -> Ast {
+        parse_quote!(
+            #[buildstructor]
+            impl Foo {
+                #[builder(with_into = false)]
+                pub fn new(foo: String) -> Self {
+                    Foo { foo }
+                }
+            }
+        )
+    }
+
     pub fn option_test_case() -> Ast {
         parse_quote!(
             #[buildstructor]

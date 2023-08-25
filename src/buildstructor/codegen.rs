@@ -652,4 +652,9 @@ mod tests {
     fn associated_types() {
         assert_codegen!(associated_types_test_case());
     }
+
+    #[test]
+    fn string_without_implicit_into() {
+        assert_codegen!(string_without_implicit_into_test_case());
+    }
 }

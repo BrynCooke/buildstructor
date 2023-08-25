@@ -38,6 +38,12 @@ pub struct BuilderConfig {
     pub exit: Option<String>,
     pub span: Option<Span>,
     pub visibility: Option<String>,
+    pub with_into: Option<bool>,
+}
+impl BuilderConfig {
+    pub(crate) fn with_into(&self) -> bool {
+        self.with_into.unwrap_or(true)
+    }
 }
 impl Parse for BuilderConfig {
     fn parse(input: ParseStream) -> Result<Self> {
@@ -62,9 +68,12 @@ impl Parse for BuilderConfig {
                     let value = value.value();
                     config.visibility = Some(value);
                 }
+                ("with_into", Expr::Lit(ExprLit{lit:Lit::Bool(value), ..})) => {
+                    config.with_into = Some(value.value());
+                }
                 _ => return Err(syn::Error::new(
                     value.span(),
-                    format!("invalid builder attribute '{}', only 'entry', 'exit' and 'visibility' are allowed and their type must be string", name),
+                    format!("invalid builder attribute '{}', only 'entry' (string), 'exit' (string), 'visibility' (string) and 'with_into' (bool) are allowed", name),
                 )),
             }
         }

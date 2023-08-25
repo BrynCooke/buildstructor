@@ -1,4 +1,5 @@
 use crate::analyze::BuilderModel;
+use crate::buildstructor::analyze::BuilderConfig;
 use crate::buildstructor::utils::{IdentExt, PunctuatedExt, TypeExt};
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
@@ -189,8 +190,9 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
 
                 let generic_types = generic_types(model, &field_type, &t.ty);
 
-                let into =
-                    t.ty.is_into_capable(&model.impl_generics, &model.delegate_generics);
+                let into = model.config.with_into()
+                    && t.ty
+                        .is_into_capable(&model.impl_generics, &model.delegate_generics);
                 Some(BuilderField {
                     ty: *t.ty.clone(),
                     ty_into: into,
@@ -233,8 +235,8 @@ fn generic_types(model: &BuilderModel, field_type: &FieldType, ty: &Type) -> Gen
             None,
         ) => GenericTypes {
             generic_type: Some(collection_type.clone()),
-            generic_into: collection_type
-                .is_into_capable(&model.impl_generics, &model.delegate_generics),
+            generic_into: model.config.with_into()
+                && collection_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
             ..Default::default()
         },
         (
@@ -243,9 +245,11 @@ fn generic_types(model: &BuilderModel, field_type: &FieldType, ty: &Type) -> Gen
             Some(GenericArgument::Type(value_type)),
         ) => GenericTypes {
             key_type: Some(key_type.clone()),
-            key_into: key_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
+            key_into: model.config.with_into()
+                && key_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
             value_type: Some(value_type.clone()),
-            value_into: value_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
+            value_into: model.config.with_into()
+                && value_type.is_into_capable(&model.impl_generics, &model.delegate_generics),
             ..Default::default()
         },
         _ => GenericTypes::default(),
