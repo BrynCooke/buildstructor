@@ -15,15 +15,15 @@ proc-macro = true
 
 [dependencies]
 lazy_static = "1.4.0"
-proc-macro2 = "~1.0.64"
-quote = "~1.0.31"
-syn = { version = "~2.0.25", features = ["full", "extra-traits"] }
+proc-macro2 = "1.0.64"
+quote = "1.0.31"
+syn = { version = "2.0.25", features = ["full", "extra-traits"] }
 thiserror = "1.0.43"
 try_match = "0.4.1"
 str_inflector = "0.12.0"
 
 [dev-dependencies]
-trybuild = "~1.0.81"
+trybuild = "1.0.81"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 insta = "1.30.0"
 rust-format = "0.3.4"
