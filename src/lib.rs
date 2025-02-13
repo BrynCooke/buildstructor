@@ -142,8 +142,7 @@ fn do_buildstructor(
 }
 
 fn allow_many_params(ast: &mut Ast) {
-    let allow_params: Attribute =
-        parse_quote!(#[cfg_attr(feature = "cargo-clippy", allow(too_many_arguments))]);
+    let allow_params: Attribute = parse_quote!(#[allow(clippy::too_many_arguments)]);
     ast.item.items.iter_mut().for_each(|item| {
         if let ImplItem::Fn(m) = item {
             if m.attrs
