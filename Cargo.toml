@@ -1,6 +1,6 @@
 [package]
 name = "buildstructor"
-version = "0.5.4"
+version = "0.5.5"
 edition = "2021"
 authors = ["Bryn Cooke <bryncooke@gmail.com>"]
 license = "Apache-2.0"
@@ -14,11 +14,9 @@ keywords = ["derive", "macro", "builder", "constructor"]
 proc-macro = true
 
 [dependencies]
-lazy_static = "1.4.0"
 proc-macro2 = "1.0.66"
 quote = "1.0.33"
 syn = { version = "2.0.38", features = ["full", "extra-traits"] }
-thiserror = "1.0.49"
 try_match = "0.4.1"
 str_inflector = "0.12.0"
 
