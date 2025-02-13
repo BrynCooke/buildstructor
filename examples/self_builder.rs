@@ -31,14 +31,14 @@ impl Client {
 }
 
 fn main() {
-    Client::default().message().simple("3".to_string()).send();
-    Client::default().query().simple("3".to_string()).call();
+    Client.message().simple("3".to_string()).send();
+    Client.query().simple("3".to_string()).call();
 
-    let client = Client::default();
+    let client = Client;
     client.message_ref().simple("3".to_string()).send();
     client.query_ref().simple("3".to_string()).call();
 
-    let mut client = Client::default();
+    let mut client = Client;
     client.message_ref_mut().simple("3".to_string()).send();
     client.query_ref_mut().simple("3".to_string()).call();
 }

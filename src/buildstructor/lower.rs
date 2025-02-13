@@ -93,7 +93,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
 
 // If the first parameter of a function is a reference it will have an implicit lifetime.
 fn implicit_lifetime(model: &BuilderModel) -> bool {
-    match model.delegate_args.get(0) {
+    match model.delegate_args.first() {
         None => {}
         Some(arg) => match arg {
             FnArg::Receiver(Receiver {
