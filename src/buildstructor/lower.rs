@@ -39,7 +39,6 @@ pub struct BuilderField {
     pub ty: Type,
     pub ty_into: bool,
     pub generic_types: GenericTypes,
-    pub doc: Vec<Attribute>,
 }
 
 #[derive(Debug)]
@@ -93,7 +92,7 @@ pub fn lower(model: BuilderModel) -> Result<Ir> {
 
 // If the first parameter of a function is a reference it will have an implicit lifetime.
 fn implicit_lifetime(model: &BuilderModel) -> bool {
-    match model.delegate_args.get(0) {
+    match model.delegate_args.first() {
         None => {}
         Some(arg) => match arg {
             FnArg::Receiver(Receiver {
@@ -202,7 +201,6 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                         .unwrap_or_else(|| ident.ident.clone()),
                     field_type,
                     generic_types,
-                    doc: vec![],
                 })
             }
             FnArg::Receiver(_) => None,

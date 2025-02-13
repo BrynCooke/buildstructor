@@ -64,7 +64,6 @@ pub trait GenericsExt {
     fn to_expr_tuple(&self, populate: impl Fn(usize, &TypeParam) -> Expr) -> ExprTuple;
     fn without(self, idx: usize) -> Self;
     fn combine(generics: Vec<&Generics>) -> Generics;
-    fn add_bound(self, ident: &Ident, ty: &Type) -> Self;
 }
 
 impl GenericsExt for Generics {
@@ -153,24 +152,6 @@ impl GenericsExt for Generics {
             ),
             ..Default::default()
         }
-    }
-
-    fn add_bound(mut self, ident: &Ident, ty: &Type) -> Self {
-        if let Some(ty) = ty.to_path() {
-            self.params.iter_mut().for_each(|p| {
-                if let GenericParam::Type(t) = p {
-                    if t.ident == *ident {
-                        t.bounds.push(TypeParamBound::Trait(TraitBound {
-                            paren_token: None,
-                            modifier: TraitBoundModifier::None,
-                            lifetimes: None,
-                            path: ty.clone(),
-                        }));
-                    }
-                }
-            });
-        }
-        self
     }
 }
 
