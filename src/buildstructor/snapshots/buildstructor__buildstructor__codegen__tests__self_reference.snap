@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Client {
+    #[must_use]
     fn builder(&self) -> NewClientBuilder {
         __client_new_builder::new(self)
     }
@@ -13,6 +14,7 @@ type NewClientBuilder<'__a> = __client_new_builder::__ClientBuilder<'__a, ()>;
 mod __client_new_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub(super) fn new(receiver: &Client) -> __ClientBuilder<()> {
         __ClientBuilder {
             receiver,
@@ -63,4 +65,3 @@ mod __client_new_builder {
         }
     }
 }
-

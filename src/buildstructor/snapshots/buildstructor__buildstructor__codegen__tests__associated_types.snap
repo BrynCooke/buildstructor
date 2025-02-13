@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl<T: MyTrait> Foo<T> {
+    #[must_use]
     pub fn builder() -> NewFooBuilder<T> {
         __foo_new_builder::new()
     }
@@ -19,6 +20,7 @@ pub type NewFooBuilder<T: MyTrait> = __foo_new_builder::__FooBuilder<
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub fn new<T: MyTrait>() -> __FooBuilder<
         (
             __foo_new_builder::__Required<T>,
@@ -68,6 +70,7 @@ mod __foo_new_builder {
     }
     impl<__1, T: MyTrait> __FooBuilder<(__Required<T>, __1), T> {
         #[inline(always)]
+        #[must_use]
         pub fn foo(self, foo: T) -> __FooBuilder<(__Set<T>, __1), T> {
             let foo = foo;
             __FooBuilder {
@@ -78,6 +81,7 @@ mod __foo_new_builder {
     }
     impl<__0, T: MyTrait> __FooBuilder<(__0, __Required<T::Bar>), T> {
         #[inline(always)]
+        #[must_use]
         pub fn bar<__T: Into<T::Bar>>(self, bar: __T) -> __FooBuilder<(__0, __Set<T::Bar>), T> {
             let bar = bar.into();
             __FooBuilder {
@@ -93,4 +97,3 @@ mod __foo_new_builder {
         }
     }
 }
-
