@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Collections {
+    #[must_use]
     fn builder<K: Into<String> + Eq + Hash, V: Into<String>>() -> NewCollectionsBuilder<K, V> {
         __collections_new_builder::new()
     }
@@ -21,6 +22,7 @@ type NewCollectionsBuilder<K: Into<String> + Eq + Hash, V: Into<String>> =
 mod __collections_new_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>() -> __CollectionsBuilder<
         (
             __collections_new_builder::__Optional<HashMap<K, V>>,
@@ -73,6 +75,7 @@ mod __collections_new_builder {
         __CollectionsBuilder<(__Optional<HashMap<K, V>>, __1), K, V>
     {
         #[inline(always)]
+        #[must_use]
         pub(super) fn map(
             mut self,
             map: HashMap<K, V>,
@@ -85,6 +88,7 @@ mod __collections_new_builder {
             self
         }
         #[inline(always)]
+        #[must_use]
         pub(super) fn map_entry(
             mut self,
             key: K,
@@ -102,6 +106,7 @@ mod __collections_new_builder {
         __CollectionsBuilder<(__0, __Optional<HashSet<K>>), K, V>
     {
         #[inline(always)]
+        #[must_use]
         pub(super) fn set(
             mut self,
             set: HashSet<K>,
@@ -114,6 +119,7 @@ mod __collections_new_builder {
             self
         }
         #[inline(always)]
+        #[must_use]
         pub(super) fn set_entry(
             mut self,
             value: K,
@@ -139,4 +145,3 @@ mod __collections_new_builder {
         }
     }
 }
-

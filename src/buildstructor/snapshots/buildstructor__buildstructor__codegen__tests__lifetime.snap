@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl<'a> Foo<'a> {
+    #[must_use]
     fn builder() -> NewFooBuilder<'a> {
         __foo_new_builder::new()
     }
@@ -14,6 +15,7 @@ type NewFooBuilder<'a> =
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub(super) fn new<'a>() -> __FooBuilder<'a, (__foo_new_builder::__Required<&'a String>,)> {
         __FooBuilder {
             fields: (__required(),),
@@ -57,6 +59,7 @@ mod __foo_new_builder {
     }
     impl<'a> __FooBuilder<'a, (__Required<&'a String>,)> {
         #[inline(always)]
+        #[must_use]
         pub(super) fn simple(self, simple: &'a String) -> __FooBuilder<'a, (__Set<&'a String>,)> {
             let simple = simple;
             __FooBuilder {
@@ -72,4 +75,3 @@ mod __foo_new_builder {
         }
     }
 }
-
