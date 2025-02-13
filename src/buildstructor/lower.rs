@@ -39,7 +39,6 @@ pub struct BuilderField {
     pub ty: Type,
     pub ty_into: bool,
     pub generic_types: GenericTypes,
-    pub doc: Vec<Attribute>,
 }
 
 #[derive(Debug)]
@@ -202,7 +201,6 @@ fn builder_fields(model: &BuilderModel) -> Vec<BuilderField> {
                         .unwrap_or_else(|| ident.ident.clone()),
                     field_type,
                     generic_types,
-                    doc: vec![],
                 })
             }
             FnArg::Receiver(_) => None,

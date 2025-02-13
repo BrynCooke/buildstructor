@@ -42,13 +42,11 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mut mine = MyStruct::builder().a(2).b(3).build();
-    assert_eq!(mine.sum, 5);
-    
-    mine.more().c(1).d(2).add();
-    assert_eq!(mine.sum, 11);
-}
+let mut mine = MyStruct::builder().a(2).b(3).build();
+assert_eq!(mine.sum, 5);
+
+mine.more().c(1).d(2).add();
+assert_eq!(mine.sum, 11);
 ```
 
 ## Derive usage
@@ -62,10 +60,8 @@ pub struct MyStruct {
     simple: usize,
 }
 
-fn main() {
-    let mut mine = MyStruct::builder().simple(2).build();
-    assert_eq!(mine.simple, 2);
-}
+let mut mine = MyStruct::builder().simple(2).build();
+assert_eq!(mine.simple, 2);
 ```
 
 The generated constructor will have private visibility and the builder will match the visibility of the struct.
@@ -122,16 +118,14 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mine = MyStruct::builder().simple(2).build();
-    assert_eq!(mine.simple, 2);
+let mine = MyStruct::builder().simple(2).build();
+assert_eq!(mine.simple, 2);
 
-    let mine = MyStruct::try_builder().simple(2).build();
-    assert_eq!(mine.simple, 2);
+let mine = MyStruct::try_builder().simple(2).build();
+assert_eq!(mine.simple, 2);
 
-    let mine = MyStruct::random().simple(2).create();
-    assert_eq!(mine.simple, 2);
-}
+let mine = MyStruct::random().simple(2).create();
+assert_eq!(mine.simple, 2);
 ```
 
 ### Methods
@@ -165,15 +159,13 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    MyStruct::default().query().simple("3".to_string()).call(); // self
+MyStruct::default().query().simple("3".to_string()).call(); // self
 
-    let mine = MyStruct::default();
-    mine.query_ref().simple("3".to_string()).stop(); // &self
+let mine = MyStruct::default();
+mine.query_ref().simple("3".to_string()).stop(); // &self
 
-    let mut mine = MyStruct::default();
-    mine.query_ref_mut().simple("3".to_string()).go(); // &mut self
-}
+let mut mine = MyStruct::default();
+mine.query_ref_mut().simple("3".to_string()).go(); // &mut self
 ```
 
 ### Optional field
@@ -193,14 +185,12 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mine = MyStruct::builder().param(2).build();
-    assert_eq!(mine.param, 2);
-    let mine = MyStruct::builder().and_param(Some(2)).build();
-    assert_eq!(mine.param, 2);
-    let mine = MyStruct::builder().build();
-    assert_eq!(mine.param, 3);
-}
+let mine = MyStruct::builder().param(2).build();
+assert_eq!(mine.param, 2);
+let mine = MyStruct::builder().and_param(Some(2)).build();
+assert_eq!(mine.param, 2);
+let mine = MyStruct::builder().build();
+assert_eq!(mine.param, 3);
 ```
 
 Note that if a field is an `Option` or collection then if a user forgets to set it a compile error will be generated.
@@ -231,10 +221,8 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mine = MyStruct::builder().param("Hi").build();
-    assert_eq!(mine.param, "Hi");
-}
+let mine = MyStruct::builder().param("Hi").build();
+assert_eq!(mine.param, "Hi");
 ```
 
 ### Async
@@ -279,10 +267,8 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mine = MyStruct::builder().param(2).build().unwrap();
-    assert_eq!(mine.param, 2);
-}
+let mine = MyStruct::builder().param(2).build().unwrap();
+assert_eq!(mine.param, 2);
 ```
 
 ### Collections and maps
@@ -303,17 +289,15 @@ impl MyStruct {
     }
 }
 
-fn main() {
-    let mine = MyStruct::builder()
-        .address("Amsterdam".to_string())
-        .address("Fakenham")
-        .addresses(vec!["Norwich".to_string(), "Bristol".to_string()])
-        .build();
-    assert_eq!(mine.addresses, vec!["Amsterdam".to_string(), 
-                                    "Fakenham".to_string(), 
-                                    "Norwich".to_string(), 
-                                    "Bristol".to_string()]);
-}
+let mine = MyStruct::builder()
+    .address("Amsterdam".to_string())
+    .address("Fakenham")
+    .addresses(vec!["Norwich".to_string(), "Bristol".to_string()])
+    .build();
+assert_eq!(mine.addresses, vec!["Amsterdam".to_string(), 
+                                "Fakenham".to_string(), 
+                                "Norwich".to_string(), 
+                                "Bristol".to_string()]);
 ```
 
 #### Supported types
@@ -375,10 +359,8 @@ pub mod foo {
     }
 }
 
-fn main() {
-    let mine = foo::MyStruct::builder().param(2).build();
-    assert_eq!(mine.param, 2);
-}
+let mine = foo::MyStruct::builder().param(2).build();
+assert_eq!(mine.param, 2);
 ```
 
 

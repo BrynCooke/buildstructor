@@ -1,17 +1,15 @@
 use proc_macro2::TokenStream;
 use syn::parse::{Parse, ParseStream};
-use syn::{parse2, Attribute, ItemImpl, Result};
+use syn::{parse2, ItemImpl, Result};
 
 #[derive(Clone, Debug)]
 pub struct Ast {
-    pub attributes: Vec<Attribute>,
     pub item: ItemImpl,
 }
 
 impl Parse for Ast {
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(Ast {
-            attributes: input.call(Attribute::parse_outer)?,
             item: input.parse()?,
         })
     }
