@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Foo {
+    #[must_use]
     fn builder<K: Into<String> + Eq + Hash, V: Into<String>>() -> NewFooBuilder<K, V> {
         __foo_new_builder::new()
     }
@@ -14,6 +15,7 @@ type NewFooBuilder<K: Into<String> + Eq + Hash, V: Into<String>> =
 mod __foo_new_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub(super) fn new<K: Into<String> + Eq + Hash, V: Into<String>>(
     ) -> __FooBuilder<(__foo_new_builder::__Optional<HashMap<K, V>>,), K, V> {
         __FooBuilder {
@@ -60,6 +62,7 @@ mod __foo_new_builder {
         __FooBuilder<(__Optional<HashMap<K, V>>,), K, V>
     {
         #[inline(always)]
+        #[must_use]
         pub(super) fn param(
             mut self,
             param: HashMap<K, V>,
@@ -72,6 +75,7 @@ mod __foo_new_builder {
             self
         }
         #[inline(always)]
+        #[must_use]
         pub(super) fn param_entry(
             mut self,
             key: K,
@@ -94,4 +98,3 @@ mod __foo_new_builder {
         }
     }
 }
-

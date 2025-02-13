@@ -3,6 +3,7 @@ source: src/buildstructor/codegen.rs
 expression: output
 ---
 impl Client {
+    #[must_use]
     fn message_ref(&self) -> CallWithNoReturnRefClientBuilder {
         __client_call_with_no_return_ref_builder::new(self)
     }
@@ -17,6 +18,7 @@ type CallWithNoReturnRefClientBuilder<'__a> =
 mod __client_call_with_no_return_ref_builder {
     use super::*;
     #[inline(always)]
+    #[must_use]
     pub(super) fn new(
         receiver: &Client,
     ) -> __ClientBuilder<(__client_call_with_no_return_ref_builder::__Required<String>,)> {
@@ -64,6 +66,7 @@ mod __client_call_with_no_return_ref_builder {
     }
     impl<'__builder> __ClientBuilder<'__builder, (__Required<String>,)> {
         #[inline(always)]
+        #[must_use]
         pub(super) fn simple<__T: Into<String>>(
             self,
             simple: __T,
@@ -84,4 +87,3 @@ mod __client_call_with_no_return_ref_builder {
         }
     }
 }
-
